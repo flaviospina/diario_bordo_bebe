@@ -1,0 +1,15 @@
+# Segredos e ambiente
+.env
+
+# Conteúdo gerado em tempo de execução
+storage/fotos/*
+storage/thumbs/*
+storage/pdfs/*
+storage/exportacoes/*
+storage/logs/*
+storage/cache/*
+!storage/**/.gitkeep
+
+# Sistema operacional / editores
+.DS_Store
+Thumbs.db

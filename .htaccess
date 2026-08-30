@@ -1,0 +1,45 @@
+# ── Diário do Bebê ─────────────────────────────────────────────
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Sem RewriteBase fixo: a substituição relativa funciona por diretório,
+    # então o mesmo arquivo serve em subpasta (/diariobebe) e em domínio próprio.
+
+    # 1) Bloqueio de pastas internas e arquivos sensíveis
+    RewriteRule ^(app|config|database|storage|docs)(/|$) - [F,L]
+    RewriteRule (^|/)\.(env|git|htaccess) - [F,L]
+
+    # 2) Arquivos e diretórios reais passam direto (assets/, install/migrate.php)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # 3) Todo o resto cai no front controller
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Defesa em profundidade caso mod_rewrite esteja desativado
+<FilesMatch "^\.env">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "DENY"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), camera=(self), microphone=(self)"
+    # CSP e HSTS são emitidos pelo PHP (Resposta) para variar por ambiente.
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 30 days"
+    ExpiresByType application/javascript "access plus 30 days"
+    ExpiresByType image/png "access plus 30 days"
+    ExpiresByType image/webp "access plus 30 days"
+    ExpiresByType image/svg+xml "access plus 30 days"
+</IfModule>
+
+AddDefaultCharset UTF-8

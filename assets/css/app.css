@@ -1,0 +1,230 @@
+/* ============================================================
+   Diário do Bebê — estilos base (mobile-first)
+   Alvos de toque ≥ 48px; pensado para uso com uma mão.
+   ============================================================ */
+
+:root {
+    --cor-primaria: #2f6f6a;
+    --cor-primaria-escura: #24504c;
+    --cor-fundo: #f5f3ee;
+    --cor-superficie: #ffffff;
+    --cor-texto: #26302f;
+    --cor-texto-suave: #5c6b69;
+    --cor-borda: #dcd7cc;
+    --cor-erro: #b3261e;
+    --cor-erro-fundo: #fbe9e7;
+    --cor-sucesso: #1b6e3c;
+    --cor-sucesso-fundo: #e5f4ea;
+    --cor-aviso: #8a5a00;
+    --cor-aviso-fundo: #fdf3dd;
+    --raio: 12px;
+    --sombra: 0 1px 3px rgba(0, 0, 0, .12);
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--cor-texto);
+    background: var(--cor-fundo);
+    min-height: 100dvh;
+}
+
+h1, h2, h3 { line-height: 1.25; color: var(--cor-texto); }
+h2 { font-size: 1.35rem; margin: 0 0 .75rem; }
+
+a { color: var(--cor-primaria); }
+
+.pular-conteudo {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    background: var(--cor-superficie);
+    padding: .75rem 1rem;
+    z-index: 100;
+}
+.pular-conteudo:focus { left: 0; }
+
+/* ── Cabeçalho ── */
+.topo {
+    background: var(--cor-primaria);
+    color: #fff;
+    box-shadow: var(--sombra);
+}
+.topo-interno {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: .5rem 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem 1rem;
+}
+.marca {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: .5rem 0;
+}
+.menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem;
+    order: 3;
+    width: 100%;
+}
+.menu a {
+    color: #eaf4f3;
+    text-decoration: none;
+    padding: .65rem .75rem;   /* alvo de toque ≥ 48px de altura com line-height */
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 8px;
+}
+.menu a:hover, .menu a:focus { background: var(--cor-primaria-escura); }
+.usuario-area {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+.usuario-nome { font-size: .9rem; opacity: .9; }
+
+@media (min-width: 720px) {
+    .menu { order: 0; width: auto; }
+}
+
+/* ── Conteúdo ── */
+.conteudo {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1rem;
+    width: 100%;
+}
+.rodape {
+    text-align: center;
+    color: var(--cor-texto-suave);
+    font-size: .8rem;
+    padding: 1.5rem 1rem 2rem;
+}
+
+.cartao {
+    background: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: 1rem 1.25rem;
+    box-shadow: var(--sombra);
+    margin-bottom: 1rem;
+}
+
+/* ── Alertas (flash) ── */
+.alerta {
+    border-radius: var(--raio);
+    padding: .85rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+}
+.alerta-erro { background: var(--cor-erro-fundo); color: var(--cor-erro); border-color: #f0c4c0; }
+.alerta-sucesso { background: var(--cor-sucesso-fundo); color: var(--cor-sucesso); border-color: #bfe3cb; }
+.alerta-aviso { background: var(--cor-aviso-fundo); color: var(--cor-aviso); border-color: #ecd9a8; }
+
+/* ── Formulários ── */
+.formulario { display: flex; flex-direction: column; gap: .35rem; }
+.formulario label { font-weight: 600; font-size: .95rem; margin-top: .75rem; }
+.formulario input,
+.formulario select,
+.formulario textarea {
+    font: inherit;
+    padding: .8rem .9rem;
+    min-height: 48px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+    background: var(--cor-superficie);
+    color: var(--cor-texto);
+    width: 100%;
+}
+.formulario input:focus,
+.formulario select:focus,
+.formulario textarea:focus {
+    outline: 3px solid rgba(47, 111, 106, .35);
+    border-color: var(--cor-primaria);
+}
+.formulario input:disabled { background: var(--cor-fundo); color: var(--cor-texto-suave); }
+
+.caixa-selecao {
+    display: flex;
+    gap: .6rem;
+    align-items: flex-start;
+    margin: 1rem 0;
+    font-weight: 400 !important;
+}
+.caixa-selecao input { width: 1.4rem; height: 1.4rem; min-height: 0; margin-top: .1rem; }
+
+/* ── Botões ── */
+.botao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: .75rem 1.25rem;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+.botao-primario { background: var(--cor-primaria); color: #fff; }
+.botao-primario:hover, .botao-primario:focus { background: var(--cor-primaria-escura); }
+.botao-secundario { background: transparent; color: #fff; border-color: rgba(255, 255, 255, .5); }
+.botao-largo { width: 100%; margin-top: 1rem; }
+.botao-pequeno { min-height: 40px; padding: .4rem .8rem; font-size: .9rem; }
+
+.texto-apoio { color: var(--cor-texto-suave); font-size: .9rem; }
+
+/* ── Autenticação ── */
+.pagina-autenticacao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+.cartao-autenticacao {
+    background: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    box-shadow: var(--sombra);
+    width: 100%;
+    max-width: 420px;
+    padding: 1.5rem 1.5rem 1.75rem;
+    margin: 2rem auto;
+}
+.marca-grande {
+    color: var(--cor-primaria);
+    font-size: 1.5rem;
+    margin: 0 0 1rem;
+    text-align: center;
+}
+
+/* ── Páginas de erro / placeholder ── */
+.pagina-erro {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+.codigo-erro {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--cor-primaria);
+    margin: 0 0 .5rem;
+}
+
+/* ── Termo LGPD ── */
+.termo-lgpd ul { padding-left: 1.25rem; }
+.termo-lgpd li { margin-bottom: .5rem; }
