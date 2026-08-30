@@ -17,6 +17,9 @@ $papel = $usuario['papel'] ?? '';
     <meta name="theme-color" content="#2f6f6a">
     <title><?= e(($titulo ?? '') !== '' ? $titulo . ' — ' . APP_NOME : APP_NOME) ?></title>
     <link rel="stylesheet" href="<?= e(asset('css/app.css')) ?>">
+    <link rel="manifest" href="<?= e(url('pwa.manifest')) ?>">
+    <link rel="icon" type="image/png" href="<?= e(BASE_PATH) ?>/assets/img/icones/icone-192.png">
+    <link rel="apple-touch-icon" href="<?= e(BASE_PATH) ?>/assets/img/icones/icone-192.png">
 </head>
 <body>
 <a class="pular-conteudo" href="#conteudo">Ir para o conteúdo</a>
@@ -73,8 +76,12 @@ $papel = $usuario['papel'] ?? '';
     window.APP = <?= json_encode([
         'basePath' => BASE_PATH,
         'rotas'    => $GLOBALS['__roteador']->mapaParaJs(),
+        'csrf'     => $usuario !== null ? \App\Core\Csrf::token() : '',
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?>;
 </script>
 <script src="<?= e(asset('js/base.js')) ?>"></script>
+<?php if ($usuario !== null): ?>
+    <script src="<?= e(asset('js/offline.js')) ?>" defer></script>
+<?php endif; ?>
 </body>
 </html>

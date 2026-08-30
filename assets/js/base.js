@@ -25,3 +25,12 @@ function urlJs(nomeRota, parametros = {}) {
 }
 
 window.urlJs = urlJs;
+
+// PWA: registra o service worker (servido pelo PHP com o BASE_PATH correto)
+if ('serviceWorker' in navigator && window.APP && window.APP.rotas && window.APP.rotas['pwa.sw']) {
+    window.addEventListener('load', function () {
+        navigator.serviceWorker
+            .register(urlJs('pwa.sw'), { scope: (window.APP.basePath || '') + '/' })
+            .catch(function (erro) { console.warn('Service worker não registrado:', erro); });
+    });
+}

@@ -16,7 +16,8 @@ $statusPadrao = in_array($_GET['status'] ?? '', ['feito', 'parcial', 'nao_feito'
     <small class="texto-apoio">· <?= e($crianca['apelido'] ?: $crianca['nome']) ?></small></h2>
 
 <form method="post" action="<?= e(url('registro.criar.salvar', ['categoria' => $categoria['slug']])) ?>"
-      enctype="multipart/form-data" class="formulario formulario-registro" data-form-registro>
+      enctype="multipart/form-data" class="formulario formulario-registro" data-form-registro
+      data-categoria="<?= e($categoria['slug']) ?>">
     <?= Csrf::campo() ?>
     <input type="hidden" name="crianca" value="<?= e($crianca['slug']) ?>">
     <input type="hidden" name="bloco" value="<?= (int)$blocoId ?>">
@@ -69,4 +70,3 @@ $statusPadrao = in_array($_GET['status'] ?? '', ['feito', 'parcial', 'nao_feito'
 
 <script src="<?= e(asset('js/formularios.js')) ?>" defer></script>
 <script src="<?= e(asset('js/voz.js')) ?>" defer></script>
-<script src="<?= e(asset('js/offline.js')) ?>" defer></script>

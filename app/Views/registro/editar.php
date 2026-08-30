@@ -17,7 +17,8 @@ $acao = $modo === 'editar'
         As mudanças propostas serão enviadas aos responsáveis para aprovação.</div>
 <?php endif; ?>
 
-<form method="post" action="<?= e($acao) ?>" class="formulario formulario-registro" data-form-registro>
+<form method="post" action="<?= e($acao) ?>" class="formulario formulario-registro" data-form-registro
+      <?= $modo === 'editar' ? 'data-codigo="' . e($registro['codigo_publico']) . '" data-atualizado-em="' . e((string)$registro['atualizado_em']) . '"' : '' ?>>
     <?= Csrf::campo() ?>
 
     <div class="linha-campos">

@@ -126,6 +126,19 @@ return static function (Roteador $r): void {
     $r->get('/painel', 'PlaceholderController@emDesenvolvimento')->nome('admin.painel')
         ->middleware('autenticado', 'papel:super_admin');
 
+    // ── PWA (Fase 4): manifest e SW gerados por PHP p/ embutir BASE_PATH ──
+    $r->get('/manifest.webmanifest', 'PwaController@manifest')->nome('pwa.manifest');
+    $r->get('/sw.js', 'PwaController@serviceWorker')->nome('pwa.sw');
+    $r->get('/offline', 'PwaController@offline')->nome('pwa.offline');
+
+    // ── API (sessão + header X-CSRF) ───────────────────────────
+    $r->post('/api/registros', 'Api\RegistroApiController@criar')->nome('api.registros.criar')
+        ->middleware('autenticado', 'papel:cuidador,responsavel');
+    $r->post('/api/sincronizar', 'Api\SincronizacaoApiController@sincronizar')->nome('api.sincronizar')
+        ->middleware('autenticado', 'papel:cuidador,responsavel');
+    $r->get('/api/dia/{data}', 'Api\RegistroApiController@dia')->nome('api.dia')
+        ->middleware('autenticado');
+
     // ── Arquivos protegidos (fases 3/6) ────────────────────────
     $r->get('/foto/{codigo}', 'ArquivoController@foto')->nome('foto.ver')
         ->middleware('autenticado');
