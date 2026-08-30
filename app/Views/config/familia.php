@@ -121,6 +121,17 @@ $granularidade = (string)$config['granularidade'];
     <button type="submit" class="botao botao-primario botao-largo">Salvar configurações</button>
 </form>
 
+<div class="cartao" style="margin-top:1rem">
+    <h3>Seus dados (LGPD)</h3>
+    <p class="texto-apoio">Exportação de todos os dados da família em um arquivo (direito do titular).
+        Para exclusão definitiva da família, fale com o suporte da plataforma.</p>
+    <form method="post" action="<?= e(url('relatorios.exportar')) ?>" class="form-inline">
+        <?= Csrf::campo() ?>
+        <input type="hidden" name="tipo" value="lgpd_json">
+        <button type="submit" class="botao botao-contorno">Exportar todos os dados (JSON)</button>
+    </form>
+</div>
+
 <?php if ($historico !== []): ?>
     <details class="cartao" style="margin-top:1rem">
         <summary>Últimas alterações (<?= count($historico) ?>)</summary>

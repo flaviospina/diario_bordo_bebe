@@ -57,6 +57,15 @@ final class ServicoAutenticacao
             return ['ok' => false, 'mensagem' => 'E-mail ou senha inválidos.'];
         }
 
+        // Família suspensa/encerrada bloqueia o login de todos, exceto super_admin
+        if ($usuario['papel'] !== 'super_admin') {
+            $familia = (new \App\Repositories\RepositorioFamilias())->buscarPorId((int)$usuario['familia_id']);
+            if ($familia === null || $familia['status'] !== 'ativa') {
+                $this->tentativas->registrar($email, $ip, false);
+                return ['ok' => false, 'mensagem' => 'O acesso desta família está suspenso. Fale com o suporte.'];
+            }
+        }
+
         // Migra o hash se o custo/algoritmo padrão mudar no futuro
         if (password_needs_rehash((string)$usuario['senha_hash'], PASSWORD_ARGON2ID)) {
             $this->usuarios->atualizarSenha((int)$usuario['id'], self::gerarHashSenha($senha));

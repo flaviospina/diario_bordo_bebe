@@ -427,6 +427,43 @@ fieldset.cartao legend { font-weight: 700; padding: 0 .35rem; }
 .semaforo-ambar { background: var(--cor-aviso-fundo); color: var(--cor-aviso); }
 .semaforo-vermelho { background: var(--cor-erro-fundo); color: var(--cor-erro); }
 
+/* ── Gráficos de barras (relatórios; sem bibliotecas externas) ── */
+.grafico-barras {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 150px;
+    padding-top: 1.2rem;
+}
+.coluna-barra {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    min-width: 0;
+    position: relative;
+}
+.coluna-barra .barra {
+    width: 100%;
+    max-width: 34px;
+    background: var(--cor-primaria);
+    border-radius: 4px 4px 0 0;
+    min-height: 2px;
+}
+.valor-barra { font-size: .65rem; color: var(--cor-texto-suave); white-space: nowrap; }
+.rotulo-barra { font-size: .65rem; color: var(--cor-texto-suave); margin-top: .2rem; white-space: nowrap; }
+.tabela-compacta th, .tabela-compacta td { padding: .3rem .5rem; font-size: .85rem; }
+
+/* ── Impressão (resumo do dia e Modo Pediatra) ── */
+@media print {
+    .topo, .rodape, .nao-imprimir, .menu, .acoes-rapidas, .alerta { display: none !important; }
+    body { background: #fff; }
+    .conteudo { max-width: none; padding: 0; }
+    .cartao, .area-impressao { border: 0; box-shadow: none; }
+}
+
 /* ── Categorias (config) ── */
 .grade-categorias { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .25rem .75rem; }
 .item-categoria { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }

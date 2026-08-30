@@ -7,8 +7,7 @@ use App\Core\Roteador;
 /**
  * Mapa central de rotas nomeadas (ver docs/planejamento.md §3.2).
  * Convenções: minúsculas, sem barra final, sem .php, sem query string em navegação.
- * Rotas de fases futuras apontam para Placeholder até a fase correspondente,
- * para que url() já funcione em todo o sistema desde a Fase 1.
+ * Todas as fases entregues: cada rota aponta para seu controller definitivo.
  */
 return static function (Roteador $r): void {
 
@@ -77,12 +76,14 @@ return static function (Roteador $r): void {
     $r->post('/solicitacoes/{codigo}', 'SolicitacaoController@decidir')->nome('solicitacoes.decidir.enviar')
         ->middleware('autenticado', 'papel:responsavel');
 
-    // ── Relatórios (Fase 6) ────────────────────────────────────
-    $r->get('/relatorios', 'PlaceholderController@emDesenvolvimento')->nome('relatorios.index')
+    // ── Relatórios (Fase 6) — exportações restritas a responsavel/admin ──
+    $r->get('/relatorios', 'RelatorioController@index')->nome('relatorios.index')
         ->middleware('autenticado', 'papel:responsavel');
-    $r->get('/relatorios/resumo/{data}', 'PlaceholderController@emDesenvolvimento')->nome('relatorios.resumo')
+    $r->get('/relatorios/resumo/{data}', 'RelatorioController@resumo')->nome('relatorios.resumo')
         ->middleware('autenticado', 'papel:responsavel');
-    $r->get('/relatorios/pediatra', 'PlaceholderController@emDesenvolvimento')->nome('relatorios.pediatra')
+    $r->get('/relatorios/pediatra', 'RelatorioController@pediatra')->nome('relatorios.pediatra')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->post('/relatorios/exportar', 'RelatorioController@exportar')->nome('relatorios.exportar')
         ->middleware('autenticado', 'papel:responsavel');
 
     // ── Configurações (Fase 2) ─────────────────────────────────
@@ -125,7 +126,9 @@ return static function (Roteador $r): void {
         ->middleware('autenticado', 'papel:cuidador,responsavel');
 
     // ── Plataforma (Fase 6) ────────────────────────────────────
-    $r->get('/painel', 'PlaceholderController@emDesenvolvimento')->nome('admin.painel')
+    $r->get('/painel', 'PainelAdminController@index')->nome('admin.painel')
+        ->middleware('autenticado', 'papel:super_admin');
+    $r->post('/painel', 'PainelAdminController@acao')->nome('admin.painel.acao')
         ->middleware('autenticado', 'papel:super_admin');
 
     // ── PWA (Fase 4): manifest e SW gerados por PHP p/ embutir BASE_PATH ──

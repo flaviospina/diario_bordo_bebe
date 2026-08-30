@@ -116,8 +116,49 @@ if ($erros === []) {
 
 // ── Bootstrap: família inicial + primeiro admin ───────────────
 $totalFamilias = $erros === []
-    ? (int)$bd->query('SELECT COUNT(*) FROM familias')->fetchColumn()
+    ? (int)$bd->query("SELECT COUNT(*) FROM familias WHERE plano <> 'plataforma'")->fetchColumn()
     : -1;
+$totalSuperAdmins = $erros === []
+    ? (int)$bd->query("SELECT COUNT(*) FROM usuarios WHERE papel = 'super_admin'")->fetchColumn()
+    : -1;
+
+// ── Super admin da plataforma (gestão de famílias/planos) ─────
+if ($erros === [] && $totalSuperAdmins === 0 && ($_POST['acao'] ?? '') === 'criar_super_admin') {
+    $nomeSuper = trim((string)($_POST['super_nome'] ?? ''));
+    $emailSuper = mb_strtolower(trim((string)($_POST['super_email'] ?? '')));
+    $senhaSuper = (string)($_POST['super_senha'] ?? '');
+    if ($nomeSuper === '' || !filter_var($emailSuper, FILTER_VALIDATE_EMAIL) || mb_strlen($senhaSuper) < 10) {
+        $erros[] = 'Preencha nome, e-mail válido e senha (mín. 10 caracteres) do super admin.';
+    } else {
+        try {
+            $bd->beginTransaction();
+            // Família técnica da plataforma (nunca aparece nas listagens de tenant)
+            $plataformaId = $bd->query("SELECT id FROM familias WHERE plano = 'plataforma' LIMIT 1")->fetchColumn();
+            if ($plataformaId === false) {
+                $declaracao = $bd->prepare("INSERT INTO familias (codigo_publico, slug, nome, plano) VALUES (?, ?, 'Plataforma', 'plataforma')");
+                $declaracao->execute([Identificadores::codigoPublico(), 'plataforma-' . Identificadores::codigoPublico(6)]);
+                $plataformaId = (int)$bd->lastInsertId();
+            }
+            $declaracao = $bd->prepare(
+                'INSERT INTO usuarios (familia_id, codigo_publico, nome, email, senha_hash, papel)
+                 VALUES (?, ?, ?, ?, ?, \'super_admin\')'
+            );
+            $declaracao->execute([
+                (int)$plataformaId,
+                Identificadores::codigoPublico(),
+                $nomeSuper,
+                $emailSuper,
+                password_hash($senhaSuper, PASSWORD_ARGON2ID),
+            ]);
+            $bd->commit();
+            $totalSuperAdmins = 1;
+            $mensagens[] = "Super admin {$emailSuper} criado. O painel fica em /painel após o login.";
+        } catch (Throwable $e) {
+            $bd->rollBack();
+            $erros[] = 'Falha ao criar o super admin: ' . $e->getMessage();
+        }
+    }
+}
 
 if ($erros === [] && $totalFamilias === 0 && ($_POST['acao'] ?? '') === 'criar_familia') {
     $nomeFamilia = trim((string)($_POST['familia_nome'] ?? ''));
@@ -211,6 +252,22 @@ if ($erros === [] && $totalFamilias === 0 && ($_POST['acao'] ?? '') === 'criar_f
     </form>
 <?php elseif ($totalFamilias > 0): ?>
     <p>Sistema instalado. Famílias cadastradas: <?= $totalFamilias ?>.</p>
+<?php endif; ?>
+
+<?php if ($totalSuperAdmins === 0 && $erros === []): ?>
+    <form method="post" action="migrate.php">
+        <h2>Criar super admin da plataforma (opcional)</h2>
+        <p>Conta de gestão de famílias e planos (/painel). Não enxerga o conteúdo dos diários.</p>
+        <input type="hidden" name="token" value="<?= $esc($tokenRecebido) ?>">
+        <input type="hidden" name="acao" value="criar_super_admin">
+        <label for="super_nome">Nome</label>
+        <input id="super_nome" name="super_nome" required maxlength="120">
+        <label for="super_email">E-mail</label>
+        <input id="super_email" name="super_email" type="email" required maxlength="190">
+        <label for="super_senha">Senha (mínimo 10 caracteres)</label>
+        <input id="super_senha" name="super_senha" type="password" required minlength="10">
+        <button type="submit">Criar super admin</button>
+    </form>
 <?php endif; ?>
 </body>
 </html>
