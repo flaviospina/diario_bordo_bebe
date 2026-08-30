@@ -177,11 +177,15 @@ final class ServicoRegistros
 
         // Pedido de suprimento vira item na lista de suprimentos
         if ($categoria['slug'] === 'pedido-suprimento' && !empty($dados['item'])) {
-            (new RepositorioSuprimentos())->criar(
-                (string)$dados['item'],
-                in_array($dados['nivel'] ?? '', ['baixo', 'acabou'], true) ? (string)$dados['nivel'] : 'baixo',
-                Autenticacao::id()
-            );
+            $nivel = in_array($dados['nivel'] ?? '', ['baixo', 'acabou'], true) ? (string)$dados['nivel'] : 'baixo';
+            (new RepositorioSuprimentos())->criar((string)$dados['item'], $nivel, Autenticacao::id());
+            if ($nivel === 'acabou') {
+                (new ServicoNotificacoes())->notificarSuprimento(
+                    Autenticacao::familiaId(),
+                    (string)$dados['item'],
+                    $nivel
+                );
+            }
         }
 
         // Categorias de turno controlam o expediente explicitamente
@@ -288,6 +292,12 @@ final class ServicoRegistros
             $payload
         );
         $this->log->registrar(Autenticacao::familiaId(), Autenticacao::id(), 'solicitacao_criada', 'solicitacoes_edicao', null, null);
+        // Os pais são avisados de toda solicitação pendente (regra 8.2)
+        (new ServicoNotificacoes())->notificarSolicitacao(
+            Autenticacao::familiaId(),
+            $codigo,
+            (string)(Autenticacao::usuario()['nome'] ?? '')
+        );
         return $codigo;
     }
 

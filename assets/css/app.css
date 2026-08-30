@@ -398,6 +398,35 @@ fieldset.cartao legend { font-weight: 700; padding: 0 .35rem; }
 }
 .linha-roteiro { display: flex; justify-content: space-between; gap: .75rem; flex-wrap: wrap; }
 
+/* ── Acompanhar (pais) ── */
+.faixa-status { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-bottom: .75rem; }
+.pilula {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .35rem .7rem;
+    border-radius: 999px;
+    background: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    font-size: .85rem;
+    text-decoration: none;
+    color: var(--cor-texto);
+}
+.pilula-alerta { background: var(--cor-aviso-fundo); color: var(--cor-aviso); border-color: #ecd9a8; }
+.pilula-erro { background: var(--cor-erro-fundo); color: var(--cor-erro); border-color: #f0c4c0; }
+.semaforo {
+    display: inline-flex;
+    align-items: center;
+    padding: .35rem .7rem;
+    border-radius: 999px;
+    font-size: .85rem;
+    font-weight: 600;
+}
+.semaforo::before { content: '●'; margin-right: .4rem; }
+.semaforo-verde { background: var(--cor-sucesso-fundo); color: var(--cor-sucesso); }
+.semaforo-ambar { background: var(--cor-aviso-fundo); color: var(--cor-aviso); }
+.semaforo-vermelho { background: var(--cor-erro-fundo); color: var(--cor-erro); }
+
 /* ── Categorias (config) ── */
 .grade-categorias { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .25rem .75rem; }
 .item-categoria { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }

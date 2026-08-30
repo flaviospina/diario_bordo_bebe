@@ -54,20 +54,22 @@ return static function (Roteador $r): void {
         ->middleware('autenticado', 'papel:cuidador');
 
     // ── Pais (Fase 5) ──────────────────────────────────────────
-    $r->get('/acompanhar', 'PlaceholderController@emDesenvolvimento')->nome('pais.acompanhar')
+    $r->get('/acompanhar', 'PaisController@acompanhar')->nome('pais.acompanhar')
         ->middleware('autenticado', 'papel:responsavel,leitor');
-    $r->get('/acompanhar/{data}', 'PlaceholderController@emDesenvolvimento')->nome('pais.acompanhar.data')
+    $r->get('/acompanhar/{data}', 'PaisController@acompanharData')->nome('pais.acompanhar.data')
         ->middleware('autenticado', 'papel:responsavel,leitor');
-    $r->get('/crianca/{slug}', 'PlaceholderController@emDesenvolvimento')->nome('crianca.ver')
+    $r->get('/crianca/{slug}', 'CriancaController@ver')->nome('crianca.ver')
         ->middleware('autenticado');
-    $r->get('/crianca/{slug}/linha-do-tempo', 'PlaceholderController@emDesenvolvimento')->nome('crianca.timeline')
+    $r->get('/crianca/{slug}/linha-do-tempo', 'CriancaController@timeline')->nome('crianca.timeline')
         ->middleware('autenticado');
     $r->get('/roteiro', 'RoteiroController@editar')->nome('roteiro.editar')
         ->middleware('autenticado', 'papel:responsavel');
     $r->post('/roteiro', 'RoteiroController@salvar')->nome('roteiro.salvar')
         ->middleware('autenticado', 'papel:responsavel');
-    $r->get('/intercorrencia/{codigo}', 'PlaceholderController@emDesenvolvimento')->nome('intercorrencia.ver')
+    $r->get('/intercorrencia/{codigo}', 'IntercorrenciaController@ver')->nome('intercorrencia.ver')
         ->middleware('autenticado');
+    $r->post('/intercorrencia/{codigo}', 'IntercorrenciaController@darCiencia')->nome('intercorrencia.ciencia')
+        ->middleware('autenticado', 'papel:responsavel');
     $r->get('/solicitacoes', 'SolicitacaoController@lista')->nome('solicitacoes.lista')
         ->middleware('autenticado', 'papel:responsavel');
     $r->get('/solicitacoes/{codigo}', 'SolicitacaoController@decidirForm')->nome('solicitacoes.decidir')
@@ -138,6 +140,10 @@ return static function (Roteador $r): void {
         ->middleware('autenticado', 'papel:cuidador,responsavel');
     $r->get('/api/dia/{data}', 'Api\RegistroApiController@dia')->nome('api.dia')
         ->middleware('autenticado');
+
+    // Autenticadas por token de serviço (sem sessão): cron/n8n
+    $r->post('/api/tarefas/{tarefa}', 'Api\TarefaApiController@executar')->nome('api.tarefas');
+    $r->post('/api/webhook/status', 'Api\WebhookApiController@status')->nome('api.webhook.status');
 
     // ── Arquivos protegidos (fases 3/6) ────────────────────────
     $r->get('/foto/{codigo}', 'ArquivoController@foto')->nome('foto.ver')
