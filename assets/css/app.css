@@ -257,6 +257,147 @@ fieldset.cartao legend { font-weight: 700; padding: 0 .35rem; }
 .botao-contorno { background: transparent; color: var(--cor-primaria); border-color: var(--cor-primaria); }
 .botao-contorno:hover, .botao-contorno:focus { background: rgba(47, 111, 106, .08); }
 
+/* ── Grade "Meu Dia" ── */
+.barra-dia {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem 1rem;
+    margin-bottom: .5rem;
+}
+.navega-dia { display: flex; align-items: center; gap: .5rem; }
+.indicador-conexao {
+    margin-left: auto;
+    font-size: .8rem;
+    font-weight: 600;
+    padding: .25rem .6rem;
+    border-radius: 999px;
+    background: var(--cor-sucesso-fundo);
+    color: var(--cor-sucesso);
+}
+.indicador-conexao[data-estado="offline"] { background: var(--cor-aviso-fundo); color: var(--cor-aviso); }
+
+.grade-dia { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1rem; }
+.linha-bloco {
+    display: flex;
+    gap: .75rem;
+    background: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-left: 6px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: .6rem .75rem;
+}
+.linha-bloco.estado-cinza { border-left-color: #b9b4a9; }
+.linha-bloco.estado-azul { border-left-color: #2f6fb8; background: #eef4fb; }
+.linha-bloco.estado-verde { border-left-color: #1b6e3c; }
+.linha-bloco.estado-ambar { border-left-color: #c98a00; background: var(--cor-aviso-fundo); }
+.linha-bloco.estado-vermelho { border-left-color: var(--cor-erro); background: var(--cor-erro-fundo); }
+.bloco-horario { min-width: 3.2rem; font-weight: 700; }
+.bloco-conteudo { flex: 1; }
+.etiqueta-estado {
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--cor-texto-suave);
+    margin-left: .4rem;
+}
+.instrucao { margin: .25rem 0; }
+.acoes-bloco { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .4rem; }
+
+.chip-registro {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .5rem .7rem;
+    margin: .2rem .3rem .2rem 0;
+    min-height: 44px;
+    border-radius: 10px;
+    border: 1px solid var(--cor-borda);
+    background: var(--cor-superficie);
+    text-decoration: none;
+    color: var(--cor-texto);
+}
+.chip-registro.estado-verde { border-color: #9fd0b2; }
+.chip-registro.estado-ambar { border-color: #ecd9a8; background: var(--cor-aviso-fundo); }
+.chip-registro.estado-vermelho { border-color: #f0c4c0; background: var(--cor-erro-fundo); }
+.lista-avulsos { display: flex; flex-direction: column; align-items: flex-start; gap: .25rem; margin-bottom: 1rem; }
+
+.seletor-categorias summary { list-style: none; cursor: pointer; margin-bottom: .5rem; }
+.seletor-categorias summary::-webkit-details-marker { display: none; }
+.grupo-registro { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .6rem; }
+.botao-categoria { font-weight: 500; }
+
+/* Ações rápidas fixas no rodapé (uma mão, criança no colo) */
+.acoes-rapidas {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    gap: .5rem;
+    background: var(--cor-fundo);
+    padding: .5rem 0 .75rem;
+    margin-top: 1rem;
+}
+.acao-rapida {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .1rem;
+    min-height: 56px;
+    justify-content: center;
+    background: var(--cor-primaria);
+    color: #fff;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: .75rem;
+    font-weight: 600;
+    box-shadow: var(--sombra);
+}
+.acao-icone { font-size: 1.3rem; line-height: 1; }
+
+/* ── Formulário de registro ── */
+.grupo-opcoes { display: flex; flex-wrap: wrap; gap: .4rem; }
+.opcao-botao { position: relative; }
+.opcao-botao input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.opcao-botao span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: .5rem 1rem;
+    border: 1.5px solid var(--cor-borda);
+    border-radius: 10px;
+    background: var(--cor-superficie);
+    cursor: pointer;
+}
+.opcao-botao input:checked + span {
+    border-color: var(--cor-primaria);
+    background: rgba(47, 111, 106, .1);
+    font-weight: 700;
+}
+.opcao-botao input:focus-visible + span { outline: 3px solid rgba(47, 111, 106, .35); }
+.opcao-escala span { font-size: 1.4rem; padding: .4rem .7rem; }
+.botao-voz {
+    font: inherit;
+    font-size: .8rem;
+    border: 1px solid var(--cor-borda);
+    background: var(--cor-superficie);
+    border-radius: 8px;
+    padding: .2rem .6rem;
+    cursor: pointer;
+    margin-left: .5rem;
+}
+
+.fotos-registro { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
+.fotos-registro img { width: 120px; height: 120px; object-fit: cover; border-radius: 10px; }
+.pre-versao {
+    background: var(--cor-fundo);
+    border-radius: 8px;
+    padding: .6rem;
+    font-size: .8rem;
+    overflow-x: auto;
+}
+.linha-roteiro { display: flex; justify-content: space-between; gap: .75rem; flex-wrap: wrap; }
+
 /* ── Categorias (config) ── */
 .grade-categorias { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .25rem .75rem; }
 .item-categoria { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }

@@ -32,17 +32,25 @@ return static function (Roteador $r): void {
     $r->post('/termos/{tipo}', 'LgpdController@aceitar')->nome('lgpd.termo.aceitar')->middleware('autenticado_basico');
 
     // ── Cuidador (Fase 3) ──────────────────────────────────────
-    $r->get('/meu-dia', 'PlaceholderController@emDesenvolvimento')->nome('cuidador.dia')
+    $r->get('/meu-dia', 'CuidadorController@dia')->nome('cuidador.dia')
         ->middleware('autenticado', 'papel:cuidador,responsavel');
-    $r->get('/meu-dia/{data}', 'PlaceholderController@emDesenvolvimento')->nome('cuidador.dia.data')
+    $r->get('/meu-dia/{data}', 'CuidadorController@diaData')->nome('cuidador.dia.data')
         ->middleware('autenticado', 'papel:cuidador,responsavel');
-    $r->get('/registrar/{categoria}', 'PlaceholderController@emDesenvolvimento')->nome('registro.criar')
+    $r->get('/registrar/{categoria}', 'RegistroController@criarForm')->nome('registro.criar')
         ->middleware('autenticado', 'papel:cuidador,responsavel');
-    $r->get('/registro/{codigo}', 'PlaceholderController@emDesenvolvimento')->nome('registro.ver')
+    $r->post('/registrar/{categoria}', 'RegistroController@criarSalvar')->nome('registro.criar.salvar')
+        ->middleware('autenticado', 'papel:cuidador,responsavel');
+    $r->get('/registro/{codigo}', 'RegistroController@ver')->nome('registro.ver')
         ->middleware('autenticado');
-    $r->get('/registro/{codigo}/editar', 'PlaceholderController@emDesenvolvimento')->nome('registro.editar')
+    $r->get('/registro/{codigo}/editar', 'RegistroController@editarForm')->nome('registro.editar')
         ->middleware('autenticado', 'papel:cuidador,responsavel');
-    $r->get('/registro/{codigo}/solicitar-alteracao', 'PlaceholderController@emDesenvolvimento')->nome('registro.solicitar')
+    $r->post('/registro/{codigo}/editar', 'RegistroController@editarSalvar')->nome('registro.editar.salvar')
+        ->middleware('autenticado', 'papel:cuidador,responsavel');
+    $r->post('/registro/{codigo}/excluir', 'RegistroController@excluir')->nome('registro.excluir')
+        ->middleware('autenticado', 'papel:cuidador,responsavel');
+    $r->get('/registro/{codigo}/solicitar-alteracao', 'RegistroController@solicitarForm')->nome('registro.solicitar')
+        ->middleware('autenticado', 'papel:cuidador');
+    $r->post('/registro/{codigo}/solicitar-alteracao', 'RegistroController@solicitarEnviar')->nome('registro.solicitar.enviar')
         ->middleware('autenticado', 'papel:cuidador');
 
     // ── Pais (Fase 5) ──────────────────────────────────────────
@@ -54,13 +62,17 @@ return static function (Roteador $r): void {
         ->middleware('autenticado');
     $r->get('/crianca/{slug}/linha-do-tempo', 'PlaceholderController@emDesenvolvimento')->nome('crianca.timeline')
         ->middleware('autenticado');
-    $r->get('/roteiro', 'PlaceholderController@emDesenvolvimento')->nome('roteiro.editar')
+    $r->get('/roteiro', 'RoteiroController@editar')->nome('roteiro.editar')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->post('/roteiro', 'RoteiroController@salvar')->nome('roteiro.salvar')
         ->middleware('autenticado', 'papel:responsavel');
     $r->get('/intercorrencia/{codigo}', 'PlaceholderController@emDesenvolvimento')->nome('intercorrencia.ver')
         ->middleware('autenticado');
-    $r->get('/solicitacoes', 'PlaceholderController@emDesenvolvimento')->nome('solicitacoes.lista')
+    $r->get('/solicitacoes', 'SolicitacaoController@lista')->nome('solicitacoes.lista')
         ->middleware('autenticado', 'papel:responsavel');
-    $r->get('/solicitacoes/{codigo}', 'PlaceholderController@emDesenvolvimento')->nome('solicitacoes.decidir')
+    $r->get('/solicitacoes/{codigo}', 'SolicitacaoController@decidirForm')->nome('solicitacoes.decidir')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->post('/solicitacoes/{codigo}', 'SolicitacaoController@decidir')->nome('solicitacoes.decidir.enviar')
         ->middleware('autenticado', 'papel:responsavel');
 
     // ── Relatórios (Fase 6) ────────────────────────────────────
@@ -97,22 +109,26 @@ return static function (Roteador $r): void {
     // Perfil complementar do próprio usuário (campos opcionais)
     $r->get('/perfil', 'PerfilController@editar')->nome('perfil.editar')->middleware('autenticado');
     $r->post('/perfil', 'PerfilController@salvar')->nome('perfil.salvar')->middleware('autenticado');
-    $r->get('/auditoria', 'PlaceholderController@emDesenvolvimento')->nome('auditoria.index')
+    $r->get('/auditoria', 'AuditoriaController@index')->nome('auditoria.index')
         ->middleware('autenticado', 'papel:admin_familia');
 
     // ── Operação (fases 2–3) ───────────────────────────────────
-    $r->get('/suprimentos', 'PlaceholderController@emDesenvolvimento')->nome('suprimentos.index')
+    $r->get('/suprimentos', 'SuprimentoController@index')->nome('suprimentos.index')
         ->middleware('autenticado');
-    $r->get('/turnos', 'PlaceholderController@emDesenvolvimento')->nome('turnos.index')
+    $r->post('/suprimentos', 'SuprimentoController@acao')->nome('suprimentos.acao')
         ->middleware('autenticado');
+    $r->get('/turnos', 'TurnoController@index')->nome('turnos.index')
+        ->middleware('autenticado');
+    $r->post('/turnos', 'TurnoController@ajustar')->nome('turnos.acao')
+        ->middleware('autenticado', 'papel:cuidador,responsavel');
 
     // ── Plataforma (Fase 6) ────────────────────────────────────
     $r->get('/painel', 'PlaceholderController@emDesenvolvimento')->nome('admin.painel')
         ->middleware('autenticado', 'papel:super_admin');
 
     // ── Arquivos protegidos (fases 3/6) ────────────────────────
-    $r->get('/foto/{codigo}', 'PlaceholderController@emDesenvolvimento')->nome('foto.ver')
+    $r->get('/foto/{codigo}', 'ArquivoController@foto')->nome('foto.ver')
         ->middleware('autenticado');
-    $r->get('/download/{codigo}', 'PlaceholderController@emDesenvolvimento')->nome('download.baixar')
+    $r->get('/download/{codigo}', 'ArquivoController@download')->nome('download.baixar')
         ->middleware('autenticado', 'papel:responsavel');
 };
