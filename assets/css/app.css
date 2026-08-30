@@ -228,3 +228,37 @@ a { color: var(--cor-primaria); }
 /* ── Termo LGPD ── */
 .termo-lgpd ul { padding-left: 1.25rem; }
 .termo-lgpd li { margin-bottom: .5rem; }
+
+/* ── Cartões em grade (hub de configurações) ── */
+.grade-cartoes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+}
+.cartao-link { text-decoration: none; color: inherit; display: block; }
+.cartao-link:hover, .cartao-link:focus { border-color: var(--cor-primaria); }
+.cartao-link h3 { margin: 0 0 .35rem; }
+
+/* ── Formulários compostos ── */
+.linha-campos { display: flex; flex-wrap: wrap; gap: .75rem; }
+.linha-campos > div { flex: 1 1 160px; display: flex; flex-direction: column; gap: .35rem; }
+fieldset.cartao { margin: 0 0 1rem; }
+fieldset.cartao legend { font-weight: 700; padding: 0 .35rem; }
+.form-inline { display: inline-block; margin: 0; }
+.form-inline select { min-height: 40px; padding: .35rem .5rem; width: auto; }
+
+/* ── Tabelas ── */
+.tabela-rolavel { overflow-x: auto; }
+.tabela { border-collapse: collapse; width: 100%; font-size: .95rem; }
+.tabela th, .tabela td { text-align: left; padding: .55rem .6rem; border-bottom: 1px solid var(--cor-borda); vertical-align: middle; }
+.tabela th { color: var(--cor-texto-suave); font-weight: 600; white-space: nowrap; }
+.linha-inativa { opacity: .55; }
+
+.botao-contorno { background: transparent; color: var(--cor-primaria); border-color: var(--cor-primaria); }
+.botao-contorno:hover, .botao-contorno:focus { background: rgba(47, 111, 106, .08); }
+
+/* ── Categorias (config) ── */
+.grade-categorias { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .25rem .75rem; }
+.item-categoria { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.rotulo-rapida { display: inline-flex; align-items: center; gap: .25rem; cursor: pointer; opacity: .85; }
+.rotulo-rapida input { width: 1.1rem; height: 1.1rem; }

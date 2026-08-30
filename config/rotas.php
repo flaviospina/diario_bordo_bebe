@@ -72,16 +72,31 @@ return static function (Roteador $r): void {
         ->middleware('autenticado', 'papel:responsavel');
 
     // ── Configurações (Fase 2) ─────────────────────────────────
-    $r->get('/configuracoes', 'PlaceholderController@emDesenvolvimento')->nome('config.index')
+    // O painel de configurações da família é acessível a admin_familia E
+    // responsavel (seção 4 do escopo); gestão de usuários/crianças/categorias
+    // fica restrita ao admin_familia (mapa de URLs).
+    $r->get('/configuracoes', 'ConfiguracaoController@index')->nome('config.index')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->get('/configuracoes/familia', 'ConfiguracaoController@familia')->nome('config.familia')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->post('/configuracoes/familia', 'ConfiguracaoController@salvarFamilia')->nome('config.familia.salvar')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->get('/configuracoes/usuarios', 'ConfiguracaoController@usuarios')->nome('config.usuarios')
         ->middleware('autenticado', 'papel:admin_familia');
-    $r->get('/configuracoes/familia', 'PlaceholderController@emDesenvolvimento')->nome('config.familia')
+    $r->post('/configuracoes/usuarios', 'ConfiguracaoController@acaoUsuarios')->nome('config.usuarios.acao')
         ->middleware('autenticado', 'papel:admin_familia');
-    $r->get('/configuracoes/usuarios', 'PlaceholderController@emDesenvolvimento')->nome('config.usuarios')
+    $r->get('/configuracoes/criancas', 'ConfiguracaoController@criancas')->nome('config.criancas')
         ->middleware('autenticado', 'papel:admin_familia');
-    $r->get('/configuracoes/criancas', 'PlaceholderController@emDesenvolvimento')->nome('config.criancas')
+    $r->post('/configuracoes/criancas', 'ConfiguracaoController@salvarCrianca')->nome('config.criancas.salvar')
         ->middleware('autenticado', 'papel:admin_familia');
-    $r->get('/configuracoes/categorias', 'PlaceholderController@emDesenvolvimento')->nome('config.categorias')
+    $r->get('/configuracoes/categorias', 'ConfiguracaoController@categorias')->nome('config.categorias')
         ->middleware('autenticado', 'papel:admin_familia');
+    $r->post('/configuracoes/categorias', 'ConfiguracaoController@salvarCategorias')->nome('config.categorias.salvar')
+        ->middleware('autenticado', 'papel:admin_familia');
+
+    // Perfil complementar do próprio usuário (campos opcionais)
+    $r->get('/perfil', 'PerfilController@editar')->nome('perfil.editar')->middleware('autenticado');
+    $r->post('/perfil', 'PerfilController@salvar')->nome('perfil.salvar')->middleware('autenticado');
     $r->get('/auditoria', 'PlaceholderController@emDesenvolvimento')->nome('auditoria.index')
         ->middleware('autenticado', 'papel:admin_familia');
 

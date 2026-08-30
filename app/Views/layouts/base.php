@@ -37,7 +37,7 @@ $papel = $usuario['papel'] ?? '';
                     <a href="<?= e(url('relatorios.index')) ?>">Relatórios</a>
                     <a href="<?= e(url('solicitacoes.lista')) ?>">Solicitações</a>
                 <?php endif; ?>
-                <?php if ($papel === 'admin_familia'): ?>
+                <?php if (in_array($papel, ['responsavel', 'admin_familia'], true)): ?>
                     <a href="<?= e(url('config.index')) ?>">Configurações</a>
                 <?php endif; ?>
                 <?php if ($papel === 'super_admin'): ?>
