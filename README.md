@@ -20,19 +20,14 @@ Multi-tenant desde o primeiro commit. Todo o sistema em português do Brasil.
 
 ## Deploy (HostGator, via FTP)
 
-1. Envie todo o conteúdo do repositório para a pasta de destino
-   (ex.: `public_html/diariobebe`) — funciona em subpasta ou domínio próprio
-   sem alterar código (o `BASE_PATH` é autodetectado).
-2. Copie `.env.example` para `.env` e preencha. Local recomendado: pasta
-   `diariobebe_privado/` **irmã de `public_html`** (fora do webroot); o sistema
-   procura lá primeiro. Como alternativa, o `.env` na raiz do projeto fica
-   bloqueado pelo `.htaccess`.
-3. Crie o banco MySQL e o usuário no cPanel; informe-os no `.env`.
-4. Defina `MIGRATE_TOKEN` longo e aleatório no `.env` e acesse
-   `https://SEU-DOMINIO/CAMINHO/install/migrate.php?token=SEU_TOKEN`
-   para executar as migrações, popular as categorias globais e criar a
-   família inicial com o primeiro administrador.
-5. Entre em `/entrar`. Novos usuários entram somente por convite.
+Guia completo e detalhado: [`docs/deploy-hostgator.md`](docs/deploy-hostgator.md).
+Resumo: enviar os arquivos para `DOCUMENT_ROOT/diariobebe/` (File Manager, FTP
+ou `scripts/deploy_ftp.py`), criar banco+usuário no cPanel, criar o `.env` na
+pasta `diariobebe_privado/` na home da conta (fora do webroot) e abrir
+`install/migrate.php?token=MIGRATE_TOKEN` no navegador — ele cria todas as
+tabelas, popula as categorias globais e cadastra a família inicial com o
+primeiro administrador. Funciona em subpasta ou domínio próprio sem alterar
+código (`BASE_PATH` autodetectado).
 
 ## Desenvolvimento local
 

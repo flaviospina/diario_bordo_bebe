@@ -37,11 +37,17 @@ final class Ambiente
     /** @return string[] */
     private static function caminhosCandidatos(): array
     {
-        return [
+        $candidatos = [
             (string)($_SERVER['DIARIOBEBE_ENV'] ?? getenv('DIARIOBEBE_ENV') ?: ''),
-            dirname(RAIZ_PROJETO, 2) . '/diariobebe_privado/.env',
-            RAIZ_PROJETO . '/.env',
         ];
+        // Sobe até a home da conta procurando diariobebe_privado/.env, para
+        // cobrir tanto domínio principal (public_html/diariobebe → 2 níveis)
+        // quanto addon domain (public_html/dominio.com/diariobebe → 3 níveis).
+        for ($nivel = 1; $nivel <= 3; $nivel++) {
+            $candidatos[] = dirname(RAIZ_PROJETO, $nivel) . '/diariobebe_privado/.env';
+        }
+        $candidatos[] = RAIZ_PROJETO . '/.env';
+        return $candidatos;
     }
 
     /** @return array<string,string> */
