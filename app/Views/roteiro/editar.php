@@ -44,7 +44,7 @@ $diasDoEditando = $editando !== null ? explode(',', (string)$editando['dias_sema
     <div class="cartao linha-roteiro">
         <div>
             <strong><?= e(substr((string)$bloco['hora_inicio'], 0, 5)) ?>–<?= e(substr((string)$bloco['hora_fim'], 0, 5)) ?>
-                · <?= e($bloco['categoria_icone'] ?? '📌') ?> <?= e($bloco['titulo']) ?></strong>
+                · <?= e($bloco['titulo']) ?></strong>
             <?= (int)$bloco['obrigatorio'] === 1 ? '<span class="etiqueta-estado">obrigatório</span>' : '' ?><br>
             <span class="texto-apoio">
                 <?php foreach (explode(',', (string)$bloco['dias_semana']) as $dia): ?>
@@ -96,7 +96,7 @@ $diasDoEditando = $editando !== null ? explode(',', (string)$editando['dias_sema
                     <?php foreach ($categorias as $categoria): ?>
                         <option value="<?= e($categoria['slug']) ?>"
                             <?= ($editando['categoria_slug'] ?? '') === $categoria['slug'] ? 'selected' : '' ?>>
-                            <?= e($categoria['icone']) ?> <?= e($categoria['nome']) ?>
+                            <?= e($categoria['nome']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

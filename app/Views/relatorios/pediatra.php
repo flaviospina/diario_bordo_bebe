@@ -22,7 +22,7 @@ foreach ($dias as $valores) {
 $divisor = max(1, $diasComDado);
 ?>
 <div class="area-impressao">
-    <h2>🩺 Modo Pediatra — <?= e($crianca['nome']) ?></h2>
+    <h2>Modo Pediatra — <?= e($crianca['nome']) ?></h2>
     <p class="texto-apoio">
         Período: <?= e(data_br($de . ' 0:0', 'd/m/Y')) ?> a <?= e(data_br($ate . ' 0:0', 'd/m/Y')) ?>
         <?= $crianca['data_nascimento'] !== null ? ' · Nascimento: ' . e(data_br((string)$crianca['data_nascimento'], 'd/m/Y')) : '' ?>
@@ -40,7 +40,7 @@ $divisor = max(1, $diasComDado);
                 <td><?= $temDado ? e(number_format($valores['sono_min'] / 60, 1, ',', '')) : '—' ?></td>
                 <td><?= $temDado ? (int)$valores['mamadas'] : '—' ?></td>
                 <td><?= $temDado ? (int)$valores['volume_ml'] : '—' ?></td>
-                <td><?= $temDado ? (int)$valores['fraldas'] . ($valores['coco'] > 0 ? ' (' . (int)$valores['coco'] . ' 💩)' : '') : '—' ?></td>
+                <td><?= $temDado ? (int)$valores['fraldas'] . ($valores['coco'] > 0 ? ' (' . (int)$valores['coco'] . ' c/ cocô)' : '') : '—' ?></td>
                 <td><?= (int)$valores['intercorrencias'] ?: '' ?></td>
             </tr>
         <?php endforeach; ?>

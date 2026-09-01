@@ -12,6 +12,7 @@ require RAIZ_PROJETO . '/app/Core/Autoloader.php';
 \App\Core\Autoloader::registrar();
 
 require RAIZ_PROJETO . '/app/Helpers/funcoes.php';
+require RAIZ_PROJETO . '/app/Helpers/icones.php';
 
 $aplicacao = new \App\Core\Aplicacao();
 $aplicacao->executar();

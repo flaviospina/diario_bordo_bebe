@@ -11,10 +11,10 @@ $estatisticas = $dia['estatisticas'];
 ?>
 <h2>Resumo do dia — <?= e(data_br($data . ' 0:0', 'd/m/Y')) ?></h2>
 
-<div class="faixa-status">
-    <span class="pilula">🍼 <?= (int)$estatisticas['mamadas'] ?> mamadas</span>
-    <span class="pilula">😴 <?= (int)$estatisticas['sonecas'] ?> sonecas</span>
-    <span class="pilula">🧷 <?= (int)$estatisticas['fraldas'] ?> fraldas</span>
+<div class="tiles-dia">
+    <div class="tile-dia"><?= icone_ui('mamadeira', 20, '#3E6A64') ?><span class="tile-numero"><?= (int)$estatisticas['mamadas'] ?></span><span class="tile-rotulo">mamadas</span></div>
+    <div class="tile-dia"><?= icone_ui('lua', 20, '#5F58A0') ?><span class="tile-numero"><?= (int)$estatisticas['sonecas'] ?></span><span class="tile-rotulo">sonecas</span></div>
+    <div class="tile-dia"><?= icone_ui('fralda', 20, '#37795B') ?><span class="tile-numero"><?= (int)$estatisticas['fraldas'] ?></span><span class="tile-rotulo">fraldas</span></div>
 </div>
 
 <div class="cartao area-impressao">

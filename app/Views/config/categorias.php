@@ -32,7 +32,7 @@ foreach ($catalogo as $categoria) {
                         <label class="caixa-selecao" style="margin:.2rem 0">
                             <input type="checkbox" name="ativas[]" value="<?= e($categoria['slug']) ?>"
                                 <?= in_array($categoria['slug'], $inativas, true) ? '' : 'checked' ?>>
-                            <span><?= e($categoria['icone']) ?> <?= e($categoria['nome']) ?></span>
+                            <span style="display:inline-flex;align-items:center;gap:.4rem"><?= icone_categoria((string)$categoria['slug'], (string)$categoria['grupo'], 17) ?> <?= e($categoria['nome']) ?></span>
                         </label>
                         <label class="rotulo-rapida" title="Ação rápida">
                             <input type="checkbox" name="acoes_rapidas[]" value="<?= e($categoria['slug']) ?>"

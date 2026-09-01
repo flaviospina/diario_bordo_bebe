@@ -19,7 +19,10 @@ foreach (($schema['campos'] ?? []) as $campo) {
 }
 $statusRotulo = ['feito' => '✔ Feito', 'parcial' => '◐ Parcial', 'nao_feito' => '✖ Não feito'];
 ?>
-<h2><?= e($registro['categoria_icone']) ?> <?= e($registro['categoria_nome']) ?></h2>
+<div style="display:flex; align-items:center; gap:.7rem; margin-bottom:.9rem">
+    <?= selo_categoria((string)$registro['categoria_slug'], (string)$registro['categoria_grupo'], 48, 24) ?>
+    <h2 style="margin:0"><?= e($registro['categoria_nome']) ?></h2>
+</div>
 
 <?php if ($registro['excluido_em'] !== null): ?>
     <div class="alerta alerta-erro">Registro excluído em <?= e(data_br($registro['excluido_em'])) ?>.

@@ -11,9 +11,16 @@ use App\Core\Csrf;
 
 $statusPadrao = in_array($_GET['status'] ?? '', ['feito', 'parcial', 'nao_feito'], true)
     ? (string)$_GET['status'] : 'feito';
+$horaPadrao = is_string($_GET['hora'] ?? null) && preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $_GET['hora']) === 1
+    ? (string)$_GET['hora'] : date('H:i');
 ?>
-<h2><?= e($categoria['icone']) ?> <?= e($categoria['nome']) ?>
-    <small class="texto-apoio">· <?= e($crianca['apelido'] ?: $crianca['nome']) ?></small></h2>
+<div style="display:flex; align-items:center; gap:.7rem; margin-bottom:.9rem">
+    <?= selo_categoria((string)$categoria['slug'], (string)$categoria['grupo'], 48, 24) ?>
+    <div>
+        <h2 style="margin:0"><?= e($categoria['nome']) ?></h2>
+        <span class="texto-apoio"><?= e($crianca['apelido'] ?: $crianca['nome']) ?></span>
+    </div>
+</div>
 
 <form method="post" action="<?= e(url('registro.criar.salvar', ['categoria' => $categoria['slug']])) ?>"
       enctype="multipart/form-data" class="formulario formulario-registro" data-form-registro
@@ -30,7 +37,7 @@ $statusPadrao = in_array($_GET['status'] ?? '', ['feito', 'parcial', 'nao_feito'
         </div>
         <div>
             <label for="inicio_hora">Hora</label>
-            <input type="time" id="inicio_hora" name="inicio_hora" value="<?= e(date('H:i')) ?>" required>
+            <input type="time" id="inicio_hora" name="inicio_hora" value="<?= e($horaPadrao) ?>" required>
         </div>
         <div>
             <label for="fim_hora">Fim (opcional)</label>

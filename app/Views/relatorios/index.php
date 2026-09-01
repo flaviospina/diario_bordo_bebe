@@ -28,7 +28,7 @@ $metricas = [
            href="<?= e(url('relatorios.index')) ?>?periodo=7">7 dias</a>
         <a class="botao botao-pequeno <?= $periodo === 30 ? 'botao-primario' : 'botao-contorno' ?>"
            href="<?= e(url('relatorios.index')) ?>?periodo=30">30 dias</a>
-        <a class="botao botao-pequeno botao-contorno" href="<?= e(url('relatorios.pediatra')) ?>">🩺 Modo Pediatra</a>
+        <a class="botao botao-pequeno botao-contorno" href="<?= e(url('relatorios.pediatra')) ?>">Modo Pediatra</a>
         <a class="botao botao-pequeno botao-contorno" href="<?= e(url('relatorios.resumo', ['data' => hoje()])) ?>">Resumo de hoje</a>
     </div>
     <?php if (count($criancas) > 1): ?>

@@ -5,7 +5,7 @@ use App\Core\Csrf;
 /** @var array $suprimentos */
 /** @var bool $podeResolver */
 
-$niveis = ['ok' => '🟢 Ok', 'baixo' => '🟡 Acabando', 'acabou' => '🔴 Acabou'];
+$niveis = ['ok' => 'Ok', 'baixo' => 'Acabando', 'acabou' => 'Acabou'];
 ?>
 <h2>Suprimentos</h2>
 
@@ -39,7 +39,8 @@ $niveis = ['ok' => '🟢 Ok', 'baixo' => '🟡 Acabando', 'acabou' => '🔴 Acab
         <?php foreach ($suprimentos as $item): ?>
             <tr class="<?= $item['resolvido_em'] !== null ? 'linha-inativa' : '' ?>">
                 <td><?= e($item['item']) ?></td>
-                <td><?= $item['resolvido_em'] !== null ? '✅ Resolvido' : e($niveis[$item['nivel']] ?? $item['nivel']) ?></td>
+                <td><?php if ($item['resolvido_em'] !== null): ?><span class="etiqueta-estado etiqueta-verde" style="margin:0">Resolvido</span>
+                    <?php else: ?><span class="etiqueta-estado etiqueta-<?= $item['nivel'] === 'acabou' ? 'vermelho' : 'ambar' ?>" style="margin:0"><?= e($niveis[$item['nivel']] ?? $item['nivel']) ?></span><?php endif; ?></td>
                 <td><?= e($item['solicitante_nome']) ?></td>
                 <td><?= e(data_br($item['solicitado_em'], 'd/m H:i')) ?></td>
                 <td>

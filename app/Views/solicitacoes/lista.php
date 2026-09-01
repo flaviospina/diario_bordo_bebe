@@ -29,7 +29,7 @@ $tipos = ['edicao' => 'Edição', 'exclusao' => 'Exclusão', 'conflito_sync' => 
                 <td><?= e($tipos[$solicitacao['tipo']] ?? $solicitacao['tipo']) ?></td>
                 <td><a href="<?= e(url('registro.ver', ['codigo' => $solicitacao['registro_codigo']])) ?>"><?= e($solicitacao['categoria_nome']) ?></a></td>
                 <td><?= e($solicitacao['solicitante_nome']) ?></td>
-                <td><?= $solicitacao['status'] === 'aprovada' ? '✅ Aprovada' : '❌ Recusada' ?></td>
+                <td><?= $solicitacao['status'] === 'aprovada' ? 'Aprovada' : 'Recusada' ?></td>
                 <td><?= e(data_br($solicitacao['decidido_em'])) ?></td>
             </tr>
         <?php endforeach; ?>

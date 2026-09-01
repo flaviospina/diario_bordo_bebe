@@ -14,7 +14,7 @@
                 <option value="">Todas</option>
                 <?php foreach ($categorias as $categoria): ?>
                     <option value="<?= e($categoria['slug']) ?>" <?= $filtros['categoria'] === $categoria['slug'] ? 'selected' : '' ?>>
-                        <?= e($categoria['icone']) ?> <?= e($categoria['nome']) ?>
+                        <?= e($categoria['nome']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -43,7 +43,7 @@
     <?php endif; ?>
     <a class="chip-registro estado-<?= e($registro['status'] === 'feito' ? 'verde' : ($registro['status'] === 'parcial' ? 'ambar' : 'vermelho')) ?>"
        href="<?= e(url('registro.ver', ['codigo' => $registro['codigo_publico']])) ?>">
-        <span><?= e($registro['categoria_icone']) ?></span>
+        <?= selo_categoria((string)$registro['categoria_slug'], (string)$registro['categoria_grupo'], 34, 18) ?>
         <span><?= e(data_br($registro['inicio'], 'H:i')) ?> · <?= e($registro['categoria_nome']) ?>
             <small class="texto-apoio">(<?= e($registro['usuario_nome']) ?>)</small></span>
     </a><br>

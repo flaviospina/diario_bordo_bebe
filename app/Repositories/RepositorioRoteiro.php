@@ -10,7 +10,7 @@ final class RepositorioRoteiro extends RepositorioBase
     public function listar(int $criancaId): array
     {
         return $this->buscarTodos(
-            'SELECT rb.*, c.nome AS categoria_nome, c.slug AS categoria_slug, c.icone AS categoria_icone
+            'SELECT rb.*, c.nome AS categoria_nome, c.slug AS categoria_slug, c.grupo AS categoria_grupo, c.icone AS categoria_icone
                FROM roteiro_blocos rb
                LEFT JOIN categorias c ON c.id = rb.categoria_id
               WHERE rb.familia_id = :familia_id AND rb.crianca_id = :crianca AND rb.ativo = 1
@@ -23,7 +23,7 @@ final class RepositorioRoteiro extends RepositorioBase
     public function listarParaDia(int $criancaId, string $diaSemana): array
     {
         return $this->buscarTodos(
-            'SELECT rb.*, c.nome AS categoria_nome, c.slug AS categoria_slug, c.icone AS categoria_icone
+            'SELECT rb.*, c.nome AS categoria_nome, c.slug AS categoria_slug, c.grupo AS categoria_grupo, c.icone AS categoria_icone
                FROM roteiro_blocos rb
                LEFT JOIN categorias c ON c.id = rb.categoria_id
               WHERE rb.familia_id = :familia_id AND rb.crianca_id = :crianca AND rb.ativo = 1
