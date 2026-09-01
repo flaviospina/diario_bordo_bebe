@@ -999,3 +999,20 @@ fieldset.cartao legend {
 .cartao-cta-consulta { text-align: center; }
 .cartao-cta-consulta h3 { justify-content: center; }
 .cartao-cta-consulta .botao { margin-top: .4rem; }
+
+/* ══ Escala (fase fundadores): landing pública ══ */
+.landing-hero { text-align: center; padding: 1.6rem 0 1.2rem; }
+.landing-hero h1 { font-size: 1.9rem; line-height: 1.15; margin: .8rem 0 .5rem; }
+.landing-sub { color: var(--tinta-suave); max-width: 34rem; margin: 0 auto .9rem; }
+.landing-ctas { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; margin-bottom: .6rem; }
+.landing-grade { display: grid; grid-template-columns: 1fr; gap: .8rem; margin: 1rem 0; }
+@media (min-width: 700px) { .landing-grade { grid-template-columns: 1fr 1fr; } }
+.landing-recurso h3 { margin: .5rem 0 .2rem; }
+.landing-recurso p { margin: 0; }
+.landing-selo { width: 46px; height: 46px; }
+.landing-selo-salvia { background: var(--salvia-suave); }
+.landing-selo-pessego { background: var(--pessego-suave); }
+.landing-passos ol { margin: .4rem 0 0; padding-left: 1.2rem; }
+.landing-passos li { margin: .45rem 0; color: var(--tinta-suave); }
+.landing-passos li strong { color: var(--tinta); }
+.landing-convite { border-color: var(--salvia-suave); }

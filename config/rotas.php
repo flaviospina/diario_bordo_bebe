@@ -13,6 +13,11 @@ return static function (Roteador $r): void {
 
     // ── Público ────────────────────────────────────────────────
     $r->get('/', 'HomeController@inicio')->nome('home');
+    $r->post('/quero-convite', 'HomeController@listaEspera')->nome('lista.espera');
+
+    // Auto-cadastro de família fundadora (link enviado pela plataforma)
+    $r->get('/comecar/{codigo}', 'ComecarController@mostrar')->nome('comecar');
+    $r->post('/comecar/{codigo}', 'ComecarController@criar')->nome('comecar.enviar');
 
     $r->get('/entrar', 'AutenticacaoController@formularioEntrar')->nome('login');
     $r->post('/entrar', 'AutenticacaoController@entrar')->nome('login.enviar');

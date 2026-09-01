@@ -38,7 +38,8 @@ final class ServicoPlataforma extends RepositorioSistema
             return ['erro' => 'Já existe uma conta com este e-mail.', 'link' => null];
         }
 
-        $familiaId = $this->familias->criar($nome, in_array($plano, ['familiar', 'premium'], true) ? $plano : 'familiar');
+        // O plano chega validado contra o catálogo `planos` pelo controller
+        $familiaId = $this->familias->criar($nome, $plano);
         $token = Identificadores::token();
         $this->executar(
             'INSERT INTO convites (familia_id, email, papel, token_hash, convidado_por, expira_em)

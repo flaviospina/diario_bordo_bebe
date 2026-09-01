@@ -154,6 +154,15 @@ final class ConfiguracaoController
 
         $erro = match ($acao) {
             'convidar' => (function () use ($requisicao, $servico, $ip): ?string {
+                // Limite do plano (configurável em `planos`, nunca no código)
+                $totalAtivos = count(array_filter(
+                    (new \App\Repositories\RepositorioUsuariosFamilia())->listar(),
+                    static fn(array $u): bool => (int)$u['ativo'] === 1
+                ));
+                if (!(new \App\Services\ServicoPlano())->aindaCabe('max_usuarios', $totalAtivos)) {
+                    return 'O plano atual da família chegou ao limite de pessoas. '
+                        . 'Desative alguém que não usa mais ou fale com o suporte sobre os planos.';
+                }
                 $resultado = $servico->convidar(
                     (string)$requisicao->post('email', ''),
                     (string)$requisicao->post('papel', ''),
@@ -254,6 +263,12 @@ final class ConfiguracaoController
             $repositorio->atualizar($criancaId, $dados);
             Sessao::flash('sucesso', 'Dados de ' . $nome . ' atualizados.');
         } else {
+            // Limite do plano (configurável em `planos`, nunca no código)
+            if (!(new \App\Services\ServicoPlano())->aindaCabe('max_criancas', count($repositorio->listar()))) {
+                Sessao::flash('erro', 'O plano atual da família chegou ao limite de crianças. '
+                    . 'Fale com o suporte sobre os planos.');
+                Resposta::redirecionarRota('config.criancas');
+            }
             $criancaId = $repositorio->criar($nome, $dados);
             Sessao::flash('sucesso', $nome . ' cadastrada(o).');
         }
