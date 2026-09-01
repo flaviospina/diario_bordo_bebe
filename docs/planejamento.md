@@ -727,3 +727,30 @@ resumo e relatórios são sempre por criança.
 Aguardando aprovação deste planejamento para iniciar a **Fase 1 — Fundação**
 (estrutura, front controller, roteador, autenticação, migrações, seed de categorias,
 multi-tenant, layout base, 404/403).
+
+---
+
+## Adendo — Alteração 01: ficha essencial e atualização pelo pediatra (v0.3.0)
+
+Entregue de forma **aditiva** (nenhuma migração anterior editada, CSS apenas
+estendido ao final, roteador e SW intocados na estrutura):
+
+- **Ficha essencial** em `/crianca/{slug}`: foto (reprocessada sem EXIF/GPS),
+  idade, últimas medidas com **percentil OMS congelado** na gravação
+  (LMS em `database/dados/oms_lms.php`), faixa de saúde sempre visível,
+  curvas de crescimento SVG (P3/P50/P97, tom único — o sistema exibe o
+  percentil e nunca o comenta), caderneta de vacinas cruzada com o PNI,
+  consultas e dados de nascimento/convênio.
+- **Medições** (`/crianca/{slug}/medicoes`): histórico só-INSERT (nada é
+  sobrescrito — a curva é preservada), origem `pais|cuidador|pediatra`.
+- **Link de uso único para o pediatra** (`/crianca/{slug}/consulta` gera QR;
+  `/consulta/{codigo}` é público): 48 h, máx. 3 ativos, queima no envio
+  gravando IP/user-agent; a página pública não mostra rotina dia a dia,
+  fotos nem usuários. O que o pediatra envia entra **pendente** até a
+  confirmação dos pais (ou confirmação automática em 7 dias, auditada).
+- **Migração `0008_ficha_pediatra`**: colunas novas em `criancas` (checagem
+  via information_schema, idempotente) + tabelas `profissionais`, `medicoes`,
+  `vacinas`, `consultas`, `convites_consulta`; `pediatra_nome/telefone`
+  migrados para `profissionais` sem apagar as colunas antigas.
+- Eventos n8n novos: `consulta_link_aberto`, `consulta_link_usado`,
+  `medicao_pendente`.

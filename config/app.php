@@ -28,7 +28,7 @@ $basePath = rtrim($basePath, '/');
 define('BASE_PATH', $basePath);
 
 define('APP_NOME', 'Diário do Bebê');
-define('APP_VERSAO', '0.2.0');
+define('APP_VERSAO', '0.3.0');
 
 /** Pasta de armazenamento (fotos, PDFs, logs) — configurável para fora do webroot. */
 $storage = Ambiente::obter('STORAGE_PATH');

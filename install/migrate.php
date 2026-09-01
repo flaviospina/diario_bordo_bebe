@@ -69,8 +69,27 @@ foreach ($arquivos as $arquivo) {
     }
     $migracao = require $arquivo;
     try {
+        // Colunas novas condicionais (idempotência para ALTER TABLE, já que o
+        // MySQL 8 não aceita ADD COLUMN IF NOT EXISTS): só aplica o que falta.
+        foreach (($migracao['colunas'] ?? []) as $tabela => $colunas) {
+            $existentes = $bd->prepare(
+                'SELECT COLUMN_NAME FROM information_schema.COLUMNS
+                  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?'
+            );
+            $existentes->execute([$tabela]);
+            $nomes = $existentes->fetchAll(PDO::FETCH_COLUMN);
+            foreach ($colunas as $coluna => $ddl) {
+                if (!in_array($coluna, $nomes, true)) {
+                    $bd->exec("ALTER TABLE {$tabela} ADD COLUMN {$coluna} {$ddl}");
+                }
+            }
+        }
         foreach (($migracao['sql'] ?? []) as $sql) {
             $bd->exec($sql);
+        }
+        // Passo de migração de dados em PHP (quando SQL puro não basta)
+        if (isset($migracao['executar']) && is_callable($migracao['executar'])) {
+            ($migracao['executar'])($bd);
         }
         $declaracao = $bd->prepare('INSERT INTO migracoes (arquivo) VALUES (?)');
         $declaracao->execute([$nome]);

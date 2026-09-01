@@ -26,7 +26,11 @@ final class ServicoTarefas
     {
         $despacho = (new ServicoNotificacoes())->dispararPendentes();
         $turnosFechados = $this->fecharTurnosAntigos();
-        return $despacho + ['turnos_fechados' => $turnosFechados];
+        $medicoesConfirmadas = (new ServicoConsulta())->confirmarAutomaticas();
+        return $despacho + [
+            'turnos_fechados' => $turnosFechados,
+            'medicoes_confirmadas_automaticamente' => $medicoesConfirmadas,
+        ];
     }
 
     /**

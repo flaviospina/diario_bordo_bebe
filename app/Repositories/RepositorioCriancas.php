@@ -95,6 +95,55 @@ final class RepositorioCriancas extends RepositorioBase
         );
     }
 
+    /** Foto da ficha essencial: caminho, thumb e código público de entrega. */
+    public function atualizarFotoCrianca(int $id, ?string $caminho, ?string $thumb, ?string $codigo): void
+    {
+        $this->executar(
+            'UPDATE criancas SET foto_path = :foto, foto_thumb = :thumb, foto_codigo = :codigo
+              WHERE familia_id = :familia_id AND id = :id',
+            ['id' => $id, 'foto' => $caminho, 'thumb' => $thumb, 'codigo' => $codigo]
+        );
+    }
+
+    /** Entrega da foto por /foto/{codigo}, sempre restrita à família. */
+    public function buscarPorFotoCodigo(string $codigo): ?array
+    {
+        return $this->buscarUm(
+            'SELECT id, foto_path, foto_thumb FROM criancas
+              WHERE familia_id = :familia_id AND foto_codigo = :codigo LIMIT 1',
+            ['codigo' => $codigo]
+        );
+    }
+
+    /**
+     * Campos da ficha essencial (Alteração 01). Update separado do fluxo
+     * original de atualizar() para não tocar o contrato existente.
+     * @param array<string,mixed> $dados
+     */
+    public function atualizarFichaEssencial(int $id, array $dados): void
+    {
+        $this->executar(
+            'UPDATE criancas SET semanas_gestacao = :semanas, peso_nascimento_g = :peso,
+                    comprimento_nascimento_mm = :comprimento,
+                    perimetro_cefalico_nascimento_mm = :pc, tipo_parto = :parto,
+                    convenio_nome = :convenio, convenio_carteirinha = :carteirinha,
+                    hospital_referencia = :hospital, restricoes_alimentares = :restricoes
+              WHERE familia_id = :familia_id AND id = :id',
+            [
+                'id'          => $id,
+                'semanas'     => $dados['semanas_gestacao'] ?? null,
+                'peso'        => $dados['peso_nascimento_g'] ?? null,
+                'comprimento' => $dados['comprimento_nascimento_mm'] ?? null,
+                'pc'          => $dados['perimetro_cefalico_nascimento_mm'] ?? null,
+                'parto'       => $dados['tipo_parto'] ?? null,
+                'convenio'    => $dados['convenio_nome'] ?? null,
+                'carteirinha' => $dados['convenio_carteirinha'] ?? null,
+                'hospital'    => $dados['hospital_referencia'] ?? null,
+                'restricoes'  => $dados['restricoes_alimentares'] ?? null,
+            ]
+        );
+    }
+
     /** Slug único dentro da família; colisão ganha sufixo -2, -3... */
     private function slugDisponivel(string $nome): string
     {

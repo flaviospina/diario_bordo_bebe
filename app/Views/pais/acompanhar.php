@@ -105,6 +105,26 @@ $chipRegistro = static function (array $registro): void {
     </a>
 <?php endforeach; ?>
 
+<?php
+$papelAtual = (string)(\App\Core\Autenticacao::usuario()['papel'] ?? '');
+$podeConfirmarMedicao = in_array($papelAtual, ['responsavel', 'admin_familia'], true);
+?>
+<?php foreach (($medicoesPendentes ?? []) as $medicaoPendente): ?>
+    <div class="cartao-pendencia">
+        <span class="selo-categoria" style="width:42px;height:42px;background:#DEEDE9"><?= icone_ui('estetoscopio', 21, '#3E6A64') ?></span>
+        <div style="min-width:0">
+            <div class="titulo"><?= e($medicaoPendente['profissional_nome'] ?? 'O pediatra') ?> registrou
+                <?= $medicaoPendente['peso_g'] !== null ? e(number_format((int)$medicaoPendente['peso_g'] / 1000, 3, ',', '.')) . ' kg' : 'uma medição' ?>
+                em <?= e(data_br($medicaoPendente['medido_em'] . ' 00:00:00', 'd/m')) ?></div>
+            <div class="detalhe"><?= e($medicaoPendente['crianca_nome']) ?> — confirme para valer na curva de crescimento</div>
+        </div>
+        <?php if ($podeConfirmarMedicao): ?>
+            <a class="botao botao-primario botao-pequeno" style="margin-left:auto;flex-shrink:0"
+               href="<?= e(url('crianca.medicoes', ['slug' => $medicaoPendente['crianca_slug']])) ?>">Confirmar</a>
+        <?php endif; ?>
+    </div>
+<?php endforeach; ?>
+
 <?php if ($solicitacoesPendentes > 0): ?>
     <a class="cartao-pendencia" href="<?= e(url('solicitacoes.lista')) ?>">
         <span class="selo-categoria" style="width:42px;height:42px;background:#E3EDF8"><?= icone_ui('balao', 21, '#3D6CA3') ?></span>

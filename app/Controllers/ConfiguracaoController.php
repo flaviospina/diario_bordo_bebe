@@ -250,13 +250,52 @@ final class ConfiguracaoController
                 Sessao::flash('erro', 'Criança não encontrada.');
                 Resposta::redirecionarRota('config.criancas');
             }
-            $repositorio->atualizar((int)$existente['id'], $dados);
+            $criancaId = (int)$existente['id'];
+            $repositorio->atualizar($criancaId, $dados);
             Sessao::flash('sucesso', 'Dados de ' . $nome . ' atualizados.');
         } else {
-            $repositorio->criar($nome, $dados);
+            $criancaId = $repositorio->criar($nome, $dados);
             Sessao::flash('sucesso', $nome . ' cadastrada(o).');
         }
+
+        $this->salvarFichaEssencial($requisicao, $repositorio, $criancaId, $opcional);
         Resposta::redirecionarRota('config.criancas');
+    }
+
+    /** Campos da ficha essencial (Alteração 01): nascimento, convênio e foto. */
+    private function salvarFichaEssencial(
+        Requisicao $requisicao,
+        RepositorioCriancas $repositorio,
+        int $criancaId,
+        callable $opcional
+    ): void {
+        $inteiroNaFaixa = static function (?string $valor, float $minimo, float $maximo, float $fator): ?int {
+            $texto = str_replace(',', '.', trim((string)$valor));
+            if ($texto === '' || !is_numeric($texto)) {
+                return null;
+            }
+            $numero = (float)$texto;
+            return ($numero >= $minimo && $numero <= $maximo) ? (int)round($numero * $fator) : null;
+        };
+        $tipoParto = $requisicao->post('tipo_parto');
+        $repositorio->atualizarFichaEssencial($criancaId, [
+            'semanas_gestacao' => $inteiroNaFaixa($requisicao->post('semanas_gestacao'), 20, 45, 1),
+            'peso_nascimento_g' => $inteiroNaFaixa($requisicao->post('peso_nascimento_kg'), 0.3, 8, 1000),
+            'comprimento_nascimento_mm' => $inteiroNaFaixa($requisicao->post('comprimento_nascimento_cm'), 20, 70, 10),
+            'perimetro_cefalico_nascimento_mm' => $inteiroNaFaixa($requisicao->post('perimetro_cefalico_nascimento_cm'), 20, 45, 10),
+            'tipo_parto' => in_array($tipoParto, ['normal', 'cesarea', 'forceps', 'nao_informado'], true) ? $tipoParto : null,
+            'convenio_nome' => $opcional($requisicao->post('convenio_nome')),
+            'convenio_carteirinha' => $opcional($requisicao->post('convenio_carteirinha')),
+            'hospital_referencia' => $opcional($requisicao->post('hospital_referencia')),
+            'restricoes_alimentares' => $opcional($requisicao->post('restricoes_alimentares')),
+        ]);
+
+        $resultado = (new \App\Services\ServicoFotos())->fotoCrianca($_FILES['foto'] ?? []);
+        if ($resultado['erro'] !== null) {
+            Sessao::flash('erro', $resultado['erro']);
+        } elseif ($resultado['codigo'] !== null) {
+            $repositorio->atualizarFotoCrianca($criancaId, $resultado['caminho'], $resultado['thumb'], $resultado['codigo']);
+        }
     }
 
     // ── Categorias ativas ─────────────────────────────────────

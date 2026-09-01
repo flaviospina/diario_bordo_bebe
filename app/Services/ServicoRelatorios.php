@@ -135,6 +135,33 @@ final class ServicoRelatorios extends RepositorioSistema
         if (!empty($crianca['medicacoes_continuas'])) {
             $pdf->linhaTexto('Medicações contínuas: ' . $crianca['medicacoes_continuas'], 10);
         }
+
+        // Crescimento: últimas medições confirmadas, com percentil congelado (OMS)
+        $medicoes = array_values(array_filter(
+            (new \App\Repositories\RepositorioMedicoes())->listar((int)$crianca['id'], 6),
+            static fn(array $m): bool => $m['status'] === 'confirmada'
+        ));
+        if ($medicoes !== []) {
+            $pdf->linhaHorizontal();
+            $posicoesCrescimento = [0.0, 80.0, 190.0, 300.0, 420.0];
+            $pdf->linhaTabela(['Medição', 'Peso', 'Altura', 'Per. cefálico', 'Origem'], $posicoesCrescimento, 9, true);
+            $formatar = static function (int|string|null $bruto, float $fator, $percentil, string $unidade): string {
+                if ($bruto === null) {
+                    return '-';
+                }
+                $texto = number_format((int)$bruto / $fator, $fator > 100 ? 3 : 1, ',', '.') . ' ' . $unidade;
+                return $percentil !== null ? $texto . ' (P' . number_format((float)$percentil, 0) . ')' : $texto;
+            };
+            foreach ($medicoes as $medicao) {
+                $pdf->linhaTabela([
+                    data_br($medicao['medido_em'] . ' 0:0', 'd/m/Y'),
+                    $formatar($medicao['peso_g'], 1000, $medicao['percentil_peso'], 'kg'),
+                    $formatar($medicao['altura_mm'], 10, $medicao['percentil_altura'], 'cm'),
+                    $formatar($medicao['perimetro_cefalico_mm'], 10, $medicao['percentil_pc'], 'cm'),
+                    $medicao['origem'] === 'pediatra' ? 'consultório' : 'casa',
+                ], $posicoesCrescimento, 8.5);
+            }
+        }
         $pdf->linhaHorizontal();
 
         $posicoes = [0.0, 90.0, 180.0, 270.0, 360.0, 440.0];

@@ -54,6 +54,8 @@ final class PwaController
             $base . '/assets/js/voz.js?v=' . $versao,
             $base . '/assets/js/offline.js?v=' . $versao,
             $base . '/assets/js/modal.js?v=' . $versao,
+            $base . '/assets/js/consulta.js?v=' . $versao,
+            $base . '/assets/js/qrcode.min.js?v=' . $versao,
             $base . '/assets/fontes/fontes.css',
             $base . '/assets/fontes/quicksand-500.woff2',
             $base . '/assets/fontes/nunitosans-400.woff2',

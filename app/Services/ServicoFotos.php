@@ -78,6 +78,64 @@ final class ServicoFotos extends RepositorioSistema
         return null;
     }
 
+    /**
+     * Foto de perfil da criança (ficha essencial). Mesmo pipeline dos
+     * registros: reencodificação via GD descarta EXIF/GPS antes de salvar.
+     * @return array{erro:?string, caminho:?string, thumb:?string, codigo:?string}
+     */
+    public function fotoCrianca(array $arquivo): array
+    {
+        $falha = static fn(string $erro): array =>
+            ['erro' => $erro, 'caminho' => null, 'thumb' => null, 'codigo' => null];
+
+        if (($arquivo['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+            return ['erro' => null, 'caminho' => null, 'thumb' => null, 'codigo' => null];
+        }
+        if ($arquivo['error'] !== UPLOAD_ERR_OK) {
+            return $falha('Falha no envio da foto. Tente novamente.');
+        }
+        if ((int)$arquivo['size'] > self::TAMANHO_MAXIMO) {
+            return $falha('A foto excede o limite de 8 MB.');
+        }
+
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file((string)$arquivo['tmp_name']);
+        if (in_array($mime, ['image/heic', 'image/heif'], true)) {
+            return $falha('Fotos HEIC (padrão do iPhone) ainda não são aceitas. '
+                . 'No iPhone, escolha "Mais compatível" ao enviar, ou converta para JPEG.');
+        }
+        $imagem = match ($mime) {
+            'image/jpeg' => @imagecreatefromjpeg((string)$arquivo['tmp_name']),
+            'image/png'  => @imagecreatefrompng((string)$arquivo['tmp_name']),
+            'image/webp' => @imagecreatefromwebp((string)$arquivo['tmp_name']),
+            default      => false,
+        };
+        if ($imagem === false) {
+            return $falha('Formato não aceito. Envie JPEG, PNG ou WebP.');
+        }
+
+        $pasta = STORAGE_PATH . '/fotos/' . Autenticacao::familiaId();
+        $pastaThumb = STORAGE_PATH . '/thumbs/' . Autenticacao::familiaId();
+        if (!is_dir($pasta) && !mkdir($pasta, 0755, true)) {
+            imagedestroy($imagem);
+            return $falha('Não foi possível salvar a foto (storage indisponível).');
+        }
+        if (!is_dir($pastaThumb)) {
+            mkdir($pastaThumb, 0755, true);
+        }
+
+        $codigo = Identificadores::codigoPublico();
+        $this->salvarRedimensionada($imagem, $pasta . '/' . $codigo . '.jpg', 800);
+        $this->salvarRedimensionada($imagem, $pastaThumb . '/' . $codigo . '.jpg', 200);
+        imagedestroy($imagem);
+
+        return [
+            'erro'    => null,
+            'caminho' => 'fotos/' . Autenticacao::familiaId() . '/' . $codigo . '.jpg',
+            'thumb'   => 'thumbs/' . Autenticacao::familiaId() . '/' . $codigo . '.jpg',
+            'codigo'  => $codigo,
+        ];
+    }
+
     /** Reencodifica como JPEG (remove metadados) limitando o maior lado. */
     private function salvarRedimensionada(\GdImage $origem, string $destino, int $ladoMaximo): void
     {

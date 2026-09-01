@@ -71,6 +71,10 @@ final class RelatorioController
             'de' => $de,
             'ate' => $ate,
             'dias' => (new ServicoRelatorios())->agregadosPorDia((int)$crianca['id'], $de, $ate),
+            'crescimento' => array_values(array_filter(
+                (new \App\Repositories\RepositorioMedicoes())->listar((int)$crianca['id'], 10),
+                static fn(array $m): bool => $m['status'] === 'confirmada'
+            )),
         ]);
     }
 

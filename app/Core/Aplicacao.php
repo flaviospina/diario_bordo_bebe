@@ -102,10 +102,13 @@ final class Aplicacao
         throw new \RuntimeException("Middleware desconhecido: {$nome}");
     }
 
-    /** Webhooks e tarefas agendadas autenticam por token de serviço, não por sessão. */
+    /**
+     * Webhooks e tarefas autenticam por token de serviço; o envio do pediatra,
+     * pelo código de uso único (não há sessão de onde tirar CSRF).
+     */
     private function rotaIsentaDeCsrf(Rota $rota): bool
     {
-        return in_array($rota->nome, ['api.webhook.status', 'api.tarefas'], true);
+        return in_array($rota->nome, ['api.webhook.status', 'api.tarefas', 'api.consulta.enviar'], true);
     }
 
     private function invocarAcao(string $acao, Requisicao $requisicao): void

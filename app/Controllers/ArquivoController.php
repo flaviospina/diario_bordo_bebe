@@ -17,9 +17,15 @@ final class ArquivoController
 {
     public function foto(Requisicao $requisicao): void
     {
-        $foto = (new ServicoFotos())->buscarDaFamilia($requisicao->parametro('codigo'));
+        $codigo = $requisicao->parametro('codigo');
+        $foto = (new ServicoFotos())->buscarDaFamilia($codigo);
         if ($foto === null) {
-            Visao::erro404();
+            // Fallback: foto de perfil da criança (ficha essencial), mesmo código público
+            $crianca = (new \App\Repositories\RepositorioCriancas())->buscarPorFotoCodigo($codigo);
+            if ($crianca === null || $crianca['foto_path'] === null) {
+                Visao::erro404();
+            }
+            $foto = ['caminho' => $crianca['foto_path'], 'thumb' => $crianca['foto_thumb']];
         }
         $relativo = $requisicao->get('thumb') === '1' && $foto['thumb'] !== null
             ? (string)$foto['thumb'] : (string)$foto['caminho'];

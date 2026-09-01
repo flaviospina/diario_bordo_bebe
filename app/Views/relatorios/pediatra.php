@@ -29,6 +29,33 @@ $divisor = max(1, $diasComDado);
         <?= $crianca['alergias'] !== null ? ' · Alergias: ' . e((string)$crianca['alergias']) : '' ?>
     </p>
 
+    <?php if (($crescimento ?? []) !== []): ?>
+        <h3>Crescimento (últimas medições)</h3>
+        <div class="tabela-rolavel"><table class="tabela tabela-compacta">
+            <thead><tr><th>Data</th><th>Peso</th><th>Altura</th><th>Perím. cefálico</th><th>Origem</th></tr></thead>
+            <tbody>
+            <?php foreach ($crescimento as $medicao): ?>
+                <tr>
+                    <td><?= e(data_br($medicao['medido_em'] . ' 00:00:00', 'd/m/y')) ?></td>
+                    <td><?= $medicao['peso_g'] !== null
+                        ? e(number_format((int)$medicao['peso_g'] / 1000, 3, ',', '.')) . ' kg'
+                            . ($medicao['percentil_peso'] !== null ? ' <small>P' . e(number_format((float)$medicao['percentil_peso'], 0)) . '</small>' : '')
+                        : '—' ?></td>
+                    <td><?= $medicao['altura_mm'] !== null
+                        ? e(number_format((int)$medicao['altura_mm'] / 10, 1, ',', '.')) . ' cm'
+                            . ($medicao['percentil_altura'] !== null ? ' <small>P' . e(number_format((float)$medicao['percentil_altura'], 0)) . '</small>' : '')
+                        : '—' ?></td>
+                    <td><?= $medicao['perimetro_cefalico_mm'] !== null
+                        ? e(number_format((int)$medicao['perimetro_cefalico_mm'] / 10, 1, ',', '.')) . ' cm'
+                            . ($medicao['percentil_pc'] !== null ? ' <small>P' . e(number_format((float)$medicao['percentil_pc'], 0)) . '</small>' : '')
+                        : '—' ?></td>
+                    <td><?= e($medicao['origem'] === 'pediatra' ? 'consultório' : 'casa') ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table></div>
+    <?php endif; ?>
+
     <div class="tabela-rolavel"><table class="tabela tabela-compacta">
         <thead>
         <tr><th>Dia</th><th>Sono (h)</th><th>Mamadas</th><th>Volume (ml)</th><th>Fraldas</th><th>Intercorrências</th></tr>

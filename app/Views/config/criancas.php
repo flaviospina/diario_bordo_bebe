@@ -35,7 +35,7 @@ $valor = static fn(string $campo): string => e((string)($editando[$campo] ?? '')
 <div class="cartao">
     <h3><?= $editando !== null ? 'Editar ' . e($editando['nome']) : 'Cadastrar criança' ?></h3>
     <p class="texto-apoio">Apenas o nome é obrigatório — preencha o resto quando e se quiser.</p>
-    <form method="post" action="<?= e(url('config.criancas.salvar')) ?>" class="formulario">
+    <form method="post" action="<?= e(url('config.criancas.salvar')) ?>" class="formulario" enctype="multipart/form-data">
         <?= Csrf::campo() ?>
         <input type="hidden" name="codigo" value="<?= e((string)($editando['codigo_publico'] ?? '')) ?>">
 
@@ -75,6 +75,68 @@ $valor = static fn(string $campo): string => e((string)($editando[$campo] ?? '')
         <textarea id="condicoes_saude" name="condicoes_saude" rows="2"><?= $valor('condicoes_saude') ?></textarea>
         <label for="medicacoes_continuas">Medicações contínuas</label>
         <textarea id="medicacoes_continuas" name="medicacoes_continuas" rows="2"><?= $valor('medicacoes_continuas') ?></textarea>
+        <label for="restricoes_alimentares">Restrições alimentares</label>
+        <textarea id="restricoes_alimentares" name="restricoes_alimentares" rows="2"><?= $valor('restricoes_alimentares') ?></textarea>
+
+        <label for="foto">Foto da criança</label>
+        <?php if (!empty($editando['foto_codigo'])): ?>
+            <p class="texto-apoio" style="display:flex;align-items:center;gap:.6rem;margin:.2rem 0 .4rem">
+                <img class="foto-crianca-mini" src="<?= e(url('foto.ver', ['codigo' => $editando['foto_codigo']])) ?>?thumb=1" alt="Foto atual de <?= e($editando['nome']) ?>">
+                Enviar uma nova foto substitui a atual.
+            </p>
+        <?php endif; ?>
+        <input type="file" id="foto" name="foto" accept="image/jpeg,image/png,image/webp">
+        <p class="texto-apoio">JPEG, PNG ou WebP até 8 MB. A foto é reprocessada e os metadados
+            (localização do celular etc.) são removidos antes de salvar.</p>
+
+        <h3 style="margin-top:1rem">Nascimento</h3>
+        <div class="linha-campos">
+            <div>
+                <label for="semanas_gestacao">Semanas de gestação</label>
+                <input type="number" id="semanas_gestacao" name="semanas_gestacao" min="20" max="45" step="1"
+                       value="<?= $valor('semanas_gestacao') ?>">
+            </div>
+            <div>
+                <label for="tipo_parto">Tipo de parto</label>
+                <select id="tipo_parto" name="tipo_parto">
+                    <option value="">—</option>
+                    <?php foreach (['normal' => 'Normal', 'cesarea' => 'Cesárea', 'forceps' => 'Fórceps', 'nao_informado' => 'Prefiro não informar'] as $v => $rotulo): ?>
+                        <option value="<?= e($v) ?>" <?= ($editando['tipo_parto'] ?? '') === $v ? 'selected' : '' ?>><?= e($rotulo) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+        <div class="linha-campos">
+            <div>
+                <label for="peso_nascimento_kg">Peso ao nascer (kg)</label>
+                <input type="number" id="peso_nascimento_kg" name="peso_nascimento_kg" min="0.3" max="8" step="0.001"
+                       placeholder="3,250" value="<?= !empty($editando['peso_nascimento_g']) ? e(number_format((int)$editando['peso_nascimento_g'] / 1000, 3, '.', '')) : '' ?>">
+            </div>
+            <div>
+                <label for="comprimento_nascimento_cm">Comprimento (cm)</label>
+                <input type="number" id="comprimento_nascimento_cm" name="comprimento_nascimento_cm" min="20" max="70" step="0.1"
+                       value="<?= !empty($editando['comprimento_nascimento_mm']) ? e(number_format((int)$editando['comprimento_nascimento_mm'] / 10, 1, '.', '')) : '' ?>">
+            </div>
+            <div>
+                <label for="perimetro_cefalico_nascimento_cm">Perímetro cefálico (cm)</label>
+                <input type="number" id="perimetro_cefalico_nascimento_cm" name="perimetro_cefalico_nascimento_cm" min="20" max="45" step="0.1"
+                       value="<?= !empty($editando['perimetro_cefalico_nascimento_mm']) ? e(number_format((int)$editando['perimetro_cefalico_nascimento_mm'] / 10, 1, '.', '')) : '' ?>">
+            </div>
+        </div>
+
+        <h3 style="margin-top:1rem">Convênio e referências</h3>
+        <div class="linha-campos">
+            <div>
+                <label for="convenio_nome">Convênio</label>
+                <input type="text" id="convenio_nome" name="convenio_nome" maxlength="120" value="<?= $valor('convenio_nome') ?>">
+            </div>
+            <div>
+                <label for="convenio_carteirinha">Carteirinha</label>
+                <input type="text" id="convenio_carteirinha" name="convenio_carteirinha" maxlength="60" value="<?= $valor('convenio_carteirinha') ?>">
+            </div>
+        </div>
+        <label for="hospital_referencia">Hospital de referência</label>
+        <input type="text" id="hospital_referencia" name="hospital_referencia" maxlength="120" value="<?= $valor('hospital_referencia') ?>">
 
         <div class="linha-campos">
             <div>

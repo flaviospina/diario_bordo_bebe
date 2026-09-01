@@ -71,6 +71,7 @@ final class PaisController
             'silencioMinutos' => $silencioMinutos,
             'alertaAtivo' => !empty($alerta['ativo']),
             'solicitacoesPendentes' => (new RepositorioSolicitacoes())->contarPendentes(),
+            'medicoesPendentes' => (new \App\Repositories\RepositorioMedicoes())->pendentes(),
             'intercorrenciasSemCiencia' => (new RepositorioIntercorrencias())->contarSemCiencia(),
             'intercorrencias' => array_values(array_filter(
                 (new RepositorioIntercorrencias())->listar(10),

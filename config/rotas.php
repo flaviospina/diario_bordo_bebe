@@ -61,6 +61,22 @@ return static function (Roteador $r): void {
         ->middleware('autenticado');
     $r->get('/crianca/{slug}/linha-do-tempo', 'CriancaController@timeline')->nome('crianca.timeline')
         ->middleware('autenticado');
+
+    // ── Ficha essencial e pediatra (Alteração 01) ──────────────
+    $r->get('/crianca/{slug}/medicoes', 'CriancaController@medicoes')->nome('crianca.medicoes')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->post('/crianca/{slug}/medicoes', 'CriancaController@medicoesSalvar')->nome('crianca.medicoes.salvar')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->get('/crianca/{slug}/vacinas', 'CriancaController@vacinas')->nome('crianca.vacinas')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->post('/crianca/{slug}/vacinas', 'CriancaController@vacinasSalvar')->nome('crianca.vacinas.salvar')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->get('/crianca/{slug}/consulta', 'ConsultaController@gerar')->nome('consulta.gerar')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->post('/crianca/{slug}/consulta', 'ConsultaController@gerarEnviar')->nome('consulta.gerar.enviar')
+        ->middleware('autenticado', 'papel:responsavel');
+    // Página pública do pediatra: sem sessão — o código de uso único é a chave
+    $r->get('/consulta/{codigo}', 'ConsultaController@ficha')->nome('consulta.ficha');
     $r->get('/roteiro', 'RoteiroController@editar')->nome('roteiro.editar')
         ->middleware('autenticado', 'papel:responsavel');
     $r->post('/roteiro', 'RoteiroController@salvar')->nome('roteiro.salvar')
@@ -147,6 +163,9 @@ return static function (Roteador $r): void {
     // Autenticadas por token de serviço (sem sessão): cron/n8n
     $r->post('/api/tarefas/{tarefa}', 'Api\TarefaApiController@executar')->nome('api.tarefas');
     $r->post('/api/webhook/status', 'Api\WebhookApiController@status')->nome('api.webhook.status');
+
+    // Pública: envio do pediatra — autorizada pelo código de uso único
+    $r->post('/api/consulta/{codigo}', 'Api\ConsultaApiController@enviar')->nome('api.consulta.enviar');
 
     // ── Arquivos protegidos (fases 3/6) ────────────────────────
     $r->get('/foto/{codigo}', 'ArquivoController@foto')->nome('foto.ver')

@@ -909,3 +909,86 @@ fieldset.cartao legend {
     .conteudo { max-width: none; padding: 0; }
     .cartao, .area-impressao { border: 0; box-shadow: none; }
 }
+
+/* ══ Alteração 01 — ficha essencial e ficha do pediatra ══
+   Componentes novos, apenas ADICIONADOS: usam as variáveis e os padrões
+   já existentes (nenhuma classe anterior foi renomeada ou alterada). */
+
+/* Cartão de identidade da criança */
+.cartao-identidade { display: flex; align-items: center; gap: 1rem; }
+.foto-crianca {
+    width: 76px; height: 76px; border-radius: 50%; object-fit: cover;
+    border: 3px solid var(--nuvem); box-shadow: 0 2px 10px rgba(51, 48, 43, .12);
+    flex-shrink: 0;
+}
+.foto-crianca-mini {
+    width: 34px; height: 34px; border-radius: 50%; object-fit: cover;
+    border: 2px solid var(--borda);
+}
+.avatar-ficha { width: 76px; height: 76px; font-size: 2rem; flex-shrink: 0; }
+.identidade-texto { min-width: 0; }
+.identidade-texto h2 { margin: 0 0 .15rem; }
+.identidade-texto p { margin: 0; }
+.acoes-ficha { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .6rem; }
+
+/* Destaques de medidas (última medição + percentil) */
+.tile-medida { position: relative; }
+.tile-medida small { font-size: .68rem; font-weight: 600; color: var(--tinta-suave); }
+.tile-detalhe { font-size: .64rem; color: var(--tinta-apagada); margin-top: .1rem; white-space: nowrap; }
+.tile-medida .etiqueta-estado { margin-top: .3rem; }
+
+/* Faixa de saúde: sempre visível na ficha */
+.cartao-saude { border-color: #F3D9CB; background: var(--pessego-suave); }
+.cartao-saude h3, .cartao-saude p { margin: .15rem 0; }
+.cartao-saude p { font-size: .88rem; }
+
+/* Curvas de crescimento (SVG, tom único de sálvia — sem cor de alarme) */
+.grafico-crescimento { margin: .8rem 0 0; }
+.grafico-crescimento figcaption { font-weight: 800; font-size: .88rem; margin-bottom: .25rem; }
+.grafico-crescimento svg { width: 100%; height: auto; display: block; }
+.curva-grade { stroke: var(--borda); stroke-width: 1; }
+.curva-texto { font-size: 8.5px; fill: var(--tinta-apagada); font-family: inherit; }
+.curva-referencia { fill: none; stroke: var(--salvia-suave); stroke-width: 1.6; }
+.curva-mediana { stroke: var(--salvia); stroke-dasharray: 4 3; }
+.curva-crianca { fill: none; stroke: var(--salvia-profunda); stroke-width: 2.2; stroke-linejoin: round; }
+.curva-ponto { fill: var(--salvia-profunda); stroke: var(--nuvem); stroke-width: 1.4; }
+
+/* Origem da medição e linhas de vacina/consulta */
+.pilula-origem { padding: .18rem .55rem; font-size: .7rem; background: var(--salvia-suave); border-color: var(--salvia-suave); color: var(--salvia-profunda); }
+.linha-vacina { margin: .4rem 0; font-size: .88rem; }
+.linha-vacina .etiqueta-estado { margin-right: .3rem; }
+
+/* Links de consulta (uso único) */
+.cartao-link-consulta { display: flex; flex-direction: column; gap: .6rem; }
+.link-consulta-info { display: flex; flex-direction: column; gap: .1rem; }
+.link-consulta-acoes { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; }
+
+/* QR em tela cheia */
+.qr-tela {
+    position: fixed; inset: 0; z-index: 90;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(51, 48, 43, .55); padding: 1.2rem; cursor: pointer;
+}
+.qr-tela[hidden] { display: none; }
+.qr-caixa {
+    background: var(--nuvem); border-radius: var(--raio); padding: 1.6rem;
+    display: flex; flex-direction: column; align-items: center; gap: .7rem;
+    text-align: center; max-width: 320px; box-shadow: 0 12px 40px rgba(51, 48, 43, .25);
+}
+.qr-caixa img, .qr-caixa canvas { border-radius: 8px; }
+
+/* Página pública do pediatra */
+.pagina-publica .conteudo-publico { padding-bottom: 2.5rem; }
+.aviso-uso-unico {
+    display: flex; align-items: center; gap: .45rem;
+    background: var(--salvia-suave); color: var(--salvia-profunda);
+    border-radius: var(--raio); padding: .6rem .9rem; font-size: .8rem;
+}
+.cartao-erro-publico { text-align: center; padding: 2.2rem 1.4rem; }
+.selo-erro-publico {
+    width: 56px; height: 56px; background: var(--areia);
+    margin: 0 auto .8rem; display: inline-flex;
+}
+.cartao-envio-ok { text-align: center; padding: 1.4rem 1rem .6rem; }
+.cartao-envio-ok[hidden] { display: none; }
+.selo-envio-ok { width: 56px; height: 56px; background: var(--menta-suave); margin: 0 auto .6rem; display: inline-flex; }
