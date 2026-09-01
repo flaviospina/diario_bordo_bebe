@@ -5,6 +5,7 @@
 /** @var ?string $idade */
 /** @var array $ultimas */
 /** @var array $historico */
+/** @var ?array $curvas */
 /** @var array $vacinas */
 /** @var array $resumo */
 
@@ -93,10 +94,21 @@ $nascimento = array_filter([
     </div>
 <?php endif; ?>
 
+<?php if ($curvas !== null): ?>
+    <div class="cartao">
+        <h3><?= icone_ui('grafico', 18, '#3E6A64') ?> Evolução do crescimento</h3>
+        <p class="texto-apoio" style="margin-top:0">Percentis congelados no momento de cada
+            registro, pela referência da OMS (0–60 meses).</p>
+        <?php foreach (['peso' => 'Peso', 'altura' => 'Altura', 'pc' => 'Perímetro cefálico'] as $tipoCurva => $rotuloCurva): ?>
+            <?php if (isset($curvas[$tipoCurva])) { echo grafico_crescimento($rotuloCurva, $curvas[$tipoCurva]); } ?>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+
 <?php $comMedida = array_values(array_filter($historico, static fn(array $m): bool => $m['status'] === 'confirmada')); ?>
 <?php if ($comMedida !== []): ?>
     <div class="cartao">
-        <h3><?= icone_ui('grafico', 18, '#3E6A64') ?> Últimas medições</h3>
+        <h3><?= icone_ui('relogio', 18, '#3E6A64') ?> Últimas medições</h3>
         <div class="tabela-rolavel"><table class="tabela tabela-compacta">
             <thead><tr><th>Data</th><th>Peso</th><th>Altura</th><th>PC</th><th>Origem</th></tr></thead>
             <tbody>
@@ -181,78 +193,10 @@ $nascimento = array_filter([
     <?php endif; ?>
 </div>
 
-<div class="cartao cartao-envio-pediatra" id="envio">
-    <h3><?= icone_ui('estetoscopio', 18, '#3E6A64') ?> Registrar a consulta de hoje</h3>
-    <p class="texto-apoio">Preencha o que houver — só o seu nome é obrigatório.
+<div class="cartao cartao-cta-consulta">
+    <h3><?= icone_ui('estetoscopio', 18, '#3E6A64') ?> Consulta de hoje</h3>
+    <p class="texto-apoio">Registre medidas, vacinas e conduta em uma página própria.
         Ao enviar, este link se encerra e a família recebe os dados para confirmar.</p>
-
-    <form class="formulario" data-envio-consulta
-          data-endpoint="<?= e(url('api.consulta.enviar', ['codigo' => $codigo])) ?>">
-        <div class="linha-campos">
-            <div>
-                <label for="profissional_nome">Seu nome *</label>
-                <input type="text" id="profissional_nome" name="profissional_nome" required maxlength="120"
-                       placeholder="Dra. Ana Souza">
-            </div>
-            <div>
-                <label for="medido_em">Data da consulta</label>
-                <input type="date" id="medido_em" name="medido_em" value="<?= e(hoje()) ?>">
-            </div>
-        </div>
-        <div class="linha-campos">
-            <div>
-                <label for="conselho_sigla">Conselho</label>
-                <input type="text" id="conselho_sigla" name="conselho_sigla" maxlength="10" placeholder="CRM">
-            </div>
-            <div>
-                <label for="conselho_numero">Número</label>
-                <input type="text" id="conselho_numero" name="conselho_numero" maxlength="20" placeholder="123456">
-            </div>
-            <div>
-                <label for="conselho_uf">UF</label>
-                <input type="text" id="conselho_uf" name="conselho_uf" maxlength="2" placeholder="SP">
-            </div>
-        </div>
-
-        <div class="linha-campos">
-            <div>
-                <label for="peso_kg">Peso (kg)</label>
-                <input type="number" id="peso_kg" name="peso_kg" min="0.3" max="60" step="0.001" placeholder="7,450">
-            </div>
-            <div>
-                <label for="altura_cm">Altura (cm)</label>
-                <input type="number" id="altura_cm" name="altura_cm" min="20" max="160" step="0.1" placeholder="68,5">
-            </div>
-            <div>
-                <label for="pc_cm">Perím. cefálico (cm)</label>
-                <input type="number" id="pc_cm" name="pc_cm" min="20" max="70" step="0.1" placeholder="43,0">
-            </div>
-        </div>
-
-        <label for="vacinas">Vacinas aplicadas hoje <small>(uma por linha: imunizante — dose)</small></label>
-        <textarea id="vacinas" name="vacinas" rows="2" placeholder="Pentavalente — 2ª dose&#10;VIP — 2ª dose"></textarea>
-
-        <label for="motivo">Motivo da consulta</label>
-        <input type="text" id="motivo" name="motivo" maxlength="200" placeholder="Puericultura de rotina">
-        <label for="conduta">Conduta / orientações</label>
-        <textarea id="conduta" name="conduta" rows="3"></textarea>
-        <div class="linha-campos">
-            <div>
-                <label for="retorno_em">Retorno sugerido</label>
-                <input type="date" id="retorno_em" name="retorno_em">
-            </div>
-        </div>
-
-        <div class="alerta alerta-erro" data-erro-envio hidden></div>
-        <button type="submit" class="botao botao-primario botao-largo">Enviar para a família</button>
-    </form>
-
-    <div class="cartao-envio-ok" data-envio-ok hidden>
-        <span class="selo-categoria selo-envio-ok"><?= icone_ui('check', 24, '#2F6B4F', 2.4) ?></span>
-        <h3>Enviado!</h3>
-        <p class="texto-apoio">A família recebeu os dados e confirma no aplicativo.
-            Este link foi encerrado — obrigado!</p>
-    </div>
+    <a class="botao botao-primario botao-largo" href="<?= e(url('consulta.registrar', ['codigo' => $codigo])) ?>">
+        <?= icone_ui('mais', 18, 'currentColor', 2.4) ?> Registrar a consulta de hoje</a>
 </div>
-
-<script src="<?= e(asset('js/consulta.js')) ?>" defer></script>

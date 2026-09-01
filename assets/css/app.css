@@ -992,3 +992,10 @@ fieldset.cartao legend {
 .cartao-envio-ok { text-align: center; padding: 1.4rem 1rem .6rem; }
 .cartao-envio-ok[hidden] { display: none; }
 .selo-envio-ok { width: 56px; height: 56px; background: var(--menta-suave); margin: 0 auto .6rem; display: inline-flex; }
+
+/* Ajustes Alteração 01-b: navegação por botões e CTA da área do pediatra */
+.acoes-pagina { display: flex; flex-wrap: wrap; gap: .5rem; margin: .9rem 0; }
+.acoes-pagina .botao { text-decoration: none; }
+.cartao-cta-consulta { text-align: center; }
+.cartao-cta-consulta h3 { justify-content: center; }
+.cartao-cta-consulta .botao { margin-top: .4rem; }

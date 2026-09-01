@@ -57,10 +57,46 @@ final class ConsultaController
 
     public function ficha(Requisicao $requisicao): void
     {
-        $codigo = $requisicao->parametro('codigo');
-        $servico = new ServicoConsulta();
-        $abertura = $servico->abrirPorCodigo($codigo, true);
+        $abertura = $this->aberturaOuErro($requisicao);
+        $convite = $abertura['convite'];
+        $crianca = $abertura['crianca'];
+        $familiaId = (int)$convite['familia_id'];
 
+        $historico = (new RepositorioMedicoes($familiaId))->listar((int)$crianca['id'], 60);
+        Visao::exibir('consulta/ficha', [
+            'titulo' => 'Ficha de ' . $crianca['nome'],
+            'codigo' => $requisicao->parametro('codigo'),
+            'convite' => $convite,
+            'crianca' => $crianca,
+            'idade' => $crianca['data_nascimento'] !== null
+                ? ServicoCrescimento::idadeFormatada((string)$crianca['data_nascimento']) : null,
+            'ultimas' => (new RepositorioMedicoes($familiaId))->ultimasMedidas((int)$crianca['id']),
+            'historico' => $historico,
+            'curvas' => (new ServicoCrescimento())->curvas($crianca, $historico),
+            'vacinas' => (new RepositorioVacinas($familiaId))->listar((int)$crianca['id']),
+            'resumo' => (new ServicoConsulta())->resumoRotina($familiaId, (int)$crianca['id']),
+        ], 'publico');
+    }
+
+    /** Página separada com o formulário de registro — a ficha fica só leitura. */
+    public function registrar(Requisicao $requisicao): void
+    {
+        $abertura = $this->aberturaOuErro($requisicao);
+        $crianca = $abertura['crianca'];
+
+        Visao::exibir('consulta/registrar', [
+            'titulo' => 'Registrar consulta — ' . $crianca['nome'],
+            'codigo' => $requisicao->parametro('codigo'),
+            'crianca' => $crianca,
+            'idade' => $crianca['data_nascimento'] !== null
+                ? ServicoCrescimento::idadeFormatada((string)$crianca['data_nascimento']) : null,
+        ], 'publico');
+    }
+
+    /** Resolve o código público ou encerra com a página de erro adequada. */
+    private function aberturaOuErro(Requisicao $requisicao): array
+    {
+        $abertura = (new ServicoConsulta())->abrirPorCodigo($requisicao->parametro('codigo'), true);
         if ($abertura['erro'] !== null) {
             $status = $abertura['erro'] === 'inexistente' ? 404 : 410;
             Visao::exibir('consulta/erro', [
@@ -68,23 +104,7 @@ final class ConsultaController
                 'tipo' => $abertura['erro'],
             ], 'publico', $status);
         }
-
-        $convite = $abertura['convite'];
-        $crianca = $abertura['crianca'];
-        $familiaId = (int)$convite['familia_id'];
-
-        Visao::exibir('consulta/ficha', [
-            'titulo' => 'Ficha de ' . $crianca['nome'],
-            'codigo' => $codigo,
-            'convite' => $convite,
-            'crianca' => $crianca,
-            'idade' => $crianca['data_nascimento'] !== null
-                ? ServicoCrescimento::idadeFormatada((string)$crianca['data_nascimento']) : null,
-            'ultimas' => (new RepositorioMedicoes($familiaId))->ultimasMedidas((int)$crianca['id']),
-            'historico' => (new RepositorioMedicoes($familiaId))->listar((int)$crianca['id'], 12),
-            'vacinas' => (new RepositorioVacinas($familiaId))->listar((int)$crianca['id']),
-            'resumo' => $servico->resumoRotina($familiaId, (int)$crianca['id']),
-        ], 'publico');
+        return $abertura;
     }
 
     private function criancaDaRota(Requisicao $requisicao): array

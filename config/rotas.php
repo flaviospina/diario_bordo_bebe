@@ -77,6 +77,7 @@ return static function (Roteador $r): void {
         ->middleware('autenticado', 'papel:responsavel');
     // Página pública do pediatra: sem sessão — o código de uso único é a chave
     $r->get('/consulta/{codigo}', 'ConsultaController@ficha')->nome('consulta.ficha');
+    $r->get('/consulta/{codigo}/registrar', 'ConsultaController@registrar')->nome('consulta.registrar');
     $r->get('/roteiro', 'RoteiroController@editar')->nome('roteiro.editar')
         ->middleware('autenticado', 'papel:responsavel');
     $r->post('/roteiro', 'RoteiroController@salvar')->nome('roteiro.salvar')

@@ -86,6 +86,7 @@ $classeStatus = ['aplicada' => 'etiqueta-verde', 'atrasada' => 'etiqueta-ambar',
     </form>
 </div>
 
-<p class="texto-apoio">
-    <a href="<?= e(url('crianca.ver', ['slug' => $crianca['slug']])) ?>">← Ficha de <?= e($nomeCurto) ?></a>
-</p>
+<div class="acoes-pagina">
+    <a class="botao botao-contorno" href="<?= e(url('crianca.ver', ['slug' => $crianca['slug']])) ?>">
+        <?= icone_ui('seta-esq', 15, 'currentColor', 2.4) ?> Ficha de <?= e($nomeCurto) ?></a>
+</div>

@@ -38,68 +38,6 @@ $medidaDestaque = static function (?array $medida, string $rotulo, string $unida
     <?php
 };
 
-/** Curva de crescimento em SVG: referência OMS P3/P50/P97 + pontos medidos. */
-$desenharCurva = static function (string $rotulo, array $curva): void {
-    $referencia = $curva['referencia'];
-    $pontos = $curva['pontos'];
-    $mesMaximo = max(1, (int)end($referencia)[0]);
-
-    $valores = [];
-    foreach ($referencia as [$mes, $p3, , $p97]) {
-        if ($p3 !== null) { $valores[] = $p3; }
-        if ($p97 !== null) { $valores[] = $p97; }
-    }
-    foreach ($pontos as [, $valor]) { $valores[] = $valor; }
-    $minimo = floor(min($valores) * 0.97);
-    $maximo = ceil(max($valores) * 1.03);
-    $faixa = max(0.001, $maximo - $minimo);
-
-    $x = static fn(float $mes): float => round(36 + ($mes / $mesMaximo) * (312 - 36), 1);
-    $y = static fn(float $valor): float => round(158 - (($valor - $minimo) / $faixa) * (158 - 12), 1);
-
-    $linha = static function (int $indice) use ($referencia, $x, $y): string {
-        $partes = [];
-        foreach ($referencia as $item) {
-            if ($item[$indice] !== null) {
-                $partes[] = $x((float)$item[0]) . ',' . $y((float)$item[$indice]);
-            }
-        }
-        return implode(' ', $partes);
-    };
-    $passoMes = $mesMaximo <= 12 ? 3 : ($mesMaximo <= 30 ? 6 : 12);
-    ?>
-    <figure class="grafico-crescimento">
-        <figcaption><?= e($rotulo) ?> <small class="texto-apoio">(<?= e($curva['unidade']) ?>) · referência OMS P3–P97</small></figcaption>
-        <svg viewBox="0 0 332 178" role="img" aria-label="Curva de <?= e($rotulo) ?>">
-            <?php for ($mes = 0; $mes <= $mesMaximo; $mes += $passoMes): ?>
-                <line x1="<?= $x((float)$mes) ?>" y1="12" x2="<?= $x((float)$mes) ?>" y2="158" class="curva-grade"></line>
-                <text x="<?= $x((float)$mes) ?>" y="172" class="curva-texto" text-anchor="middle"><?= $mes ?>m</text>
-            <?php endfor; ?>
-            <?php foreach ([$minimo, $minimo + $faixa / 2, $maximo] as $marca): ?>
-                <text x="30" y="<?= $y((float)$marca) + 3 ?>" class="curva-texto" text-anchor="end"><?=
-                    e(number_format((float)$marca, $faixa < 8 ? 1 : 0, ',', '')) ?></text>
-            <?php endforeach; ?>
-            <polyline points="<?= $linha(1) ?>" class="curva-referencia"></polyline>
-            <polyline points="<?= $linha(2) ?>" class="curva-referencia curva-mediana"></polyline>
-            <polyline points="<?= $linha(3) ?>" class="curva-referencia"></polyline>
-            <?php $ultimoItem = end($referencia); ?>
-            <text x="316" y="<?= $y((float)$ultimoItem[1]) + 3 ?>" class="curva-texto">P3</text>
-            <text x="316" y="<?= $y((float)$ultimoItem[2]) + 3 ?>" class="curva-texto">P50</text>
-            <text x="316" y="<?= $y((float)$ultimoItem[3]) + 3 ?>" class="curva-texto">P97</text>
-            <?php if (count($pontos) > 1): ?>
-                <polyline points="<?php
-                    $partes = [];
-                    foreach ($pontos as [$mes, $valor]) { $partes[] = $x((float)$mes) . ',' . $y((float)$valor); }
-                    echo implode(' ', $partes);
-                ?>" class="curva-crianca"></polyline>
-            <?php endif; ?>
-            <?php foreach ($pontos as [$mes, $valor]): ?>
-                <circle cx="<?= $x((float)$mes) ?>" cy="<?= $y((float)$valor) ?>" r="3.4" class="curva-ponto"></circle>
-            <?php endforeach; ?>
-        </svg>
-    </figure>
-    <?php
-};
 ?>
 <div class="cartao cartao-identidade">
     <?php if (!empty($crianca['foto_codigo'])): ?>
@@ -175,7 +113,7 @@ $saude = array_filter([
         <p class="texto-apoio" style="margin-top:0">O percentil mostra a posição na curva de
             referência da OMS. Quem interpreta é sempre o pediatra.</p>
         <?php foreach (['peso' => 'Peso', 'altura' => 'Altura', 'pc' => 'Perímetro cefálico'] as $tipo => $rotulo): ?>
-            <?php if (isset($curvas[$tipo])) { $desenharCurva($rotulo, $curvas[$tipo]); } ?>
+            <?php if (isset($curvas[$tipo])) { echo grafico_crescimento($rotulo, $curvas[$tipo]); } ?>
         <?php endforeach; ?>
     </div>
 <?php endif; ?>
@@ -208,9 +146,10 @@ $saude = array_filter([
             </tbody>
         </table></div>
         <?php if ($ehResponsavel): ?>
-            <p class="texto-apoio" style="margin-bottom:0">
-                <a href="<?= e(url('crianca.medicoes', ['slug' => $crianca['slug']])) ?>">Todas as medições e nova medição →</a>
-            </p>
+            <div class="acoes-pagina">
+                <a class="botao botao-contorno botao-pequeno" href="<?= e(url('crianca.medicoes', ['slug' => $crianca['slug']])) ?>">
+                    <?= icone_ui('mais', 15, 'currentColor', 2.4) ?> Todas as medições e nova medição</a>
+            </div>
         <?php endif; ?>
     </div>
 <?php endif; ?>
@@ -236,9 +175,10 @@ $proximas = array_values(array_filter($itensVacina, static fn(array $i): bool =>
             <small class="texto-apoio">(aos <?= (int)$item['idade_meses'] ?> meses)</small></p>
     <?php endforeach; ?>
     <?php if ($ehResponsavel): ?>
-        <p class="texto-apoio" style="margin-bottom:0">
-            <a href="<?= e(url('crianca.vacinas', ['slug' => $crianca['slug']])) ?>">Caderneta completa →</a>
-        </p>
+        <div class="acoes-pagina">
+            <a class="botao botao-contorno botao-pequeno" href="<?= e(url('crianca.vacinas', ['slug' => $crianca['slug']])) ?>">
+                <?= icone_ui('vacina', 15, 'currentColor', 2.0) ?> Caderneta completa</a>
+        </div>
     <?php endif; ?>
 </div>
 
@@ -285,6 +225,7 @@ $nascimentoDados = array_filter([
     </div>
 <?php endif; ?>
 
-<p class="texto-apoio">
-    <a href="<?= e(url('crianca.timeline', ['slug' => $crianca['slug']])) ?>">Linha do tempo completa →</a>
-</p>
+<div class="acoes-pagina">
+    <a class="botao botao-contorno" href="<?= e(url('crianca.timeline', ['slug' => $crianca['slug']])) ?>">
+        <?= icone_ui('relogio', 16, 'currentColor', 2.0) ?> Linha do tempo completa</a>
+</div>

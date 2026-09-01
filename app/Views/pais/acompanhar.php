@@ -191,10 +191,13 @@ $podeConfirmarMedicao = in_array($papelAtual, ['responsavel', 'admin_familia'], 
     </div>
 <?php endif; ?>
 
-<p class="texto-apoio">
-    <a href="<?= e(url('crianca.timeline', ['slug' => $crianca['slug']])) ?>">Linha do tempo completa</a> ·
-    <a href="<?= e(url('crianca.ver', ['slug' => $crianca['slug']])) ?>">Dados de <?= e($nomeCurto) ?></a> ·
-    <a href="<?= e(url('relatorios.resumo', ['data' => $dia['data']])) ?>">Resumo do dia</a>
-</p>
+<div class="acoes-pagina">
+    <a class="botao botao-contorno botao-pequeno" href="<?= e(url('crianca.timeline', ['slug' => $crianca['slug']])) ?>">
+        <?= icone_ui('relogio', 15, 'currentColor', 2.0) ?> Linha do tempo</a>
+    <a class="botao botao-contorno botao-pequeno" href="<?= e(url('crianca.ver', ['slug' => $crianca['slug']])) ?>">
+        <?= icone_ui('pessoa', 15, 'currentColor', 2.0) ?> Dados de <?= e($nomeCurto) ?></a>
+    <a class="botao botao-contorno botao-pequeno" href="<?= e(url('relatorios.resumo', ['data' => $dia['data']])) ?>">
+        <?= icone_ui('documento', 15, 'currentColor', 2.0) ?> Resumo do dia</a>
+</div>
 
 <script src="<?= e(asset('js/acompanhar.js')) ?>" defer></script>

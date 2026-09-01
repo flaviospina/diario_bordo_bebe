@@ -42,7 +42,7 @@ final class CriancaController
             'ultimas' => $medicoes->ultimasMedidas((int)$crianca['id']),
             'pendentes' => $ehResponsavel ? $medicoes->pendentes((int)$crianca['id']) : [],
             'historico' => $historico,
-            'curvas' => $this->dadosCurvas($crianca, $historico),
+            'curvas' => (new ServicoCrescimento())->curvas($crianca, $historico),
             'calendarioVacinal' => $this->calendarioVacinal($crianca, $vacinas),
             'consultas' => (new RepositorioConsultasMedicas())->listarConsultas((int)$crianca['id'], 20),
         ]);
@@ -154,63 +154,6 @@ final class CriancaController
             Visao::erro404();
         }
         return $crianca;
-    }
-
-    /**
-     * Séries para as curvas de crescimento: referência OMS (P3/P50/P97) e os
-     * pontos medidos. Sem sexo ou nascimento não há referência → null.
-     * @return ?array<string,array{unidade:string,referencia:array,pontos:array}>
-     */
-    private function dadosCurvas(array $crianca, array $historico): ?array
-    {
-        $sexo = (string)($crianca['sexo'] ?? '');
-        $nascimento = (string)($crianca['data_nascimento'] ?? '');
-        if ($nascimento === '' || !in_array($sexo, ['masculino', 'feminino'], true)) {
-            return null;
-        }
-        $idadeAtual = ServicoCrescimento::idadeEmMeses($nascimento, hoje());
-        if ($idadeAtual < 0 || $idadeAtual > 60) {
-            return null;
-        }
-        $limite = (int)min(60, max(12, ceil($idadeAtual) + 3));
-        $crescimento = new ServicoCrescimento();
-
-        $curvas = [];
-        $metricas = [
-            'peso' => ['coluna' => 'peso_g', 'unidade' => 'kg', 'fator' => 1000],
-            'altura' => ['coluna' => 'altura_mm', 'unidade' => 'cm', 'fator' => 10],
-            'pc' => ['coluna' => 'perimetro_cefalico_mm', 'unidade' => 'cm', 'fator' => 10],
-        ];
-        foreach ($metricas as $tipo => $metrica) {
-            $referencia = [];
-            foreach (range(0, $limite) as $mes) {
-                $referencia[] = [
-                    $mes,
-                    $crescimento->valorParaZ($tipo, $sexo, (float)$mes, -1.881), // P3
-                    $crescimento->valorParaZ($tipo, $sexo, (float)$mes, 0.0),    // P50
-                    $crescimento->valorParaZ($tipo, $sexo, (float)$mes, 1.881),  // P97
-                ];
-            }
-            $pontos = [];
-            foreach ($historico as $medicao) {
-                if ($medicao['status'] !== 'confirmada' || $medicao[$metrica['coluna']] === null) {
-                    continue;
-                }
-                $mes = ServicoCrescimento::idadeEmMeses($nascimento, (string)$medicao['medido_em']);
-                if ($mes >= 0 && $mes <= $limite) {
-                    $pontos[] = [round($mes, 2), round((float)$medicao[$metrica['coluna']] / $metrica['fator'], 2)];
-                }
-            }
-            usort($pontos, static fn(array $a, array $b): int => $a[0] <=> $b[0]);
-            if ($pontos !== []) {
-                $curvas[$tipo] = [
-                    'unidade' => $metrica['unidade'],
-                    'referencia' => $referencia,
-                    'pontos' => $pontos,
-                ];
-            }
-        }
-        return $curvas !== [] ? $curvas : null;
     }
 
     /**

@@ -85,6 +85,65 @@ final class ServicoCrescimento
             : $m * exp($s * $z);
     }
 
+    /**
+     * Séries prontas para desenhar as curvas de crescimento: referência OMS
+     * (P3/P50/P97, amostrada por mês) e os pontos medidos da criança.
+     * Usada na ficha essencial E na página pública do pediatra.
+     * Sem sexo ou nascimento não há referência → null.
+     * @param array<int,array<string,mixed>> $historico linhas de `medicoes`
+     * @return ?array<string,array{unidade:string,referencia:array,pontos:array}>
+     */
+    public function curvas(array $crianca, array $historico): ?array
+    {
+        $sexo = (string)($crianca['sexo'] ?? '');
+        $nascimento = (string)($crianca['data_nascimento'] ?? '');
+        if ($nascimento === '' || !in_array($sexo, ['masculino', 'feminino'], true)) {
+            return null;
+        }
+        $idadeAtual = self::idadeEmMeses($nascimento, hoje());
+        if ($idadeAtual < 0 || $idadeAtual > 60) {
+            return null;
+        }
+        $limite = (int)min(60, max(12, ceil($idadeAtual) + 3));
+
+        $curvas = [];
+        $metricas = [
+            'peso' => ['coluna' => 'peso_g', 'unidade' => 'kg', 'fator' => 1000],
+            'altura' => ['coluna' => 'altura_mm', 'unidade' => 'cm', 'fator' => 10],
+            'pc' => ['coluna' => 'perimetro_cefalico_mm', 'unidade' => 'cm', 'fator' => 10],
+        ];
+        foreach ($metricas as $tipo => $metrica) {
+            $referencia = [];
+            foreach (range(0, $limite) as $mes) {
+                $referencia[] = [
+                    $mes,
+                    $this->valorParaZ($tipo, $sexo, (float)$mes, -1.881), // P3
+                    $this->valorParaZ($tipo, $sexo, (float)$mes, 0.0),    // P50
+                    $this->valorParaZ($tipo, $sexo, (float)$mes, 1.881),  // P97
+                ];
+            }
+            $pontos = [];
+            foreach ($historico as $medicao) {
+                if ($medicao['status'] !== 'confirmada' || $medicao[$metrica['coluna']] === null) {
+                    continue;
+                }
+                $mes = self::idadeEmMeses($nascimento, (string)$medicao['medido_em']);
+                if ($mes >= 0 && $mes <= $limite) {
+                    $pontos[] = [round($mes, 2), round((float)$medicao[$metrica['coluna']] / $metrica['fator'], 2)];
+                }
+            }
+            usort($pontos, static fn(array $a, array $b): int => $a[0] <=> $b[0]);
+            if ($pontos !== []) {
+                $curvas[$tipo] = [
+                    'unidade' => $metrica['unidade'],
+                    'referencia' => $referencia,
+                    'pontos' => $pontos,
+                ];
+            }
+        }
+        return $curvas !== [] ? $curvas : null;
+    }
+
     /** @return ?array{0:float,1:float,2:float} */
     private function lmsInterpolado(string $tipo, string $sexo, float $idadeMeses): ?array
     {
