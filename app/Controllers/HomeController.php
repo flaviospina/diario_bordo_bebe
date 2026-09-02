@@ -30,6 +30,12 @@ final class HomeController
         };
     }
 
+    /** Tutorial público de uso, por papel (babá, pais, avós). */
+    public function ajuda(Requisicao $requisicao): void
+    {
+        Visao::exibir('publico/ajuda', ['titulo' => 'Como usar'], '');
+    }
+
     /** Lista de espera da landing ("quero um convite"). */
     public function listaEspera(Requisicao $requisicao): void
     {

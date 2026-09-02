@@ -14,6 +14,7 @@ return static function (Roteador $r): void {
     // ── Público ────────────────────────────────────────────────
     $r->get('/', 'HomeController@inicio')->nome('home');
     $r->post('/quero-convite', 'HomeController@listaEspera')->nome('lista.espera');
+    $r->get('/ajuda', 'HomeController@ajuda')->nome('ajuda');
 
     // Auto-cadastro de família fundadora (link enviado pela plataforma)
     $r->get('/comecar/{codigo}', 'ComecarController@mostrar')->nome('comecar');

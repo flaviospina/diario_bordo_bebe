@@ -1016,3 +1016,22 @@ fieldset.cartao legend {
 .landing-passos li { margin: .45rem 0; color: var(--tinta-suave); }
 .landing-passos li strong { color: var(--tinta); }
 .landing-convite { border-color: var(--salvia-suave); }
+
+/* Tutorial público (/ajuda) */
+.tutorial-secao h4 { margin: .2rem 0 .4rem; font-size: .95rem; }
+.tutorial-linha { display: flex; gap: 1.1rem; align-items: flex-start; margin: 1.1rem 0; }
+.tutorial-figura { margin: 0; flex-shrink: 0; }
+.tutorial-figura img {
+    width: 190px; border-radius: 14px; border: 1px solid var(--borda);
+    box-shadow: 0 6px 18px rgba(51, 48, 43, .10); display: block;
+}
+.tutorial-passos { margin: .2rem 0 .4rem; padding-left: 1.15rem; }
+.tutorial-passos li { margin: .35rem 0; color: var(--tinta-suave); font-size: .92rem; }
+.tutorial-passos li strong { color: var(--tinta); }
+.tutorial-duplo { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: .6rem 0; }
+@media (max-width: 560px) {
+    .tutorial-linha { flex-direction: column; }
+    .tutorial-figura { align-self: center; }
+    .tutorial-figura img { width: 230px; }
+    .tutorial-duplo { grid-template-columns: 1fr; }
+}

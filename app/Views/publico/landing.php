@@ -88,6 +88,10 @@ use App\Core\Sessao;
             <li><strong>Convidem quem cuida</strong> — o outro responsável, a babá, os avós: cada um com o seu acesso.</li>
             <li><strong>Vivam o dia</strong> — registros em 2 toques (funciona até sem internet) e vocês acompanhando tudo.</li>
         </ol>
+        <div class="acoes-pagina">
+            <a class="botao botao-contorno botao-pequeno" href="<?= e(url('ajuda')) ?>">
+                <?= icone_ui('livro', 15, 'currentColor', 2.0) ?> Ver o tutorial completo</a>
+        </div>
     </section>
 
     <section class="cartao landing-convite" id="convite">

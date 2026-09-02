@@ -15,4 +15,5 @@ use App\Core\Csrf;
 </form>
 <p class="texto-apoio">
     <a href="<?= e(url('senha.recuperar')) ?>">Esqueci minha senha</a>
+    · <a href="<?= e(url('ajuda')) ?>">Como usar o app</a>
 </p>
