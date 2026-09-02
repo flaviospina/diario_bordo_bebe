@@ -31,6 +31,10 @@ final class ComecarController
             'titulo' => 'Criar a sua família',
             'codigo' => $codigo,
             'convite' => $convite,
+            // Prévia do link no WhatsApp: arte própria de convite
+            'ogTitulo' => 'Vocês foram convidados — Diário do Bebê',
+            'ogDescricao' => 'Convite de família fundadora: acesso completo e gratuito ao diário digital da rotina do bebê. Leva 1 minuto para começar.',
+            'ogImagem' => 'img/og/convite.png',
         ], 'autenticacao');
     }
 

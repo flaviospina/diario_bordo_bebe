@@ -138,3 +138,37 @@ function grafico_crescimento(string $rotulo, array $curva): string
         . '<svg viewBox="0 0 332 178" role="img" aria-label="Curva de ' . e($rotulo) . '">' . $svg . '</svg>'
         . '</figure>';
 }
+
+/** URL absoluta de um asset (para og:image e afins — robôs exigem URL completa). */
+function asset_absoluto(string $caminho): string
+{
+    $base = rtrim(\App\Core\Ambiente::obter('APP_URL'), '/');
+    if (BASE_PATH !== '' && str_ends_with($base, BASE_PATH)) {
+        $base = substr($base, 0, -strlen(BASE_PATH));
+    }
+    return $base . asset($caminho);
+}
+
+/**
+ * Metatags Open Graph/Twitter para a prévia de link (WhatsApp, Telegram etc.).
+ * A imagem deve ser 1200×630 (as duas oficiais vivem em assets/img/og/).
+ */
+function meta_og(string $titulo, string $descricao, string $imagem = 'img/og/capa.png'): string
+{
+    $t = e($titulo);
+    $d = e($descricao);
+    $img = e(asset_absoluto($imagem));
+    return <<<HTML
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Diário do Bebê">
+    <meta property="og:title" content="{$t}">
+    <meta property="og:description" content="{$d}">
+    <meta property="og:image" content="{$img}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{$t}">
+    <meta name="twitter:description" content="{$d}">
+    <meta name="twitter:image" content="{$img}">
+HTML;
+}

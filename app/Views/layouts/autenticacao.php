@@ -12,6 +12,11 @@ use App\Core\Sessao;
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#FAF6F0">
     <title><?= e(($titulo ?? '') !== '' ? $titulo . ' — ' . APP_NOME : APP_NOME) ?></title>
+    <?= meta_og(
+        $ogTitulo ?? APP_NOME . ' — o dia inteirinho, registrado com carinho',
+        $ogDescricao ?? 'O caderno da babá virou aplicativo: rotina do bebê em tempo real, roteiro do dia e ficha para o pediatra.',
+        $ogImagem ?? 'img/og/capa.png'
+    ) ?>
     <link rel="stylesheet" href="<?= e(asset('css/app.css')) ?>">
     <link rel="icon" type="image/png" href="<?= e(BASE_PATH) ?>/assets/img/icones/favicon-64.png">
     <link rel="apple-touch-icon" href="<?= e(BASE_PATH) ?>/assets/img/icones/icone-192.png">

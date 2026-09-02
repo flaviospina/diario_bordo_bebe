@@ -13,6 +13,10 @@ use App\Core\Sessao;
     <meta name="theme-color" content="#FAF6F0">
     <meta name="description" content="O caderno da babá virou app: a rotina do bebê registrada em tempo real pela família e por quem cuida — com roteiro do dia, curvas de crescimento e ficha para o pediatra.">
     <title>Diário do Bebê — o dia inteirinho, registrado com carinho</title>
+    <?= meta_og(
+        'Diário do Bebê — o dia inteirinho, registrado com carinho',
+        'O caderno da babá virou aplicativo: rotina em tempo real, roteiro do dia, curvas de crescimento e ficha para o pediatra.'
+    ) ?>
     <link rel="stylesheet" href="<?= e(asset('css/app.css')) ?>">
     <link rel="icon" type="image/png" href="<?= e(BASE_PATH) ?>/assets/img/icones/favicon-64.png">
     <link rel="apple-touch-icon" href="<?= e(BASE_PATH) ?>/assets/img/icones/icone-192.png">

@@ -13,6 +13,11 @@
     <meta name="theme-color" content="#FAF6F0">
     <meta name="robots" content="noindex, nofollow">
     <title><?= e(($titulo ?? '') !== '' ? $titulo . ' — ' . APP_NOME : APP_NOME) ?></title>
+    <?php // OG genérico e neutro: a prévia nunca expõe o nome da criança ?>
+    <?= meta_og(
+        'Ficha para consulta — ' . APP_NOME,
+        'Link de uso único gerado pela família para a consulta com o pediatra.'
+    ) ?>
     <link rel="stylesheet" href="<?= e(asset('css/app.css')) ?>">
     <link rel="icon" type="image/png" href="<?= e(BASE_PATH) ?>/assets/img/icones/favicon-64.png">
 </head>

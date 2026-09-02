@@ -96,6 +96,12 @@ final class ConsultaController
     /** Resolve o código público ou encerra com a página de erro adequada. */
     private function aberturaOuErro(Requisicao $requisicao): array
     {
+        // Robôs de prévia de link (WhatsApp, Telegram...) visitam a URL para
+        // montar o cartão. Eles recebem uma página neutra e NÃO marcam a
+        // abertura — só um navegador de verdade conta como "link aberto".
+        if (self::ehRoboDePrevia($requisicao->userAgent())) {
+            Visao::exibir('consulta/previa', ['titulo' => 'Ficha para consulta'], 'publico');
+        }
         $abertura = (new ServicoConsulta())->abrirPorCodigo($requisicao->parametro('codigo'), true);
         if ($abertura['erro'] !== null) {
             $status = $abertura['erro'] === 'inexistente' ? 404 : 410;
@@ -105,6 +111,17 @@ final class ConsultaController
             ], 'publico', $status);
         }
         return $abertura;
+    }
+
+    private static function ehRoboDePrevia(string $userAgent): bool
+    {
+        foreach (['whatsapp', 'facebookexternalhit', 'facebot', 'telegrambot', 'twitterbot',
+                  'linkedinbot', 'slackbot', 'discordbot', 'skypeuripreview', 'googlebot', 'bingbot'] as $robo) {
+            if (stripos($userAgent, $robo) !== false) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private function criancaDaRota(Requisicao $requisicao): array
