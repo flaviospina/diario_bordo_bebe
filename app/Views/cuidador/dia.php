@@ -197,11 +197,15 @@ $chipRegistro = static function (array $registro): void {
                 <?= icone_ui('x', 16, 'currentColor', 2.4) ?>
             </button>
         </div>
+        <label class="caixa-selecao alternar-multi">
+            <input type="checkbox" data-modo-multi>
+            <span>Aconteceu mais de uma coisa? <strong>Selecionar várias</strong></span>
+        </label>
         <?php foreach ($grupos as $grupo => $lista): ?>
             <p class="grupo-folha"><?= e($nomesGrupos[$grupo] ?? $grupo) ?></p>
             <div class="grade-opcoes-registro">
                 <?php foreach ($lista as $categoria): ?>
-                    <a class="opcao-registro" data-link-registro
+                    <a class="opcao-registro" data-link-registro data-slug="<?= e($categoria['slug']) ?>"
                        data-base="<?= e(url('registro.criar', ['categoria' => $categoria['slug']])) ?>"
                        href="<?= e(url('registro.criar', ['categoria' => $categoria['slug']])) ?>?data=<?= e($dia['data']) ?>">
                         <?= selo_categoria((string)$categoria['slug'], (string)$categoria['grupo'], 44, 22) ?>
@@ -211,6 +215,11 @@ $chipRegistro = static function (array $registro): void {
             </div>
         <?php endforeach; ?>
         <p class="nota-folha">Sem internet? O registro fica guardado no aparelho e é enviado depois.</p>
+        <div class="barra-multi" data-barra-multi hidden>
+            <a class="botao botao-primario botao-largo" data-registrar-varios
+               data-base="<?= e(url('registro.varios')) ?>" href="<?= e(url('registro.varios')) ?>">
+                Registrar <span data-contagem-multi>0</span> atividades juntas</a>
+        </div>
     </div>
 </div>
 <span hidden data-dia-atual="<?= e($dia['data']) ?>"></span>

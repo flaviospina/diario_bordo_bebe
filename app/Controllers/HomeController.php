@@ -36,6 +36,15 @@ final class HomeController
         Visao::exibir('publico/ajuda', ['titulo' => 'Como usar'], '');
     }
 
+    /** Novidades da plataforma: cada nova funcionalidade explicada em detalhes. */
+    public function novidades(Requisicao $requisicao): void
+    {
+        Visao::exibir('publico/novidades', [
+            'titulo' => 'Novidades',
+            'novidades' => (new \App\Repositories\RepositorioNovidades())->listarPublicadas(),
+        ], '');
+    }
+
     /** Lista de espera da landing ("quero um convite"). */
     public function listaEspera(Requisicao $requisicao): void
     {

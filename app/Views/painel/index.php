@@ -7,6 +7,8 @@ use App\Core\Sessao;
 /** @var array $planos */
 /** @var array $convitesFamilia */
 /** @var array $listaEspera */
+/** @var array $emails */
+/** @var array $novidades */
 /** @var ?string $linkConvite */
 
 Sessao::remover('_link_convite_plataforma');
@@ -131,6 +133,83 @@ $esperaNovos = count(array_filter($listaEspera, static fn(array $l): bool => $l[
                             </form>
                         <?php endif; ?>
                     </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table></div>
+    <?php endif; ?>
+</div>
+
+<div class="cartao">
+    <h3>Novidades (comunicados às famílias)</h3>
+    <p class="texto-apoio">Publique a novidade — ela entra em <a href="<?= e(url('novidades')) ?>">/novidades</a> —
+        e depois envie o e-mail macro aos responsáveis, com o link dos detalhes.</p>
+    <form method="post" action="<?= e(url('admin.painel.acao')) ?>" class="formulario">
+        <?= Csrf::campo() ?>
+        <input type="hidden" name="acao" value="novidade_criar">
+        <label for="nov_titulo">Título</label>
+        <input type="text" id="nov_titulo" name="titulo" required maxlength="120"
+               placeholder="ex.: Registre várias atividades de uma vez">
+        <label for="nov_resumo">Resumo (vai no e-mail)</label>
+        <input type="text" id="nov_resumo" name="resumo" required maxlength="300"
+               placeholder="1 frase: o que muda para a família">
+        <label for="nov_detalhes">Detalhes (vão na página — parágrafos separados por linha em branco)</label>
+        <textarea id="nov_detalhes" name="detalhes" rows="5" required></textarea>
+        <button type="submit" class="botao botao-primario">Publicar novidade</button>
+    </form>
+
+    <?php if ($novidades !== []): ?>
+        <div class="tabela-rolavel"><table class="tabela tabela-compacta">
+            <thead><tr><th>Novidade</th><th>E-mail</th><th></th></tr></thead>
+            <tbody>
+            <?php foreach ($novidades as $novidade): ?>
+                <tr class="<?= (int)$novidade['publicado'] === 1 ? '' : 'linha-inativa' ?>">
+                    <td><?= e($novidade['titulo']) ?><br>
+                        <small class="texto-apoio"><?= e(data_br($novidade['criado_em'], 'd/m/Y')) ?>
+                            · <a href="<?= e(url('novidades')) ?>#<?= e($novidade['slug']) ?>">ver página</a></small></td>
+                    <td><?= $novidade['email_enviado_em'] !== null
+                        ? '<span class="etiqueta-estado etiqueta-verde">enviado ' . e(data_br($novidade['email_enviado_em'], 'd/m')) . '</span>'
+                        : '<span class="etiqueta-estado etiqueta-cinza">não enviado</span>' ?></td>
+                    <td>
+                        <form method="post" action="<?= e(url('admin.painel.acao')) ?>" class="form-inline">
+                            <?= Csrf::campo() ?>
+                            <input type="hidden" name="acao" value="novidade_enviar">
+                            <input type="hidden" name="novidade_id" value="<?= (int)$novidade['id'] ?>">
+                            <button type="submit" class="botao botao-pequeno botao-primario">
+                                <?= $novidade['email_enviado_em'] !== null ? 'Reenviar' : 'Enviar e-mail' ?></button>
+                        </form>
+                        <form method="post" action="<?= e(url('admin.painel.acao')) ?>" class="form-inline">
+                            <?= Csrf::campo() ?>
+                            <input type="hidden" name="acao" value="novidade_publicar">
+                            <input type="hidden" name="novidade_id" value="<?= (int)$novidade['id'] ?>">
+                            <button type="submit" class="botao botao-pequeno botao-contorno">
+                                <?= (int)$novidade['publicado'] === 1 ? 'Ocultar' : 'Publicar' ?></button>
+                        </form>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table></div>
+    <?php endif; ?>
+</div>
+
+<div class="cartao">
+    <h3>E-mails enviados (últimos 20)</h3>
+    <?php if ($emails === []): ?>
+        <p class="texto-apoio">Nenhum e-mail registrado ainda.</p>
+    <?php else: ?>
+        <div class="tabela-rolavel"><table class="tabela tabela-compacta">
+            <thead><tr><th>Quando</th><th>Para</th><th>Tipo</th><th>Status</th></tr></thead>
+            <tbody>
+            <?php foreach ($emails as $email): ?>
+                <tr>
+                    <td><?= e(data_br($email['criado_em'], 'd/m H:i')) ?></td>
+                    <td><?= e($email['destinatario']) ?><br><small class="texto-apoio"><?= e(mb_substr($email['assunto'], 0, 40)) ?></small></td>
+                    <td><?= e($email['tipo']) ?></td>
+                    <td><?= $email['status'] === 'enviado'
+                        ? '<span class="etiqueta-estado etiqueta-verde">enviado</span>'
+                        : '<span class="etiqueta-estado etiqueta-ambar">falhou</span>' ?>
+                        <?= $email['erro'] !== null ? '<br><small class="texto-apoio">' . e($email['erro']) . '</small>' : '' ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>

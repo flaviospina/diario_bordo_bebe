@@ -33,6 +33,11 @@ final class RepositorioListaEspera extends RepositorioSistema
         return true;
     }
 
+    public function buscar(int $id): ?array
+    {
+        return $this->buscarUm('SELECT * FROM lista_espera WHERE id = :id LIMIT 1', ['id' => $id]);
+    }
+
     /** @return array<int,array<string,mixed>> */
     public function listar(int $limite = 100): array
     {

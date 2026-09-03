@@ -1035,3 +1035,30 @@ fieldset.cartao legend {
     .tutorial-figura img { width: 230px; }
     .tutorial-duplo { grid-template-columns: 1fr; }
 }
+
+/* ══ Rodada 1: multi-atividade ══ */
+.alternar-multi { margin: 0 0 .6rem; font-size: .85rem; }
+.opcao-registro.opcao-selecionada {
+    border-color: var(--salvia); background: var(--salvia-suave);
+    box-shadow: 0 0 0 2px var(--salvia) inset;
+}
+.barra-multi { position: sticky; bottom: 0; padding: .6rem 0 .2rem; background: var(--nuvem); }
+.barra-multi[hidden] { display: none; }
+.bloco-multiatividade {
+    border: 1px solid var(--borda); border-radius: var(--raio);
+    padding: .8rem 1rem 1rem; margin: 1rem 0;
+}
+.bloco-multiatividade legend {
+    display: flex; align-items: center; gap: .5rem;
+    font-weight: 800; padding: 0 .4rem;
+}
+
+/* Novidades públicas */
+.novidade-data { font-size: .74rem; color: var(--tinta-apagada); margin: 0 0 .1rem; text-transform: uppercase; letter-spacing: .5px; }
+.novidade-detalhes p { color: var(--tinta-suave); font-size: .92rem; margin: .5rem 0; }
+
+/* Com a folha aberta, a navegação de abas desce de camada: a folha vive
+   dentro de .conteudo (stacking context z-index:1), então a nav precisa
+   ficar ABAIXO de 1 para a folha — e a barra multi — receberem o toque */
+body.folha-aberta .nav-abas { z-index: 0; }
+.barra-multi { padding-bottom: calc(.4rem + env(safe-area-inset-bottom, 0px)); }

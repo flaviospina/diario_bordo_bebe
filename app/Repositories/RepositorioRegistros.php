@@ -96,14 +96,15 @@ final class RepositorioRegistros extends RepositorioBase
         }
 
         $this->executar(
-            'INSERT INTO registros (codigo_publico, uuid_cliente, familia_id, crianca_id, categoria_id,
-                                    roteiro_bloco_id, usuario_id, inicio, fim, dados, observacao,
+            'INSERT INTO registros (codigo_publico, uuid_cliente, grupo_registro, familia_id, crianca_id,
+                                    categoria_id, roteiro_bloco_id, usuario_id, inicio, fim, dados, observacao,
                                     status, justificativa, origem)
-             VALUES (:codigo, :uuid, :familia_id, :crianca, :categoria, :bloco, :usuario, :inicio, :fim,
+             VALUES (:codigo, :uuid, :grupo, :familia_id, :crianca, :categoria, :bloco, :usuario, :inicio, :fim,
                      :dados, :observacao, :status, :justificativa, :origem)',
             [
                 'codigo'        => Identificadores::codigoPublico(),
                 'uuid'          => $uuid,
+                'grupo'         => $registro['grupo_registro'] ?? null,
                 'crianca'       => (int)$registro['crianca_id'],
                 'categoria'     => (int)$registro['categoria_id'],
                 'bloco'         => $registro['roteiro_bloco_id'] ?? null,

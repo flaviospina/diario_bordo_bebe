@@ -15,6 +15,7 @@ return static function (Roteador $r): void {
     $r->get('/', 'HomeController@inicio')->nome('home');
     $r->post('/quero-convite', 'HomeController@listaEspera')->nome('lista.espera');
     $r->get('/ajuda', 'HomeController@ajuda')->nome('ajuda');
+    $r->get('/novidades', 'HomeController@novidades')->nome('novidades');
 
     // Auto-cadastro de família fundadora (link enviado pela plataforma)
     $r->get('/comecar/{codigo}', 'ComecarController@mostrar')->nome('comecar');
@@ -40,6 +41,10 @@ return static function (Roteador $r): void {
     $r->get('/meu-dia', 'CuidadorController@dia')->nome('cuidador.dia')
         ->middleware('autenticado', 'papel:cuidador,responsavel');
     $r->get('/meu-dia/{data}', 'CuidadorController@diaData')->nome('cuidador.dia.data')
+        ->middleware('autenticado', 'papel:cuidador,responsavel');
+    $r->get('/registrar-varios', 'RegistroController@variosForm')->nome('registro.varios')
+        ->middleware('autenticado', 'papel:cuidador,responsavel');
+    $r->post('/registrar-varios', 'RegistroController@variosSalvar')->nome('registro.varios.salvar')
         ->middleware('autenticado', 'papel:cuidador,responsavel');
     $r->get('/registrar/{categoria}', 'RegistroController@criarForm')->nome('registro.criar')
         ->middleware('autenticado', 'papel:cuidador,responsavel');

@@ -3,14 +3,16 @@
  * Partial: renderiza os campos dinâmicos de uma categoria a partir do
  * schema_campos JSON — nenhum formulário de categoria é hardcoded.
  * Espera: array $schema (com 'campos') e array $dados (valores atuais).
+ * Opcional: string $prefixoCampos — troca o prefixo padrão 'c_' (usado pelo
+ * registro multi-atividade para separar os campos de cada categoria).
  */
 /** @var array $schema */
 /** @var array $dados */
 ?>
 <?php foreach (($schema['campos'] ?? []) as $campo): ?>
     <?php
-    $nome = 'c_' . $campo['nome'];
-    $id = 'campo_' . $campo['nome'];
+    $nome = ($prefixoCampos ?? 'c_') . $campo['nome'];
+    $id = 'campo_' . (isset($prefixoCampos) ? $nome : $campo['nome']);
     $atual = $dados[$campo['nome']] ?? null;
     $obrigatorio = !empty($campo['obrigatorio']);
     ?>

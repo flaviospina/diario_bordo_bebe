@@ -98,6 +98,101 @@ final class RegistroController
         Resposta::redirecionarRota($dataDoRegistro === hoje() ? 'cuidador.dia' : 'cuidador.dia.data', $dataDoRegistro === hoje() ? [] : ['data' => $dataDoRegistro]);
     }
 
+    // ── Multi-atividade: várias categorias num só horário ─────
+
+    private const MAXIMO_ATIVIDADES_JUNTAS = 6;
+
+    public function variosForm(Requisicao $requisicao): void
+    {
+        $categorias = $this->categoriasDaLista((string)$requisicao->get('categorias', ''));
+        if (count($categorias) < 2) {
+            Sessao::flash('erro', 'Selecione ao menos duas atividades para registrar juntas.');
+            Resposta::redirecionarRota('cuidador.dia');
+        }
+        $grade = new ServicoGrade();
+        $crianca = $grade->criancaAtual($requisicao->get('crianca'));
+        if ($crianca === null) {
+            Sessao::flash('erro', 'Cadastre uma criança antes de registrar.');
+            Resposta::redirecionarRota('cuidador.dia');
+        }
+        Visao::exibir('registro/criar_varios', [
+            'titulo' => 'Registrar ' . count($categorias) . ' atividades',
+            'categorias' => $categorias,
+            'crianca' => $crianca,
+            'dataPadrao' => $requisicao->get('data') ?? hoje(),
+        ]);
+    }
+
+    public function variosSalvar(Requisicao $requisicao): void
+    {
+        $categorias = $this->categoriasDaLista((string)$requisicao->post('categorias', ''));
+        $grade = new ServicoGrade();
+        $crianca = $grade->criancaAtual($requisicao->post('crianca'));
+        if (count($categorias) < 2 || $crianca === null) {
+            Resposta::redirecionarRota('cuidador.dia');
+        }
+        $inicio = $this->montarDataHora($requisicao, 'inicio') ?? agora();
+        $servico = new ServicoRegistros();
+
+        // Valida TODAS as categorias antes de gravar qualquer uma
+        $validadas = [];
+        foreach ($categorias as $categoria) {
+            $validacao = $servico->validarCampos(
+                $categoria,
+                $this->camposDinamicos($categoria, 'm_' . $categoria['slug'] . '_c_'),
+                true
+            );
+            if ($validacao['erros'] !== []) {
+                Sessao::flash('erro', $categoria['nome'] . ': ' . implode(' ', $validacao['erros']));
+                Resposta::redirecionarCaminho(
+                    url('registro.varios') . '?categorias=' . implode(',', array_column($categorias, 'slug'))
+                    . '&data=' . substr($inicio, 0, 10) . '&hora=' . substr($inicio, 11, 5)
+                );
+            }
+            $validadas[] = ['categoria' => $categoria, 'dados' => $validacao['dados']];
+        }
+
+        $grupo = \App\Core\Identificadores::codigoPublico();
+        $nomes = [];
+        foreach ($validadas as $item) {
+            $observacao = trim((string)$requisicao->post('obs_' . $item['categoria']['slug'], ''));
+            $resultado = $servico->criar($item['categoria'], [
+                'crianca_id' => (int)$crianca['id'],
+                'grupo_registro' => $grupo,
+                'inicio' => $inicio,
+                'fim' => null,
+                'dados' => $item['dados'] === [] ? null : $item['dados'],
+                'observacao' => $observacao !== '' ? $observacao : null,
+                'status' => 'feito',
+                'origem' => 'online',
+            ], $requisicao->ip());
+            $this->notificarIntercorrencia($resultado['intercorrencia']);
+            $nomes[] = $item['categoria']['nome'];
+        }
+
+        Sessao::flash('sucesso', count($nomes) . ' atividades registradas juntas: ' . implode(', ', $nomes) . '.');
+        $dataDoRegistro = substr($inicio, 0, 10);
+        Resposta::redirecionarRota(
+            $dataDoRegistro === hoje() ? 'cuidador.dia' : 'cuidador.dia.data',
+            $dataDoRegistro === hoje() ? [] : ['data' => $dataDoRegistro]
+        );
+    }
+
+    /** @return array<int,array<string,mixed>> categorias ativas e únicas da lista "a,b,c" */
+    private function categoriasDaLista(string $lista): array
+    {
+        $inativas = (array)(new ServicoConfiguracoes())->obter('categorias_inativas');
+        $repositorio = new RepositorioCategorias();
+        $categorias = [];
+        foreach (array_slice(array_unique(array_filter(explode(',', $lista))), 0, self::MAXIMO_ATIVIDADES_JUNTAS) as $slug) {
+            $categoria = $repositorio->buscarPorSlug(trim($slug));
+            if ($categoria !== null && !in_array($categoria['slug'], $inativas, true)) {
+                $categorias[] = $categoria;
+            }
+        }
+        return $categorias;
+    }
+
     // ── Consulta ──────────────────────────────────────────────
 
     public function ver(Requisicao $requisicao): void
@@ -235,13 +330,13 @@ final class RegistroController
         return $registro;
     }
 
-    /** Campos dinâmicos vêm com prefixo c_ para não colidir com os fixos. */
-    private function camposDinamicos(array $categoria): array
+    /** Campos dinâmicos vêm com prefixo (c_ ou, no multi, m_{slug}_c_). */
+    private function camposDinamicos(array $categoria, string $prefixo = 'c_'): array
     {
         $schema = json_decode((string)$categoria['schema_campos'], true) ?: [];
         $entrada = [];
         foreach (($schema['campos'] ?? []) as $campo) {
-            $valor = $_POST['c_' . $campo['nome']] ?? null;
+            $valor = $_POST[$prefixo . $campo['nome']] ?? null;
             if (is_string($valor)) {
                 $entrada[$campo['nome']] = $valor;
             }
