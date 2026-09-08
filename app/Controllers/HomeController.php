@@ -45,6 +45,24 @@ final class HomeController
         ], '');
     }
 
+    /**
+     * "Entendi" do aviso de novidades: grava quem viu, quando e de onde —
+     * o aviso não aparece nunca mais para este usuário.
+     */
+    public function novidadesVistas(Requisicao $requisicao): void
+    {
+        $ids = array_map('intval', (array)($_POST['novidade_ids'] ?? []));
+        (new \App\Repositories\RepositorioNovidades())->marcarVistas($ids, Autenticacao::id(), $requisicao->ip());
+        Sessao::definir('_novidades_confirmadas', true);
+
+        // Devolve o usuário exatamente para onde estava (só caminhos internos)
+        $voltar = (string)$requisicao->post('voltar', '');
+        if ($voltar === '' || $voltar[0] !== '/' || str_starts_with($voltar, '//')) {
+            Resposta::redirecionarRota('home');
+        }
+        Resposta::redirecionarCaminho((BASE_PATH ?: '') . $voltar);
+    }
+
     /** Lista de espera da landing ("quero um convite"). */
     public function listaEspera(Requisicao $requisicao): void
     {

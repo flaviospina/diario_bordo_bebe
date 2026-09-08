@@ -73,4 +73,36 @@ final class RepositorioNovidades extends RepositorioSistema
     {
         $this->executar('UPDATE novidades SET publicado = 1 - publicado WHERE id = :id', ['id' => $id]);
     }
+
+    // ── Aviso no login (controle por usuário) ─────────────────
+
+    /**
+     * Novidades publicadas que este usuário AINDA não confirmou ter visto.
+     * @return array<int,array<string,mixed>>
+     */
+    public function naoVistasPorUsuario(int $usuarioId, int $limite = 5): array
+    {
+        return $this->executar(
+            'SELECT n.* FROM novidades n
+              WHERE n.publicado = 1
+                AND NOT EXISTS (SELECT 1 FROM novidades_vistas v
+                                 WHERE v.novidade_id = n.id AND v.usuario_id = :usuario)
+              ORDER BY n.criado_em DESC
+              LIMIT ' . max(1, min(20, $limite)),
+            ['usuario' => $usuarioId]
+        )->fetchAll();
+    }
+
+    /** Registra o "Entendi" do usuário (idempotente — repetir não duplica). */
+    public function marcarVistas(array $novidadeIds, int $usuarioId, string $ip): void
+    {
+        $inserir = $this->bd->prepare(
+            'INSERT IGNORE INTO novidades_vistas (novidade_id, usuario_id, ip) VALUES (?, ?, ?)'
+        );
+        foreach ($novidadeIds as $novidadeId) {
+            if ((int)$novidadeId > 0) {
+                $inserir->execute([(int)$novidadeId, $usuarioId, $ip]);
+            }
+        }
+    }
 }

@@ -15,6 +15,22 @@ if (BASE_PATH !== '' && str_starts_with($caminhoAtual, BASE_PATH)) {
     $caminhoAtual = substr($caminhoAtual, strlen(BASE_PATH)) ?: '/';
 }
 
+// Aviso de novidades: no primeiro login após uma publicação, o usuário vê o
+// resumo e confirma com "Entendi" (registrado em novidades_vistas). A sessão
+// guarda a confirmação para não consultar o banco a cada página.
+$novidadesPendentes = [];
+if ($usuario !== null && $papel !== 'super_admin' && Sessao::obter('_novidades_confirmadas') === null) {
+    try {
+        $novidadesPendentes = (new \App\Repositories\RepositorioNovidades())
+            ->naoVistasPorUsuario((int)$usuario['id']);
+        if ($novidadesPendentes === []) {
+            Sessao::definir('_novidades_confirmadas', true);
+        }
+    } catch (\Throwable) {
+        $novidadesPendentes = []; // tabela ainda não migrada — nunca derruba a página
+    }
+}
+
 // Abas inferiores (mobile) por papel: 4 destinos essenciais de cada rotina
 $abas = [];
 $badgeSolicitacoes = 0;
@@ -98,6 +114,8 @@ if ($usuario !== null) {
                 <?php endif; ?>
             </nav>
             <div class="usuario-area">
+                <a class="botao-ajuda" href="<?= e(url('ajuda')) ?>" title="Como usar o app"
+                   aria-label="Como usar o app"><?= icone_ui('livro', 17, 'currentColor', 2.0) ?></a>
                 <span class="usuario-nome"><?= e($usuario['nome']) ?></span>
                 <a class="botao botao-contorno botao-pequeno" href="<?= e(url('logout')) ?>">Sair</a>
             </div>
@@ -134,8 +152,40 @@ if ($usuario !== null) {
 <?php endif; ?>
 
 <footer class="rodape">
+    <p><a href="<?= e(url('ajuda')) ?>">Como usar</a> · <a href="<?= e(url('novidades')) ?>">Novidades</a></p>
     <p><?= e(APP_NOME) ?> · v<?= e(APP_VERSAO) ?></p>
 </footer>
+
+<?php if ($novidadesPendentes !== []): ?>
+    <div class="aviso-novidades" role="dialog" aria-modal="true" aria-labelledby="aviso-novidades-titulo">
+        <div class="aviso-novidades-caixa">
+            <span class="selo-categoria selo-aviso-novidades"><?= icone_ui('estrela', 24, '#B05E3C') ?></span>
+            <h3 id="aviso-novidades-titulo">Novidades no Diário do Bebê 🎉</h3>
+            <p class="texto-apoio" style="text-align:center; margin:0 0 .6rem">
+                Desde a sua última visita, o app ganhou
+                <?= count($novidadesPendentes) === 1 ? 'esta melhoria' : 'estas melhorias' ?>:
+            </p>
+            <?php foreach ($novidadesPendentes as $novidade): ?>
+                <div class="aviso-novidade-item">
+                    <strong><?= e($novidade['titulo']) ?></strong>
+                    <p><?= e($novidade['resumo']) ?></p>
+                    <a href="<?= e(url('novidades')) ?>#<?= e($novidade['slug']) ?>">Ver como funciona →</a>
+                </div>
+            <?php endforeach; ?>
+            <form method="post" action="<?= e(url('novidades.vistas')) ?>">
+                <?= \App\Core\Csrf::campo() ?>
+                <?php foreach ($novidadesPendentes as $novidade): ?>
+                    <input type="hidden" name="novidade_ids[]" value="<?= (int)$novidade['id'] ?>">
+                <?php endforeach; ?>
+                <input type="hidden" name="voltar" value="<?= e($caminhoAtual) ?>">
+                <button type="submit" class="botao botao-primario botao-largo">Entendi, vamos lá</button>
+            </form>
+            <p class="texto-apoio" style="text-align:center; margin:.6rem 0 0">
+                <a href="<?= e(url('ajuda')) ?>">Ver o tutorial completo do app</a>
+            </p>
+        </div>
+    </div>
+<?php endif; ?>
 
 <script>
     // Única ponte PHP → JS permitida para URLs: base e mapa de rotas nomeadas.
