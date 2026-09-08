@@ -1062,3 +1062,15 @@ fieldset.cartao legend {
    ficar ABAIXO de 1 para a folha — e a barra multi — receberem o toque */
 body.folha-aberta .nav-abas { z-index: 0; }
 .barra-multi { padding-bottom: calc(.4rem + env(safe-area-inset-bottom, 0px)); }
+
+/* Correção: páginas de autenticação com formulário LONGO (ex.: /comecar)
+   precisam rolar. O overflow:hidden original escondia as bolhas decorativas,
+   mas também travava a rolagem; e o align-items:center cortava o topo.
+   "safe center" centraliza só quando o conteúdo cabe na tela. */
+body.pagina-autenticacao {
+    overflow: hidden auto;   /* x: oculto (bolhas) · y: rola */
+    align-items: center;
+    align-items: safe center;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
