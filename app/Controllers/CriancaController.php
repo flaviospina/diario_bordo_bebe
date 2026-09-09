@@ -131,16 +131,26 @@ final class CriancaController
             Resposta::redirecionarRota('crianca.vacinas', ['slug' => $crianca['slug']]);
         }
         $data = (string)$requisicao->post('aplicada_em', '');
-        (new RepositorioVacinas())->criar([
+        $dataAplicacao = preg_match('/^\d{4}-\d{2}-\d{2}$/', $data) === 1 ? $data : hoje();
+        $vacinaId = (new RepositorioVacinas())->criar([
             'crianca_id' => (int)$crianca['id'],
             'imunizante' => mb_substr($imunizante, 0, 120),
             'dose' => mb_substr($dose, 0, 40),
-            'aplicada_em' => preg_match('/^\d{4}-\d{2}-\d{2}$/', $data) === 1 ? $data : hoje(),
+            'aplicada_em' => $dataAplicacao,
             'lote' => trim((string)$requisicao->post('lote', '')) ?: null,
             'local_aplicacao' => trim((string)$requisicao->post('local_aplicacao', '')) ?: null,
             'origem' => 'pais',
             'status' => 'aplicada',
         ]);
+        (new \App\Services\ServicoEventos())->registrar(
+            (int)$crianca['id'],
+            'vacina',
+            mb_substr($imunizante . ' — ' . $dose, 0, 160),
+            null,
+            'vacinas',
+            $vacinaId,
+            $dataAplicacao . ' 12:00:00'
+        );
         Sessao::flash('sucesso', 'Vacina registrada na caderneta.');
         Resposta::redirecionarRota('crianca.vacinas', ['slug' => $crianca['slug']]);
     }

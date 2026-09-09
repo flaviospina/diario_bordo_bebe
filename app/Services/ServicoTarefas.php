@@ -34,6 +34,16 @@ final class ServicoTarefas
     }
 
     /**
+     * Acompanhamento com IA (Rodada 2): uma análise por criança por semana,
+     * com aviso por e-mail aos responsáveis. Idempotente: rodar de novo no
+     * mesmo dia não gera análise repetida.
+     */
+    public function gerarAcompanhamentos(): array
+    {
+        return (new ServicoAcompanhamento())->gerarSemanais();
+    }
+
+    /**
      * Alerta de omissão: famílias com o alerta ativo recebem aviso quando o
      * silêncio dentro da janela do dia ultrapassa o limite configurado.
      */

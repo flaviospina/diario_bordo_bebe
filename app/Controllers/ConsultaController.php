@@ -63,6 +63,14 @@ final class ConsultaController
         $familiaId = (int)$convite['familia_id'];
 
         $historico = (new RepositorioMedicoes($familiaId))->listar((int)$crianca['id'], 60);
+
+        // "Novidades desde a última consulta": eventos importantes desde a
+        // consulta anterior registrada (ou os últimos 90 dias, se for a primeira)
+        $consultasAnteriores = (new RepositorioConsultasMedicas($familiaId))->listarConsultas((int)$crianca['id'], 1);
+        $eventosDesde = $consultasAnteriores !== []
+            ? (string)$consultasAnteriores[0]['realizada_em'] . ' 00:00:00'
+            : date('Y-m-d 00:00:00', strtotime('-90 days'));
+
         Visao::exibir('consulta/ficha', [
             'titulo' => 'Ficha de ' . $crianca['nome'],
             'codigo' => $requisicao->parametro('codigo'),
@@ -75,6 +83,10 @@ final class ConsultaController
             'curvas' => (new ServicoCrescimento())->curvas($crianca, $historico),
             'vacinas' => (new RepositorioVacinas($familiaId))->listar((int)$crianca['id']),
             'resumo' => (new ServicoConsulta())->resumoRotina($familiaId, (int)$crianca['id']),
+            'eventos' => (new \App\Repositories\RepositorioEventos($familiaId))
+                ->listarDesde((int)$crianca['id'], $eventosDesde),
+            'eventosDesde' => $eventosDesde,
+            'primeiraConsulta' => $consultasAnteriores === [],
         ], 'publico');
     }
 

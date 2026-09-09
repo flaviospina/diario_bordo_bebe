@@ -172,7 +172,31 @@ final class ServicoRegistros
                 (string)$categoria['nome'] . (($registro['observacao'] ?? '') !== '' ? ' — ' . $registro['observacao'] : ''),
                 isset($dados['acao_tomada']) ? (string)$dados['acao_tomada'] : null
             );
+            (new ServicoEventos())->registrar(
+                (int)$registro['crianca_id'],
+                'intercorrencia',
+                $categoria['nome'] . ' (' . $gravidade . ')',
+                trim((string)($registro['observacao'] ?? ''))
+                    . (isset($dados['acao_tomada']) && (string)$dados['acao_tomada'] !== ''
+                        ? "\nO que foi feito: " . $dados['acao_tomada'] : '') ?: null,
+                'registros',
+                (int)$registro['id'],
+                (string)$registro['inicio']
+            );
             return ['codigo' => $codigo, 'gravidade' => $gravidade];
+        }
+
+        // Marco de desenvolvimento: evento importante + e-mail aos responsáveis
+        if ($categoria['slug'] === 'marco-desenvolvimento') {
+            (new ServicoEventos())->registrar(
+                (int)$registro['crianca_id'],
+                'marco',
+                mb_substr(trim((string)($dados['descricao'] ?? 'Marco de desenvolvimento')), 0, 160),
+                trim((string)($registro['observacao'] ?? '')) ?: null,
+                'registros',
+                (int)$registro['id'],
+                (string)$registro['inicio']
+            );
         }
 
         // Pedido de suprimento vira item na lista de suprimentos

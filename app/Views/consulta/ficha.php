@@ -8,6 +8,9 @@
 /** @var ?array $curvas */
 /** @var array $vacinas */
 /** @var array $resumo */
+/** @var array $eventos */
+/** @var string $eventosDesde */
+/** @var bool $primeiraConsulta */
 
 $rotuloSexo = ['feminino' => 'Feminino', 'masculino' => 'Masculino'];
 $rotuloParto = ['normal' => 'Parto normal', 'cesarea' => 'Cesárea', 'forceps' => 'Fórceps'];
@@ -71,6 +74,32 @@ $saude = array_filter([
         <?php endforeach; ?>
     <?php endif; ?>
 </div>
+
+<?php if ($eventos !== []): ?>
+    <div class="cartao cartao-eventos">
+        <h3><?= icone_ui('estrela', 18, '#B05E3C') ?> Novidades desde a última consulta</h3>
+        <p class="texto-apoio" style="margin-top:0">
+            <?= $primeiraConsulta
+                ? 'Eventos importantes dos últimos 90 dias.'
+                : 'Eventos importantes desde ' . e(data_br($eventosDesde, 'd/m/Y')) . '.' ?>
+        </p>
+        <?php $iconeEvento = ['marco' => 'estrela', 'intercorrencia' => 'alerta', 'medicao' => 'grafico', 'vacina' => 'vacina']; ?>
+        <?php foreach (array_slice($eventos, 0, 12) as $evento): ?>
+            <div class="evento-item">
+                <span class="selo-categoria selo-evento selo-evento-<?= e($evento['tipo']) ?>">
+                    <?= icone_ui($iconeEvento[$evento['tipo']] ?? 'estrela', 17, 'currentColor', 2.0) ?>
+                </span>
+                <div class="evento-texto">
+                    <strong><?= e($evento['titulo']) ?></strong>
+                    <?php if ($evento['descricao'] !== null && trim((string)$evento['descricao']) !== ''): ?>
+                        <p><?= e(mb_substr((string)$evento['descricao'], 0, 200)) ?></p>
+                    <?php endif; ?>
+                    <span class="texto-apoio"><?= e(data_br((string)$evento['ocorrido_em'], 'd/m/Y')) ?></span>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
 
 <?php
 $nascimento = array_filter([

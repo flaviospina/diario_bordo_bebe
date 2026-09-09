@@ -55,6 +55,42 @@ final class RelatorioController
         ]);
     }
 
+    /** Acompanhamento com IA (Rodada 2): observações sobre o período recente. */
+    public function acompanhamento(Requisicao $requisicao): void
+    {
+        $grade = new ServicoGrade();
+        $crianca = $grade->criancaAtual($requisicao->get('crianca'));
+        if ($crianca === null) {
+            Visao::exibir('cuidador/sem_crianca', ['titulo' => 'Acompanhamento']);
+        }
+        Visao::exibir('relatorios/acompanhamento', [
+            'titulo' => 'Acompanhamento',
+            'crianca' => $crianca,
+            'criancas' => (new RepositorioCriancas())->listar(),
+            'analises' => (new \App\Repositories\RepositorioAnalisesIa())
+                ->listarComObservacoes((int)$crianca['id']),
+            'iaConfigurada' => \App\Core\ClienteClaude::daConfiguracao() !== null,
+        ]);
+    }
+
+    public function acompanhamentoGerar(Requisicao $requisicao): void
+    {
+        $grade = new ServicoGrade();
+        $crianca = $grade->criancaAtual($requisicao->post('crianca'));
+        if ($crianca === null) {
+            Sessao::flash('erro', 'Cadastre uma criança primeiro.');
+            Resposta::redirecionarRota('relatorios.acompanhamento');
+        }
+        $resultado = (new \App\Services\ServicoAcompanhamento())->gerar($crianca, 'manual');
+        Sessao::flash(
+            $resultado['erro'] === null ? 'sucesso' : 'erro',
+            $resultado['erro'] ?? 'Análise pronta! As observações estão logo abaixo.'
+        );
+        Resposta::redirecionarCaminho(
+            (BASE_PATH ?: '') . '/relatorios/acompanhamento?crianca=' . $crianca['slug']
+        );
+    }
+
     public function pediatra(Requisicao $requisicao): void
     {
         $grade = new ServicoGrade();

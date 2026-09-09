@@ -230,7 +230,7 @@ final class ServicoConsulta extends RepositorioSistema
             }
         }
 
-        (new RepositorioConsultasMedicas($familiaId))->criarConsulta([
+        $consultaId = (new RepositorioConsultasMedicas($familiaId))->criarConsulta([
             'crianca_id' => (int)$crianca['id'],
             'profissional_id' => $profissionalId,
             'realizada_em' => $dataMedicao,
@@ -239,6 +239,19 @@ final class ServicoConsulta extends RepositorioSistema
             'retorno_em' => self::dataOuNulo($entrada['retorno_em'] ?? null),
             'origem' => 'pediatra',
         ]);
+
+        // Vacinas aplicadas na consulta viram UM evento importante (e um e-mail)
+        if ($vacinasTexto !== '') {
+            (new ServicoEventos($familiaId))->registrar(
+                (int)$crianca['id'],
+                'vacina',
+                'Vacinas aplicadas na consulta com ' . $nomeProfissional,
+                $vacinasTexto,
+                'consultas',
+                $consultaId,
+                $dataMedicao . ' 12:00:00'
+            );
+        }
 
         // Queima o link: uso único, com rastro completo
         $this->executar(
@@ -289,7 +302,7 @@ final class ServicoConsulta extends RepositorioSistema
         }
         $dataMedicao = self::dataOuHoje($entrada['medido_em'] ?? null);
         $percentis = $this->calcularPercentis($crianca, $dataMedicao, $peso, $altura, $pc);
-        (new RepositorioMedicoes())->criar([
+        $medicaoId = (new RepositorioMedicoes())->criar([
             'crianca_id' => (int)$crianca['id'],
             'medido_em' => $dataMedicao,
             'peso_g' => $peso !== null ? (int)round($peso * 1000) : null,
@@ -302,8 +315,9 @@ final class ServicoConsulta extends RepositorioSistema
             'status' => 'confirmada',
         ] + $percentis);
         (new RepositorioLogAcessos())->registrar(
-            Autenticacao::familiaId(), Autenticacao::id(), 'medicao_criada', 'medicoes', null, null
+            Autenticacao::familiaId(), Autenticacao::id(), 'medicao_criada', 'medicoes', $medicaoId, null
         );
+        $this->eventoDeMedicao((new RepositorioMedicoes())->buscar($medicaoId), null);
         return ['erro' => null];
     }
 
@@ -318,6 +332,7 @@ final class ServicoConsulta extends RepositorioSistema
         (new RepositorioLogAcessos())->registrar(
             Autenticacao::familiaId(), Autenticacao::id(), 'medicao_confirmada', 'medicoes', $medicaoId, null
         );
+        $this->eventoDeMedicao($medicao, null);
         return null;
     }
 
@@ -325,7 +340,7 @@ final class ServicoConsulta extends RepositorioSistema
     public function confirmarAutomaticas(): int
     {
         $pendentes = $this->executar(
-            "SELECT id, familia_id FROM medicoes
+            "SELECT * FROM medicoes
               WHERE status = 'pendente'
                 AND criado_em < DATE_SUB(NOW(), INTERVAL :dias DAY)",
             ['dias' => self::DIAS_CONFIRMACAO_AUTOMATICA]
@@ -339,8 +354,44 @@ final class ServicoConsulta extends RepositorioSistema
                 ['id' => (int)$medicao['id']]
             );
             $log->registrar((int)$medicao['familia_id'], null, 'medicao_confirmada_automatica', 'medicoes', (int)$medicao['id'], null);
+            $this->eventoDeMedicao($medicao, (int)$medicao['familia_id']);
         }
         return count($pendentes);
+    }
+
+    /** Medição confirmada vira evento importante (Rodada 2) — idempotente por medição. */
+    private function eventoDeMedicao(?array $medicao, ?int $familiaId): void
+    {
+        if ($medicao === null) {
+            return;
+        }
+        $partes = [];
+        if ($medicao['peso_g'] !== null) {
+            $partes[] = 'peso ' . number_format((int)$medicao['peso_g'] / 1000, 3, ',', '.') . ' kg'
+                . ($medicao['percentil_peso'] !== null ? ' (P' . round((float)$medicao['percentil_peso']) . ')' : '');
+        }
+        if ($medicao['altura_mm'] !== null) {
+            $partes[] = 'altura ' . number_format((int)$medicao['altura_mm'] / 10, 1, ',', '.') . ' cm'
+                . ($medicao['percentil_altura'] !== null ? ' (P' . round((float)$medicao['percentil_altura']) . ')' : '');
+        }
+        if ($medicao['perimetro_cefalico_mm'] !== null) {
+            $partes[] = 'perímetro cefálico ' . number_format((int)$medicao['perimetro_cefalico_mm'] / 10, 1, ',', '.') . ' cm'
+                . ($medicao['percentil_pc'] !== null ? ' (P' . round((float)$medicao['percentil_pc']) . ')' : '');
+        }
+        if ($partes === []) {
+            return;
+        }
+        (new ServicoEventos($familiaId))->registrar(
+            (int)$medicao['crianca_id'],
+            'medicao',
+            ucfirst(implode(' · ', $partes)),
+            'Medição de ' . data_br((string)$medicao['medido_em'] . ' 00:00:00', 'd/m/Y')
+            . ' (origem: ' . ($medicao['origem'] === 'pediatra' ? 'consulta com o pediatra' : 'medição em casa') . ').'
+            . ' Os percentis seguem as curvas da OMS — quem interpreta é o pediatra.',
+            'medicoes',
+            (int)$medicao['id'],
+            (string)$medicao['medido_em'] . ' 12:00:00'
+        );
     }
 
     // ── Auxiliares ────────────────────────────────────────────

@@ -113,6 +113,10 @@ return static function (Roteador $r): void {
         ->middleware('autenticado', 'papel:responsavel');
     $r->get('/relatorios/pediatra', 'RelatorioController@pediatra')->nome('relatorios.pediatra')
         ->middleware('autenticado', 'papel:responsavel');
+    $r->get('/relatorios/acompanhamento', 'RelatorioController@acompanhamento')->nome('relatorios.acompanhamento')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->post('/relatorios/acompanhamento', 'RelatorioController@acompanhamentoGerar')->nome('relatorios.acompanhamento.gerar')
+        ->middleware('autenticado', 'papel:responsavel');
     $r->post('/relatorios/exportar', 'RelatorioController@exportar')->nome('relatorios.exportar')
         ->middleware('autenticado', 'papel:responsavel');
 

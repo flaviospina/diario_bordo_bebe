@@ -1109,3 +1109,51 @@ body.pagina-autenticacao {
 .aviso-novidade-item p { margin: 0 0 .3rem; color: var(--tinta-suave); font-size: .88rem; }
 .aviso-novidade-item a { font-weight: 700; font-size: .88rem; }
 .aviso-novidades-caixa form { margin-top: .8rem; }
+
+/* ══ Rodada 2: acompanhamento com IA + eventos importantes ══ */
+.observacao-ia {
+    display: flex; gap: .75rem; align-items: flex-start;
+    border: 1px solid var(--borda); border-radius: var(--raio-pequeno);
+    padding: .75rem .9rem; margin: .55rem 0;
+}
+.selo-observacao {
+    width: 38px; height: 38px; flex-shrink: 0;
+    background: var(--salvia-suave); color: var(--salvia-escura);
+}
+.observacao-preventivo { border-color: var(--pessego); background: #FDF4EE; }
+.observacao-preventivo .selo-observacao { background: var(--pessego-suave); color: var(--pessego-escuro); }
+.observacao-celebracao .selo-observacao { background: var(--pessego-suave); color: var(--pessego-escuro); }
+.observacao-texto { min-width: 0; }
+.observacao-tipo {
+    display: block; font-size: .72rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: .06em;
+    color: var(--salvia-escura); margin-bottom: .1rem;
+}
+.observacao-preventivo .observacao-tipo,
+.observacao-celebracao .observacao-tipo { color: var(--pessego-escuro); }
+.observacao-texto strong { display: block; margin-bottom: .2rem; }
+.observacao-texto p { margin: 0; color: var(--tinta-suave); font-size: .92rem; }
+
+.cartao-acompanhamento-intro form { margin-top: .4rem; }
+.aviso-ia-pendente { margin: .7rem 0 0; font-size: .85rem; }
+.disclaimer-ia {
+    border: 1px dashed var(--borda); border-radius: var(--raio-pequeno);
+    padding: .8rem 1rem; margin: 1rem 0 1.5rem; font-size: .85rem;
+}
+
+.cartao-eventos { border-color: var(--pessego); }
+.evento-item {
+    display: flex; gap: .7rem; align-items: flex-start;
+    padding: .55rem 0; border-top: 1px solid var(--borda);
+}
+.evento-item:first-of-type { border-top: 0; }
+.selo-evento {
+    width: 34px; height: 34px; flex-shrink: 0;
+    background: var(--salvia-suave); color: var(--salvia-escura);
+}
+.selo-evento-intercorrencia { background: var(--pessego-suave); color: var(--pessego-escuro); }
+.selo-evento-marco { background: var(--pessego-suave); color: var(--pessego-escuro); }
+.evento-texto { min-width: 0; }
+.evento-texto strong { display: block; font-size: .95rem; }
+.evento-texto p { margin: .1rem 0; color: var(--tinta-suave); font-size: .87rem; white-space: pre-line; }
+.evento-texto .texto-apoio { font-size: .8rem; }
