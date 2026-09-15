@@ -101,6 +101,23 @@ $esperaNovos = count(array_filter($listaEspera, static fn(array $l): bool => $l[
         <strong>Situação</strong> combina o último registro do diário ·
         <strong>Lembretes</strong> mostra os e-mails automáticos já enviados (com trava anti-spam:
         no máximo 1 por semana e 3 tentativas por família).</p>
+
+    <div class="barra-engajamento">
+        <form method="post" action="<?= e(url('admin.painel.acao')) ?>" class="form-inline">
+            <?= Csrf::campo() ?>
+            <input type="hidden" name="acao" value="engajamento_rodar">
+            <button type="submit" class="botao botao-primario botao-pequeno">
+                Enviar lembretes pendentes agora</button>
+        </form>
+        <span class="texto-apoio" style="font-size:.8rem;">
+            Último ciclo de lembretes:
+            <strong><?= ($ultimaExecucaoEngajamento ?? '') !== ''
+                ? e(data_br((string)$ultimaExecucaoEngajamento, 'd/m/Y H:i'))
+                : 'nunca rodou' ?></strong>
+            (pelo cron diário ou por este botão — se esta data não avança sozinha,
+            o cron não está rodando: confira horário/fuso e o token do comando).
+        </span>
+    </div>
 </div>
 
 <div class="cartao">

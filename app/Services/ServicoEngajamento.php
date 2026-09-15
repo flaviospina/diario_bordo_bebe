@@ -134,6 +134,14 @@ final class ServicoEngajamento extends RepositorioSistema
                 }
             }
         }
+
+        // Carimbo do último ciclo — o Painel mostra, e denuncia cron parado
+        try {
+            (new RepositorioConfiguracoesPlataforma())
+                ->salvar('engajamento_ultima_execucao', date('Y-m-d H:i:s'));
+        } catch (\Throwable) {
+            // sem a migração 0013 o ciclo roda mesmo assim
+        }
         return $resultado;
     }
 

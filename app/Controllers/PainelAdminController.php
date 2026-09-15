@@ -33,12 +33,14 @@ final class PainelAdminController
             $migracaoPendente = true;
             $saude = ['tiles' => ['ativas' => 0, 'esfriando' => 0, 'inativas' => 0, 'nunca' => 0], 'familias' => []];
         }
+        $ultimaExecucao = '';
         try {
             $config = new \App\Repositories\RepositorioConfiguracoesPlataforma();
             $contatos = [
                 'whatsapp_suporte' => $config->obter('whatsapp_suporte'),
                 'email_suporte' => $config->obter('email_suporte'),
             ];
+            $ultimaExecucao = $config->obter('engajamento_ultima_execucao');
         } catch (\Throwable) {
             $migracaoPendente = true;
             $contatos = ['whatsapp_suporte' => '', 'email_suporte' => ''];
@@ -48,6 +50,7 @@ final class PainelAdminController
             'titulo' => 'Painel da plataforma',
             'saude' => $saude,
             'contatos' => $contatos,
+            'ultimaExecucaoEngajamento' => $ultimaExecucao,
             'migracaoPendente' => $migracaoPendente,
             'familias' => (new RepositorioFamilias())->listarTodas(),
             'planos' => (new RepositorioPlanos())->ativos(),
@@ -143,6 +146,33 @@ final class PainelAdminController
         if ($acao === 'espera_descartar') {
             (new RepositorioListaEspera())->mudarStatus((int)$requisicao->post('espera_id', '0'), 'descartado');
             Sessao::flash('sucesso', 'Interessado marcado como descartado.');
+            Resposta::redirecionarRota('admin.painel');
+        }
+
+        // ── Engajamento: rodar o ciclo de lembretes agora (teste sem cron) ─
+        if ($acao === 'engajamento_rodar') {
+            try {
+                $resultado = (new \App\Services\ServicoEngajamento())->executarDiario();
+            } catch (\Throwable $excecao) {
+                Sessao::flash('erro', 'O ciclo de lembretes falhou: ' . mb_substr($excecao->getMessage(), 0, 200));
+                Resposta::redirecionarRota('admin.painel');
+            }
+            $rotulos = ['resgate' => 'resgate', 'reengajamento' => 'reengajamento',
+                'resumo_mensal' => 'resumo mensal', 'mesversario' => 'mêsversário', 'pre_consulta' => 'pré-consulta'];
+            $partes = [];
+            foreach ($rotulos as $tipo => $rotulo) {
+                if (($resultado[$tipo] ?? []) !== []) {
+                    $partes[] = $rotulo . ': ' . count($resultado[$tipo]) . ' (' . implode(', ', array_slice($resultado[$tipo], 0, 5)) . ')';
+                }
+            }
+            Sessao::flash(
+                'sucesso',
+                $partes !== []
+                    ? 'Lembretes enviados agora — ' . implode(' · ', $partes) . '. Veja o relatório de e-mails abaixo.'
+                    : 'Ciclo executado: nenhum lembrete pendente agora (critérios e travas anti-spam respeitados — '
+                      . 'quem já recebeu espera 7 dias pelo próximo).'
+            );
+            $log->registrar(null, Autenticacao::id(), 'plataforma_engajamento_manual', 'emails_enviados', null, $requisicao->ip());
             Resposta::redirecionarRota('admin.painel');
         }
 

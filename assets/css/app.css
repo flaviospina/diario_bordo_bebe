@@ -1171,3 +1171,9 @@ body.pagina-autenticacao {
 .chip-inativa { background: var(--pessego-suave); color: var(--pessego-escuro); }
 .chip-nunca { background: #F1EDE6; color: var(--tinta-suave); }
 .tabela-saude td { vertical-align: top; }
+
+/* Rodada 3.1: botão de ciclo manual de lembretes no Painel */
+.barra-engajamento {
+    display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
+    margin-top: .8rem; padding-top: .8rem; border-top: 1px solid var(--borda);
+}
