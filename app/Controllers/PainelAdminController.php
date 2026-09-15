@@ -26,6 +26,11 @@ final class PainelAdminController
     {
         Visao::exibir('painel/index', [
             'titulo' => 'Painel da plataforma',
+            'saude' => (new \App\Services\ServicoEngajamento())->saudeFamilias(),
+            'contatos' => [
+                'whatsapp_suporte' => (new \App\Repositories\RepositorioConfiguracoesPlataforma())->obter('whatsapp_suporte'),
+                'email_suporte' => (new \App\Repositories\RepositorioConfiguracoesPlataforma())->obter('email_suporte'),
+            ],
             'familias' => (new RepositorioFamilias())->listarTodas(),
             'planos' => (new RepositorioPlanos())->ativos(),
             'convitesFamilia' => (new RepositorioConvitesFamilia())->listarRecentes(),
@@ -120,6 +125,22 @@ final class PainelAdminController
         if ($acao === 'espera_descartar') {
             (new RepositorioListaEspera())->mudarStatus((int)$requisicao->post('espera_id', '0'), 'descartado');
             Sessao::flash('sucesso', 'Interessado marcado como descartado.');
+            Resposta::redirecionarRota('admin.painel');
+        }
+
+        // ── Contato e suporte (usado nos e-mails automáticos) ─
+        if ($acao === 'contato_salvar') {
+            $config = new \App\Repositories\RepositorioConfiguracoesPlataforma();
+            $whatsapp = preg_replace('/[^\d\s()+-]/', '', (string)$requisicao->post('whatsapp_suporte', ''));
+            $emailSuporte = mb_strtolower(trim((string)$requisicao->post('email_suporte', '')));
+            if ($emailSuporte !== '' && !filter_var($emailSuporte, FILTER_VALIDATE_EMAIL)) {
+                Sessao::flash('erro', 'O e-mail de suporte informado não é válido.');
+                Resposta::redirecionarRota('admin.painel');
+            }
+            $config->salvar('whatsapp_suporte', mb_substr(trim((string)$whatsapp), 0, 30));
+            $config->salvar('email_suporte', mb_substr($emailSuporte, 0, 190));
+            $log->registrar(null, Autenticacao::id(), 'plataforma_contato_salvar', 'configuracoes_plataforma', null, $requisicao->ip());
+            Sessao::flash('sucesso', 'Contatos de suporte atualizados — os próximos e-mails automáticos já usam o novo número.');
             Resposta::redirecionarRota('admin.painel');
         }
 

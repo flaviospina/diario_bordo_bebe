@@ -45,10 +45,11 @@ final class TarefaApiController
             'resumo'         => $servico->gerarResumos(),
             'expurgo'        => $servico->expurgarRetencao(),
             'acompanhamento' => $servico->gerarAcompanhamentos(),
+            'engajamento'    => $servico->executarEngajamento(),
             default          => null,
         };
         if ($resultado === null) {
-            Resposta::erroJson('Tarefa desconhecida. Use: fila, omissao, resumo, expurgo ou acompanhamento.', 404);
+            Resposta::erroJson('Tarefa desconhecida. Use: fila, omissao, resumo, expurgo, acompanhamento ou engajamento.', 404);
         }
         Resposta::json(['tarefa' => $requisicao->parametro('tarefa'), 'ok' => true] + $resultado);
     }

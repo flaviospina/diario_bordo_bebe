@@ -85,7 +85,8 @@ final class ServicoEmail
                     mkdir($pasta, 0755, true);
                 }
                 file_put_contents(
-                    $pasta . '/' . date('Ymd-His') . '-' . preg_replace('/[^a-z0-9]/', '-', mb_strtolower($destinatario)) . '.html',
+                    $pasta . '/' . date('Ymd-His') . '-' . substr(bin2hex(random_bytes(3)), 0, 4)
+                    . '-' . preg_replace('/[^a-z0-9]/', '-', mb_strtolower($destinatario)) . '.html',
                     $html
                 );
                 $ok = true;

@@ -1157,3 +1157,17 @@ body.pagina-autenticacao {
 .evento-texto strong { display: block; font-size: .95rem; }
 .evento-texto p { margin: .1rem 0; color: var(--tinta-suave); font-size: .87rem; white-space: pre-line; }
 .evento-texto .texto-apoio { font-size: .8rem; }
+
+/* ══ Rodada 3: dashboard Saúde das famílias (Painel) ══ */
+.tiles-saude { margin-bottom: 1rem; }
+.tile-numero.tile-ok { color: var(--salvia-escura); }
+.tile-numero.tile-atencao { color: var(--pessego-escuro); }
+.chip-situacao {
+    display: inline-block; padding: .2rem .65rem; border-radius: 999px;
+    font-size: .72rem; font-weight: 700; white-space: nowrap;
+}
+.chip-ativa { background: var(--salvia-suave); color: var(--salvia-escura); }
+.chip-esfriando { background: #FBF3D9; color: #8A6D1A; }
+.chip-inativa { background: var(--pessego-suave); color: var(--pessego-escuro); }
+.chip-nunca { background: #F1EDE6; color: var(--tinta-suave); }
+.tabela-saude td { vertical-align: top; }

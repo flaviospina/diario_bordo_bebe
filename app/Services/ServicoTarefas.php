@@ -44,6 +44,16 @@ final class ServicoTarefas
     }
 
     /**
+     * Engajamento (Rodada 3): e-mails de resgate, reengajamento, resumo
+     * mensal, mêsversário e pré-consulta — com travas anti-spam. Idempotente:
+     * rodar mais de uma vez no dia não repete nenhum envio.
+     */
+    public function executarEngajamento(): array
+    {
+        return (new ServicoEngajamento())->executarDiario();
+    }
+
+    /**
      * Alerta de omissão: famílias com o alerta ativo recebem aviso quando o
      * silêncio dentro da janela do dia ultrapassa o limite configurado.
      */

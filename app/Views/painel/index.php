@@ -3,6 +3,8 @@
 use App\Core\Csrf;
 use App\Core\Sessao;
 
+/** @var array $saude tiles + famílias com situação e lembretes */
+/** @var array $contatos whatsapp_suporte / email_suporte */
 /** @var array $familias */
 /** @var array $planos */
 /** @var array $convitesFamilia */
@@ -29,6 +31,92 @@ $esperaNovos = count(array_filter($listaEspera, static fn(array $l): bool => $l[
 ?>
 <h2>Painel da plataforma</h2>
 <p class="texto-apoio">Gestão de famílias, planos e convites. O conteúdo dos diários nunca é acessível por aqui.</p>
+
+<div class="cartao">
+    <h3><?= icone_ui('coracao-pulso', 18, '#3E6A64') ?> Saúde das famílias</h3>
+    <p class="texto-apoio" style="margin-top:0">Engajamento por família — somente metadados (datas e contagens).
+        O conteúdo do diário nunca aparece aqui.</p>
+
+    <div class="tiles-dia tiles-saude">
+        <div class="tile-dia"><span class="tile-numero tile-ok"><?= (int)$saude['tiles']['ativas'] ?></span>
+            <span class="tile-rotulo">ativas na semana</span></div>
+        <div class="tile-dia"><span class="tile-numero"><?= (int)$saude['tiles']['esfriando'] ?></span>
+            <span class="tile-rotulo">esfriando (3–7 dias)</span></div>
+        <div class="tile-dia"><span class="tile-numero tile-atencao"><?= (int)$saude['tiles']['inativas'] ?></span>
+            <span class="tile-rotulo">inativas há 7+ dias</span></div>
+        <div class="tile-dia"><span class="tile-numero tile-atencao"><?= (int)$saude['tiles']['nunca'] ?></span>
+            <span class="tile-rotulo">nunca começaram</span></div>
+    </div>
+
+    <?php $rotuloLembrete = ['resgate' => 'resgate', 'reengajamento' => 'reengajamento',
+        'resumo_mensal' => 'resumo mensal', 'mesversario' => 'mêsversário', 'pre_consulta' => 'pré-consulta']; ?>
+    <div class="tabela-rolavel"><table class="tabela tabela-compacta tabela-saude">
+        <thead><tr>
+            <th>Família</th><th>Situação</th><th>Último acesso</th><th>Último registro</th>
+            <th>7 dias</th><th>30 dias</th><th>Total</th><th>Crianças</th><th>Usuários</th><th>Lembretes</th>
+        </tr></thead>
+        <tbody>
+        <?php foreach ($saude['familias'] as $linhaSaude): ?>
+            <tr>
+                <td><strong><?= e($linhaSaude['nome']) ?></strong><br>
+                    <small class="texto-apoio"><?= e($linhaSaude['plano']) ?> · desde
+                        <?= e(data_br((string)$linhaSaude['criado_em'], 'd/m/y')) ?><?=
+                        $linhaSaude['status'] !== 'ativa' ? ' · ' . e($linhaSaude['status']) : '' ?></small></td>
+                <td><span class="chip-situacao chip-<?= e($linhaSaude['situacao']) ?>"><?= e($linhaSaude['situacao_rotulo']) ?></span></td>
+                <td><?= $linhaSaude['ultimo_acesso'] !== null
+                    ? e(data_br((string)$linhaSaude['ultimo_acesso'], 'd/m H:i'))
+                    : '<span class="texto-apoio">nunca entrou</span>' ?></td>
+                <td><?= $linhaSaude['ultimo_registro'] !== null
+                    ? e(data_br((string)$linhaSaude['ultimo_registro'], 'd/m H:i'))
+                    : '<span class="texto-apoio">—</span>' ?></td>
+                <td><?= (int)$linhaSaude['registros_7d'] ?></td>
+                <td><?= (int)$linhaSaude['registros_30d'] ?></td>
+                <td><?= (int)$linhaSaude['total_registros'] ?></td>
+                <td><?= (int)$linhaSaude['total_criancas'] ?></td>
+                <td><?= (int)$linhaSaude['total_usuarios'] ?></td>
+                <td><?php if ($linhaSaude['lembretes'] === []): ?>
+                        <span class="texto-apoio">—</span>
+                    <?php else: ?>
+                        <?php foreach ($linhaSaude['lembretes'] as $lembrete): ?>
+                            <small class="texto-apoio" style="display:block; white-space:nowrap;">
+                                <?= e($rotuloLembrete[$lembrete['tipo']] ?? $lembrete['tipo']) ?>
+                                <?= (int)$lembrete['vezes'] > 1 ? '×' . (int)$lembrete['vezes'] : '' ?> ·
+                                <?= e(data_br((string)$lembrete['ultimo'], 'd/m')) ?> ✉️
+                            </small>
+                        <?php endforeach; ?>
+                    <?php endif; ?></td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table></div>
+    <p class="texto-apoio" style="margin:.6rem 0 0; font-size:.8rem;">
+        <strong>Situação</strong> combina o último registro do diário ·
+        <strong>Lembretes</strong> mostra os e-mails automáticos já enviados (com trava anti-spam:
+        no máximo 1 por semana e 3 tentativas por família).</p>
+</div>
+
+<div class="cartao">
+    <h3><?= icone_ui('balao', 18, '#3E6A64') ?> Contato e suporte</h3>
+    <p class="texto-apoio" style="margin-top:0">Estes contatos aparecem nos e-mails automáticos
+        (botão "Chamar no WhatsApp"). Alterou aqui, valeu na hora — sem mexer em arquivo.</p>
+    <form method="post" action="<?= e(url('admin.painel.acao')) ?>" class="formulario">
+        <?= Csrf::campo() ?>
+        <input type="hidden" name="acao" value="contato_salvar">
+        <div class="linha-campos">
+            <div>
+                <label for="whatsapp_suporte">WhatsApp de suporte (DDD + número)</label>
+                <input type="text" id="whatsapp_suporte" name="whatsapp_suporte" maxlength="30"
+                       value="<?= e($contatos['whatsapp_suporte']) ?>" placeholder="11993358259">
+            </div>
+            <div>
+                <label for="email_suporte">E-mail de suporte <small>(opcional)</small></label>
+                <input type="email" id="email_suporte" name="email_suporte" maxlength="190"
+                       value="<?= e($contatos['email_suporte']) ?>" placeholder="contato@itthrive.com.br">
+            </div>
+        </div>
+        <button type="submit" class="botao botao-primario">Salvar contatos</button>
+    </form>
+</div>
 
 <?php if (is_string($linkConvite) && $linkConvite !== ''): ?>
     <div class="alerta alerta-sucesso">
