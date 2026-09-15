@@ -49,9 +49,10 @@ Igual às rodadas anteriores:
    **Sobrescrever** + "Sempre usar esta ação" → OK → espere a fila zerar.
 
 **✅ Verificação:** entre no app com a sua conta super admin e abra o
-**Painel**: a primeira seção deve ser **"Saúde das famílias"**, com os 4
-números no topo. (Se não aparecer, o cache do navegador segurou o CSS —
-recarregue com Ctrl+F5.)
+**Painel**: a primeira seção deve ser **"Saúde das famílias"**. Se aparecer
+um **aviso amarelo pedindo a migração 0013**, está tudo certo — é o Painel
+avisando que falta a Parte B; siga em frente. (Se a seção nem aparecer, o
+cache segurou o CSS — recarregue com Ctrl+F5.)
 
 ---
 

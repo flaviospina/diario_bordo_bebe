@@ -24,13 +24,31 @@ final class PainelAdminController
 {
     public function index(Requisicao $requisicao): void
     {
+        // Saúde das famílias + contatos: se a migração 0013 ainda não rodou,
+        // o Painel avisa em vez de quebrar (o resto continua funcionando).
+        $migracaoPendente = false;
+        try {
+            $saude = (new \App\Services\ServicoEngajamento())->saudeFamilias();
+        } catch (\Throwable) {
+            $migracaoPendente = true;
+            $saude = ['tiles' => ['ativas' => 0, 'esfriando' => 0, 'inativas' => 0, 'nunca' => 0], 'familias' => []];
+        }
+        try {
+            $config = new \App\Repositories\RepositorioConfiguracoesPlataforma();
+            $contatos = [
+                'whatsapp_suporte' => $config->obter('whatsapp_suporte'),
+                'email_suporte' => $config->obter('email_suporte'),
+            ];
+        } catch (\Throwable) {
+            $migracaoPendente = true;
+            $contatos = ['whatsapp_suporte' => '', 'email_suporte' => ''];
+        }
+
         Visao::exibir('painel/index', [
             'titulo' => 'Painel da plataforma',
-            'saude' => (new \App\Services\ServicoEngajamento())->saudeFamilias(),
-            'contatos' => [
-                'whatsapp_suporte' => (new \App\Repositories\RepositorioConfiguracoesPlataforma())->obter('whatsapp_suporte'),
-                'email_suporte' => (new \App\Repositories\RepositorioConfiguracoesPlataforma())->obter('email_suporte'),
-            ],
+            'saude' => $saude,
+            'contatos' => $contatos,
+            'migracaoPendente' => $migracaoPendente,
             'familias' => (new RepositorioFamilias())->listarTodas(),
             'planos' => (new RepositorioPlanos())->ativos(),
             'convitesFamilia' => (new RepositorioConvitesFamilia())->listarRecentes(),
@@ -131,6 +149,12 @@ final class PainelAdminController
         // ── Contato e suporte (usado nos e-mails automáticos) ─
         if ($acao === 'contato_salvar') {
             $config = new \App\Repositories\RepositorioConfiguracoesPlataforma();
+            try {
+                $config->obter('whatsapp_suporte');
+            } catch (\Throwable) {
+                Sessao::flash('erro', 'Rode a migração 0013 antes (install/migrate.php?token=...): a tabela de contatos ainda não existe.');
+                Resposta::redirecionarRota('admin.painel');
+            }
             $whatsapp = preg_replace('/[^\d\s()+-]/', '', (string)$requisicao->post('whatsapp_suporte', ''));
             $emailSuporte = mb_strtolower(trim((string)$requisicao->post('email_suporte', '')));
             if ($emailSuporte !== '' && !filter_var($emailSuporte, FILTER_VALIDATE_EMAIL)) {

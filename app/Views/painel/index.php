@@ -32,6 +32,14 @@ $esperaNovos = count(array_filter($listaEspera, static fn(array $l): bool => $l[
 <h2>Painel da plataforma</h2>
 <p class="texto-apoio">Gestão de famílias, planos e convites. O conteúdo dos diários nunca é acessível por aqui.</p>
 
+<?php if (!empty($migracaoPendente)): ?>
+    <div class="alerta alerta-aviso">
+        ⚠️ Falta rodar a <strong>migração 0013</strong> para ativar a Saúde das famílias e o Contato e suporte.
+        Abra <code>install/migrate.php?token=SEU_MIGRATE_TOKEN</code> no navegador (Parte B do guia da Rodada 3)
+        e recarregue esta página.
+    </div>
+<?php endif; ?>
+
 <div class="cartao">
     <h3><?= icone_ui('coracao-pulso', 18, '#3E6A64') ?> Saúde das famílias</h3>
     <p class="texto-apoio" style="margin-top:0">Engajamento por família — somente metadados (datas e contagens).
