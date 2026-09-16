@@ -1,0 +1,139 @@
+{
+  "name": "Diário do Bebê — Tarefas automáticas",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Diário do Bebê — tarefas automáticas\n\n**Antes de ativar:** abra os 3 nós HTTP e troque o valor do header `X-Token` pelo seu `TAREFAS_TOKEN` (o mesmo do `.env` do servidor). Dica: dá para trocar nos 3 de uma vez abrindo este arquivo no Bloco de Notas e usando Substituir (Ctrl+H) em `SUBSTITUA_PELO_TAREFAS_TOKEN` antes de importar.\n\n**O que cada linha faz:**\n- **Lembretes (toda hora, :25)** — resgate, reengajamento, resumo mensal, mêsversário e pré-consulta. O app só envia entre 8h e 21h de Brasília e aplica as travas anti-spam; rodar toda hora nunca duplica e-mail.\n- **IA semanal (todo dia, 8h)** — análise de acompanhamento (1× por criança por semana) com aviso aos pais.\n- **Rotinas do diário (a cada 30 min)** — confirma medições pendentes há 7 dias, fecha turnos esquecidos e despacha a fila de notificações.\n\nO fuso deste workflow é America/Sao_Paulo (Configurações do workflow).",
+        "height": 420,
+        "width": 460
+      },
+      "id": "nota-instrucoes",
+      "name": "Leia-me",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-560, -60]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "hours", "hoursInterval": 1, "triggerAtMinute": 25 }
+          ]
+        }
+      },
+      "id": "gatilho-engajamento",
+      "name": "Toda hora (min 25)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-40, -160]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "days", "triggerAtHour": 8, "triggerAtMinute": 0 }
+          ]
+        }
+      },
+      "id": "gatilho-acompanhamento",
+      "name": "Todo dia às 8h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-40, 40]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "minutes", "minutesInterval": 30 }
+          ]
+        }
+      },
+      "id": "gatilho-fila",
+      "name": "A cada 30 minutos",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-40, 240]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://itthrive.com.br/diariobebe/api/tarefas/engajamento",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-Token", "value": "SUBSTITUA_PELO_TAREFAS_TOKEN" }
+          ]
+        },
+        "options": { "timeout": 300000 }
+      },
+      "id": "http-engajamento",
+      "name": "Lembretes às famílias",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, -160],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://itthrive.com.br/diariobebe/api/tarefas/acompanhamento",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-Token", "value": "SUBSTITUA_PELO_TAREFAS_TOKEN" }
+          ]
+        },
+        "options": { "timeout": 300000 }
+      },
+      "id": "http-acompanhamento",
+      "name": "IA semanal de acompanhamento",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 40],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://itthrive.com.br/diariobebe/api/tarefas/fila",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-Token", "value": "SUBSTITUA_PELO_TAREFAS_TOKEN" }
+          ]
+        },
+        "options": { "timeout": 120000 }
+      },
+      "id": "http-fila",
+      "name": "Rotinas do diário",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 240],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Toda hora (min 25)": {
+      "main": [[{ "node": "Lembretes às famílias", "type": "main", "index": 0 }]]
+    },
+    "Todo dia às 8h": {
+      "main": [[{ "node": "IA semanal de acompanhamento", "type": "main", "index": 0 }]]
+    },
+    "A cada 30 minutos": {
+      "main": [[{ "node": "Rotinas do diário", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo"
+  },
+  "active": false,
+  "pinData": {}
+}

@@ -1,0 +1,51 @@
+{
+  "name": "Diário do Bebê — Alerta de erro",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Alerta de erro por e-mail\n\nEste workflow avisa você quando uma tarefa do Diário do Bebê falhar no n8n (site fora do ar, token errado etc.).\n\n**Como ativar:**\n1. Abra o nó \"Avisar por e-mail\" e selecione (ou crie) a credencial SMTP da sua instância — pode usar a conta no-reply@itthrive.com.br (host mail.itthrive.com.br, porta 465, SSL).\n2. Ative este workflow.\n3. No workflow \"Diário do Bebê — Tarefas automáticas\": Options (⋯) → Settings → **Error workflow** → escolha este.\n\nPronto: qualquer execução com falha gera um e-mail com o nome do nó e o erro.",
+        "height": 340,
+        "width": 420
+      },
+      "id": "nota-erros",
+      "name": "Leia-me",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-540, -40]
+    },
+    {
+      "parameters": {},
+      "id": "gatilho-erro",
+      "name": "Quando algo falhar",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [-40, 60]
+    },
+    {
+      "parameters": {
+        "fromEmail": "no-reply@itthrive.com.br",
+        "toEmail": "prof.flavio.spina@gmail.com",
+        "subject": "=⚠️ Diário do Bebê — tarefa falhou: {{ $json.workflow.name }}",
+        "emailFormat": "text",
+        "text": "=Uma tarefa automática do Diário do Bebê falhou no n8n.\n\nWorkflow: {{ $json.workflow.name }}\nNó: {{ $json.execution.lastNodeExecuted }}\nErro: {{ $json.execution.error.message }}\nQuando: {{ $now.format('dd/MM/yyyy HH:mm') }}\n\nVeja os detalhes na aba Executions do n8n.\nSe o erro citar \"Token inválido\", confira o X-Token dos nós HTTP contra o TAREFAS_TOKEN do .env.",
+        "options": {}
+      },
+      "id": "email-erro",
+      "name": "Avisar por e-mail",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [260, 60]
+    }
+  ],
+  "connections": {
+    "Quando algo falhar": {
+      "main": [[{ "node": "Avisar por e-mail", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo"
+  },
+  "active": false,
+  "pinData": {}
+}
