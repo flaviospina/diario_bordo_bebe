@@ -47,9 +47,24 @@ final class ServicoTarefas
      * Engajamento (Rodada 3): e-mails de resgate, reengajamento, resumo
      * mensal, mêsversário e pré-consulta — com travas anti-spam. Idempotente:
      * rodar mais de uma vez no dia não repete nenhum envio.
+     *
+     * O cron pode rodar DE HORA EM HORA em qualquer fuso de servidor: o app
+     * calcula a hora de Brasília sozinho e só envia entre 8h e 21h — fora da
+     * janela, apenas carimba a execução (prova de que o cron está vivo).
      */
     public function executarEngajamento(): array
     {
+        $horaBrasilia = (int)date('G'); // App roda em America/Sao_Paulo sempre
+        if ($horaBrasilia < 8 || $horaBrasilia >= 21) {
+            try {
+                (new \App\Repositories\RepositorioConfiguracoesPlataforma())
+                    ->salvar('engajamento_ultima_execucao', date('Y-m-d H:i:s'));
+            } catch (\Throwable) {
+                // sem a migração 0013, apenas segue
+            }
+            return ['fora_da_janela' => true, 'hora_brasilia' => date('H:i'),
+                    'janela_de_envio' => '08:00-21:00'];
+        }
         return (new ServicoEngajamento())->executarDiario();
     }
 
