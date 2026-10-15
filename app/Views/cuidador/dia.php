@@ -40,13 +40,16 @@ $chipRegistro = static function (array $registro): void {
 <div class="barra-dia">
     <div class="saudacao">
         <strong><?= e($saudacao) ?>, <?= e($primeiroNome) ?></strong>
-        <span><?= $ehHoje ? 'hoje' : e(data_br($dia['data'] . ' 00:00:00', 'd/m/Y')) ?> · janela <?= e($dia['janela']['inicio']) ?>–<?= e($dia['janela']['fim']) ?></span>
+        <span><?= $ehHoje ? 'hoje' : e(data_br($dia['data'] . ' 00:00:00', 'd/m/Y')) ?> · <?=
+            !empty($dia['janela']['dia_inteiro'])
+                ? 'registro liberado 24 h'
+                : 'janela ' . e($dia['janela']['inicio']) . '–' . e($dia['janela']['fim']) ?></span>
     </div>
     <span class="chip-crianca">
         <span class="avatar-crianca"><?= e(mb_strtoupper(mb_substr((string)($crianca['apelido'] ?: $crianca['nome']), 0, 1))) ?></span>
         <?php if (count($criancas) > 1): ?>
             <form method="get" action="<?= e($ehHoje ? url('cuidador.dia') : url('cuidador.dia.data', ['data' => $dia['data']])) ?>" class="form-inline">
-                <select name="crianca" onchange="this.form.submit()" aria-label="Criança">
+                <select name="crianca" data-enviar-ao-mudar aria-label="Criança">
                     <?php foreach ($criancas as $opcao): ?>
                         <option value="<?= e($opcao['slug']) ?>" <?= $opcao['slug'] === $crianca['slug'] ? 'selected' : '' ?>>
                             <?= e($opcao['apelido'] ?: $opcao['nome']) ?>
@@ -71,6 +74,13 @@ $chipRegistro = static function (array $registro): void {
     <span class="texto-apoio" style="margin-left:auto">Última atividade:
         <?= $dia['ultima_atividade'] !== null ? e(data_br($dia['ultima_atividade'], 'H:i')) : 'nenhuma' ?></span>
 </div>
+
+<?php if (empty($temPush) && $ehHoje): ?>
+    <a class="faixa-push" href="<?= e(url('avisos.index')) ?>">
+        <?= icone_ui('balao', 16, 'currentColor', 2.2) ?>
+        <span><strong>Receba os avisos no celular</strong> — ative as notificações para saber na hora quando algo mudar.</span>
+    </a>
+<?php endif; ?>
 
 <?php if ($dia['modo'] === 'roteiro'): ?>
     <?php if ($dia['linhas'] === []): ?>
@@ -144,6 +154,10 @@ $chipRegistro = static function (array $registro): void {
             </div>
         <?php endforeach; ?>
     </div>
+    <?php if ($dia['avulsos'] !== []): ?>
+        <h3>Fora da janela</h3>
+        <div class="lista-avulsos"><?php foreach ($dia['avulsos'] as $registro) { $chipRegistro($registro); } ?></div>
+    <?php endif; ?>
 <?php else: ?>
     <?php if ($dia['avulsos'] === []): ?>
         <div class="cartao" style="text-align:center; padding:2rem 1rem">

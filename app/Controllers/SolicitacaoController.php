@@ -63,6 +63,15 @@ final class SolicitacaoController
             $repositorio->decidir((int)$solicitacao['id'], 'recusada', Autenticacao::id(), $resposta);
             Sessao::flash('sucesso', 'Solicitação recusada.');
         }
+        (new \App\Services\ServicoAvisos())->avisarUsuario(
+            (int)$solicitacao['solicitante_id'],
+            'solicitacao',
+            'Sua solicitação foi ' . ($decisao === 'aprovar' ? 'aprovada ✅' : 'recusada') . ' por '
+                . \App\Services\ServicoAvisos::nomeDoAutor(),
+            ($decisao === 'aprovar' ? 'A alteração já foi aplicada ao registro.' : 'O registro continua como estava.')
+                . ($resposta !== null ? ' Resposta: ' . $resposta : ''),
+            url('registro.ver', ['codigo' => (string)$solicitacao['registro_codigo']])
+        );
         (new RepositorioLogAcessos())->registrar(
             Autenticacao::familiaId(),
             Autenticacao::id(),

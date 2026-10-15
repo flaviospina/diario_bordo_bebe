@@ -9,14 +9,30 @@ namespace App\Core;
  */
 final class Resposta
 {
+    private static ?string $nonce = null;
+
+    /**
+     * Nonce único por requisição: é o que autoriza o ÚNICO script inline do
+     * app (a ponte window.APP do layout) sob a CSP sem abrir 'unsafe-inline'.
+     */
+    public static function nonce(): string
+    {
+        if (self::$nonce === null) {
+            self::$nonce = rtrim(strtr(base64_encode(random_bytes(16)), '+/', '-_'), '=');
+        }
+        return self::$nonce;
+    }
+
     public static function emitirHeadersSeguranca(): void
     {
         if (headers_sent()) {
             return;
         }
+        // style 'unsafe-inline': as views usam style="" pontuais (não há
+        // nonce para atributos); scripts continuam restritos a 'self' + nonce.
         header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; "
-            . "style-src 'self'; script-src 'self'; connect-src 'self'; "
-            . "frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+            . "style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-" . self::nonce() . "'; "
+            . "connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
         $ehHttps = (($_SERVER['HTTPS'] ?? '') !== '' && $_SERVER['HTTPS'] !== 'off')
             || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
         if ($ehHttps) {

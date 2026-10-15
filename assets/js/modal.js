@@ -46,6 +46,14 @@
         if (evento.key === 'Escape' && !folha.hidden) fechar();
     });
 
+    // Vindo do botão "+" de outra tela (?registrar=1): abre a folha na hora atual
+    if (new URLSearchParams(window.location.search).get('registrar') === '1') {
+        abrir(new Date().toTimeString().slice(0, 5));
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+    }
+
     // ── Multi-atividade: seleção de várias categorias de uma vez ──
     const alternador = folha.querySelector('[data-modo-multi]');
     const barra = folha.querySelector('[data-barra-multi]');

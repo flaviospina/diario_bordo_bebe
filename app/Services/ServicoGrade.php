@@ -56,15 +56,20 @@ final class ServicoGrade
     }
 
     /**
+     * @param bool $diaInteiro true para os responsáveis: a grade cobre as 24 h
+     *                         (registram de dia e de noite), não só a janela
+     *                         de trabalho do cuidador.
      * @return array{
      *   data:string, janela:array, modo:string, linhas:array, avulsos:array,
      *   estatisticas:array, ultima_atividade:?string, versao:string
      * }
      */
-    public function montarDia(array $crianca, string $data): array
+    public function montarDia(array $crianca, string $data, bool $diaInteiro = false): array
     {
         $agora = time();
-        $janela = $this->config->janelaParaData($data);
+        $janela = $diaInteiro
+            ? ['inicio' => '00:00', 'fim' => '23:59', 'dia_inteiro' => true]
+            : $this->config->janelaParaData($data);
         $granularidade = $this->config->obter('granularidade');
         $roteiroAtivo = (bool)$this->config->obter('roteiro_ativo');
         $tolerancia = (int)$this->config->obter('tolerancia_atraso_minutos') * 60;
@@ -100,14 +105,18 @@ final class ServicoGrade
         } elseif ($granularidade !== 'flexivel') {
             $duracao = (int)$granularidade * 60;
             $inicioTs = strtotime($data . ' ' . $janela['inicio']);
-            $fimJanelaTs = strtotime($data . ' ' . $janela['fim']);
+            $fimJanelaTs = $diaInteiro ? strtotime($data . ' 23:59:59') + 1 : strtotime($data . ' ' . $janela['fim']);
+            $dentroDeSlot = [];
             for ($ts = $inicioTs; $ts < $fimJanelaTs; $ts += $duracao) {
                 $fimTs = min($ts + $duracao, $fimJanelaTs);
-                $doSlot = array_values(array_filter(
-                    $registros,
-                    static fn(array $r): bool => strtotime((string)$r['inicio']) >= $ts
-                        && strtotime((string)$r['inicio']) < $fimTs
-                ));
+                $doSlot = [];
+                foreach ($registros as $indice => $registro) {
+                    $inicioRegistro = strtotime((string)$registro['inicio']);
+                    if ($inicioRegistro >= $ts && $inicioRegistro < $fimTs) {
+                        $doSlot[] = $registro;
+                        $dentroDeSlot[$indice] = true;
+                    }
+                }
                 $linhas[] = [
                     'tipo'      => 'slot',
                     'inicio'    => date('H:i', $ts),
@@ -117,7 +126,8 @@ final class ServicoGrade
                     'estado'    => $this->estadoDaLinha($doSlot, $ts, $fimTs, $agora, $tolerancia, false),
                 ];
             }
-            $avulsos = [];
+            // Registros fora da janela (madrugada, noite) nunca somem: viram avulsos
+            $avulsos = array_values(array_diff_key($registros, $dentroDeSlot));
         }
 
         $estatisticas = $this->registros->estatisticasDoDia((int)$crianca['id'], $data);

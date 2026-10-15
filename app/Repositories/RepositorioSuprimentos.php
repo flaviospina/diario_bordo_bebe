@@ -38,6 +38,14 @@ final class RepositorioSuprimentos extends RepositorioBase
         );
     }
 
+    public function buscar(int $id): ?array
+    {
+        return $this->buscarUm(
+            'SELECT * FROM suprimentos WHERE familia_id = :familia_id AND id = :id LIMIT 1',
+            ['id' => $id]
+        );
+    }
+
     public function contarAbertos(): int
     {
         $linha = $this->buscarUm(

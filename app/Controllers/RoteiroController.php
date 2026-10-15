@@ -11,6 +11,7 @@ use App\Core\Visao;
 use App\Repositories\RepositorioCategorias;
 use App\Repositories\RepositorioCriancas;
 use App\Repositories\RepositorioRoteiro;
+use App\Services\ServicoAvisos;
 use App\Services\ServicoConfiguracoes;
 use App\Services\ServicoGrade;
 
@@ -57,6 +58,12 @@ final class RoteiroController
             $bloco = $repositorio->buscar((int)$requisicao->post('bloco_id', '0'));
             if ($bloco !== null && (int)$bloco['crianca_id'] === (int)$crianca['id']) {
                 $repositorio->remover((int)$bloco['id']);
+                (new ServicoAvisos())->avisarCuidadores(
+                    'roteiro',
+                    ServicoAvisos::nomeDoAutor() . ' removeu "' . $bloco['titulo'] . '" do roteiro de ' . ($crianca['apelido'] ?: $crianca['nome']),
+                    'O bloco das ' . substr((string)$bloco['hora_inicio'], 0, 5) . ' não faz mais parte da rotina.',
+                    url('cuidador.dia')
+                );
                 Sessao::flash('sucesso', 'Bloco removido do roteiro.');
             }
             Resposta::redirecionarRota('roteiro.editar');
@@ -103,6 +110,14 @@ final class RoteiroController
             $repositorio->criar($bloco);
             Sessao::flash('sucesso', 'Bloco adicionado ao roteiro.');
         }
+        (new ServicoAvisos())->avisarCuidadores(
+            'roteiro',
+            ServicoAvisos::nomeDoAutor() . ' ' . ($acao === 'atualizar' ? 'ajustou' : 'adicionou')
+                . ' "' . $bloco['titulo'] . '" no roteiro de ' . ($crianca['apelido'] ?: $crianca['nome']),
+            'Horário: ' . $horaInicio . '–' . $horaFim . ' (' . implode(', ', $dias) . ')'
+                . ($bloco['instrucao'] !== null ? '. Instrução: ' . $bloco['instrucao'] : '.'),
+            url('cuidador.dia')
+        );
         Resposta::redirecionarRota('roteiro.editar');
     }
 }

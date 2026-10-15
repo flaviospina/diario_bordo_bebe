@@ -55,6 +55,7 @@ final class PwaController
             $base . '/assets/js/offline.js?v=' . $versao,
             $base . '/assets/js/modal.js?v=' . $versao,
             $base . '/assets/js/consulta.js?v=' . $versao,
+            $base . '/assets/js/push.js?v=' . $versao,
             $base . '/assets/js/qrcode.min.js?v=' . $versao,
             $base . '/assets/fontes/fontes.css',
             $base . '/assets/fontes/quicksand-500.woff2',
@@ -119,6 +120,42 @@ self.addEventListener('fetch', (evento) => {
                 }
                 return resposta;
             });
+        })
+    );
+});
+
+// ── Notificações push (Rodada 4) ──
+self.addEventListener('push', (evento) => {
+    let dados = { titulo: 'Diário do Bebê', mensagem: '', url: BASE + '/avisos', tag: 'diario' };
+    try {
+        if (evento.data) dados = Object.assign(dados, evento.data.json());
+    } catch (e) {
+        if (evento.data) dados.mensagem = evento.data.text();
+    }
+    evento.waitUntil(self.registration.showNotification(dados.titulo, {
+        body: dados.mensagem || '',
+        icon: BASE + '/assets/img/icones/icone-192.png',
+        badge: BASE + '/assets/img/icones/icone-192.png',
+        tag: dados.tag || 'diario',
+        renotify: true,
+        data: { url: dados.url || (BASE + '/avisos') },
+        vibrate: [120, 60, 120]
+    }));
+});
+
+self.addEventListener('notificationclick', (evento) => {
+    evento.notification.close();
+    const destino = (evento.notification.data && evento.notification.data.url) || (BASE + '/avisos');
+    const alvo = new URL(destino, self.location.origin).href;
+    evento.waitUntil(
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((janelas) => {
+            for (const janela of janelas) {
+                if ('focus' in janela) {
+                    janela.navigate(alvo);
+                    return janela.focus();
+                }
+            }
+            return self.clients.openWindow(alvo);
         })
     );
 });

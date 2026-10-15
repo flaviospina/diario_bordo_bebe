@@ -26,6 +26,18 @@ function urlJs(nomeRota, parametros = {}) {
 
 window.urlJs = urlJs;
 
+// Seletores que enviam o formulário ao mudar (sem handler inline — a CSP não permite)
+document.addEventListener('change', function (evento) {
+    const alvo = evento.target;
+    if (alvo && alvo.matches && alvo.matches('[data-enviar-ao-mudar]') && alvo.form) {
+        alvo.form.submit();
+    }
+});
+document.addEventListener('click', function (evento) {
+    const alvo = evento.target && evento.target.closest ? evento.target.closest('[data-imprimir]') : null;
+    if (alvo) window.print();
+});
+
 // PWA: registra o service worker (servido pelo PHP com o BASE_PATH correto)
 if ('serviceWorker' in navigator && window.APP && window.APP.rotas && window.APP.rotas['pwa.sw']) {
     window.addEventListener('load', function () {

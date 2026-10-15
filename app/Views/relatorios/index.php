@@ -35,7 +35,7 @@ $metricas = [
     <?php if (count($criancas) > 1): ?>
         <form method="get" action="<?= e(url('relatorios.index')) ?>" class="form-inline">
             <input type="hidden" name="periodo" value="<?= (int)$periodo ?>">
-            <select name="crianca" onchange="this.form.submit()" aria-label="Criança">
+            <select name="crianca" data-enviar-ao-mudar aria-label="Criança">
                 <?php foreach ($criancas as $opcao): ?>
                     <option value="<?= e($opcao['slug']) ?>" <?= $opcao['slug'] === $crianca['slug'] ? 'selected' : '' ?>>
                         <?= e($opcao['apelido'] ?: $opcao['nome']) ?>

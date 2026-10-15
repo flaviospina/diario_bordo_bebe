@@ -1177,3 +1177,47 @@ body.pagina-autenticacao {
     display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
     margin-top: .8rem; padding-top: .8rem; border-top: 1px solid var(--borda);
 }
+
+/* ══ Rodada 4: sino de avisos, FAB global, push e registro 24 h ══ */
+.botao-sino { position: relative; }
+.sino-badge {
+    position: absolute; top: -4px; right: -4px;
+    min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
+    background: var(--pessego-escuro); color: #fff;
+    font-size: .68rem; font-weight: 800; line-height: 18px; text-align: center;
+}
+a.fab-registrar { text-decoration: none; }
+.fab-global { z-index: 60; }
+.faixa-push {
+    display: flex; gap: .6rem; align-items: center;
+    background: var(--salvia-suave); color: var(--salvia-profunda, var(--salvia-escura));
+    border-radius: var(--raio-pequeno); padding: .6rem .9rem; margin: 0 0 .9rem;
+    text-decoration: none; font-size: .88rem;
+}
+.faixa-push strong { font-weight: 800; }
+.cartao-push .acoes-push { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .4rem; }
+.nota-ios { margin: .7rem 0 0; font-size: .82rem; }
+.lista-avisos { padding-top: .4rem; padding-bottom: .4rem; }
+.aviso-item {
+    display: flex; gap: .7rem; align-items: flex-start;
+    padding: .65rem 0; border-top: 1px solid var(--borda);
+    color: inherit; text-decoration: none;
+}
+.aviso-item:first-child { border-top: 0; }
+.aviso-novo .aviso-texto strong { color: var(--salvia-escura); }
+.selo-aviso {
+    width: 34px; height: 34px; flex-shrink: 0;
+    background: var(--salvia-suave); color: var(--salvia-escura);
+}
+.aviso-novo .selo-aviso { background: var(--pessego-suave); color: var(--pessego-escuro); }
+.aviso-texto { min-width: 0; }
+.aviso-texto strong { display: block; font-size: .95rem; }
+.aviso-texto p { margin: .15rem 0; color: var(--tinta-suave); font-size: .87rem; }
+.aviso-texto .texto-apoio { font-size: .78rem; }
+.diagnostico-email dl { display: grid; grid-template-columns: max-content 1fr; gap: .25rem .9rem; margin: 0 0 .6rem; font-size: .9rem; }
+.diagnostico-email dt { color: var(--tinta-suave); }
+.diagnostico-email dd { margin: 0; word-break: break-all; }
+.diag-ok { color: var(--salvia-escura); font-weight: 700; }
+.diag-alerta { color: var(--pessego-escuro); font-weight: 700; }
+/* Atributo hidden vence qualquer display de classe (botões .botao ocultos) */
+[hidden] { display: none !important; }

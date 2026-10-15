@@ -38,7 +38,17 @@ final class SuprimentoController
             $repositorio->criar(mb_substr($item, 0, 120), $nivel, Autenticacao::id());
             Sessao::flash('sucesso', 'Pedido registrado.');
         } elseif ($acao === 'resolver' && Autenticacao::temPapel('responsavel', 'admin_familia')) {
+            $item = $repositorio->buscar((int)$requisicao->post('id', '0'));
             $repositorio->resolver((int)$requisicao->post('id', '0'));
+            if ($item !== null) {
+                (new \App\Services\ServicoAvisos())->avisarUsuario(
+                    (int)$item['solicitado_por'],
+                    'suprimento',
+                    \App\Services\ServicoAvisos::nomeDoAutor() . ' resolveu: ' . $item['item'],
+                    'O item pedido na lista de suprimentos foi marcado como providenciado.',
+                    url('suprimentos.index')
+                );
+            }
             Sessao::flash('sucesso', 'Item marcado como resolvido.');
         } else {
             Visao::erro403();

@@ -41,7 +41,7 @@ $chipRegistro = static function (array $registro): void {
         <span class="avatar-crianca"><?= e(mb_strtoupper(mb_substr($nomeCurto, 0, 1))) ?></span>
         <?php if (count($criancas) > 1): ?>
             <form method="get" action="<?= e($ehHoje ? url('pais.acompanhar') : url('pais.acompanhar.data', ['data' => $dia['data']])) ?>" class="form-inline">
-                <select name="crianca" onchange="this.form.submit()" aria-label="Criança">
+                <select name="crianca" data-enviar-ao-mudar aria-label="Criança">
                     <?php foreach ($criancas as $opcao): ?>
                         <option value="<?= e($opcao['slug']) ?>" <?= $opcao['slug'] === $crianca['slug'] ? 'selected' : '' ?>>
                             <?= e($opcao['apelido'] ?: $opcao['nome']) ?>

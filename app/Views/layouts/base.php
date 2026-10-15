@@ -114,6 +114,23 @@ if ($usuario !== null) {
                 <?php endif; ?>
             </nav>
             <div class="usuario-area">
+                <?php if ($papel !== 'super_admin'): ?>
+                    <?php
+                    $avisosNaoLidos = 0;
+                    try {
+                        $avisosNaoLidos = (new \App\Repositories\RepositorioAvisos())->contarNaoLidos((int)$usuario['id']);
+                    } catch (\Throwable) {
+                        $avisosNaoLidos = 0; // tabela ainda não migrada
+                    }
+                    ?>
+                    <a class="botao-ajuda botao-sino" href="<?= e(url('avisos.index')) ?>" title="Avisos"
+                       aria-label="Avisos<?= $avisosNaoLidos > 0 ? ' (' . $avisosNaoLidos . ' novos)' : '' ?>">
+                        <?= icone_ui('balao', 17, 'currentColor', 2.0) ?>
+                        <?php if ($avisosNaoLidos > 0): ?>
+                            <span class="sino-badge"><?= $avisosNaoLidos > 9 ? '9+' : $avisosNaoLidos ?></span>
+                        <?php endif; ?>
+                    </a>
+                <?php endif; ?>
                 <a class="botao-ajuda" href="<?= e(url('ajuda')) ?>" title="Como usar o app"
                    aria-label="Como usar o app"><?= icone_ui('livro', 17, 'currentColor', 2.0) ?></a>
                 <span class="usuario-nome"><?= e($usuario['nome']) ?></span>
@@ -130,6 +147,19 @@ if ($usuario !== null) {
 
     <?= $conteudo ?>
 </main>
+
+<?php
+// Botão flutuante de registro em QUALQUER tela (Rodada 4): quem registra
+// (cuidador e responsáveis) sempre tem o "+" à mão; o Meu Dia e os
+// formulários de registro já têm o próprio botão/fluxo, então ficam de fora.
+$podeRegistrar = in_array($papel, ['cuidador', 'responsavel', 'admin_familia'], true);
+$telaDeRegistro = str_starts_with($caminhoAtual, '/meu-dia') || str_starts_with($caminhoAtual, '/registrar');
+if ($usuario !== null && $podeRegistrar && !$telaDeRegistro): ?>
+    <a class="fab-registrar fab-global" href="<?= e(url('cuidador.dia')) ?>?registrar=1"
+       aria-label="Registrar agora" title="Registrar agora">
+        <?= icone_ui('mais', 26, '#FFFFFF', 2.8) ?>
+    </a>
+<?php endif; ?>
 
 <?php if ($abas !== []): ?>
     <nav class="nav-abas" aria-label="Navegação principal">
@@ -187,7 +217,7 @@ if ($usuario !== null) {
     </div>
 <?php endif; ?>
 
-<script>
+<script nonce="<?= e(\App\Core\Resposta::nonce()) ?>">
     // Única ponte PHP → JS permitida para URLs: base e mapa de rotas nomeadas.
     window.APP = <?= json_encode([
         'basePath' => BASE_PATH,

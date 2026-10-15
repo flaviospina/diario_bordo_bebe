@@ -43,7 +43,7 @@ final class ServicoNotificacoes
                     ? (string)($responsavel['telefone_whatsapp'] ?? '')
                     : (string)$responsavel['email'];
                 if ($destinatario === '' || $canal === 'push') {
-                    continue; // push chega numa fase futura; sem telefone não há WhatsApp
+                    continue; // push é tratado pelo ServicoAvisos abaixo; sem telefone não há WhatsApp
                 }
                 $this->fila->enfileirar($familiaId, $evento, $canal, $destinatario, [
                     'titulo' => $titulo,
@@ -53,8 +53,34 @@ final class ServicoNotificacoes
                 ]);
             }
         }
+
+        // Aviso no app + push nos aparelhos dos responsáveis (Rodada 4)
+        (new ServicoAvisos($familiaId))->avisar(
+            array_map(static fn(array $r): int => (int)$r['id'], $responsaveis),
+            $evento,
+            str_replace(' — Diário do Bebê', '', $titulo),
+            mb_substr(preg_replace('/\s*https?:\/\/\S+/', '', $mensagem) ?? $mensagem, 0, 300),
+            self::urlDoEvento($evento, $dados)
+        );
         if ($imediato) {
             $this->dispararPendentes();
+        }
+    }
+
+    /** Destino do toque na notificação, por tipo de evento. */
+    private static function urlDoEvento(string $evento, array $dados): ?string
+    {
+        try {
+            return match ($evento) {
+                'intercorrencia' => isset($dados['codigo']) ? url('intercorrencia.ver', ['codigo' => (string)$dados['codigo']]) : null,
+                'solicitacao_edicao' => isset($dados['codigo']) ? url('solicitacoes.decidir', ['codigo' => (string)$dados['codigo']]) : url('solicitacoes.lista'),
+                'medicao_pendente', 'consulta_link_usado' => isset($dados['crianca']) ? url('crianca.medicoes', ['slug' => (string)$dados['crianca']]) : null,
+                'suprimento_baixo' => url('suprimentos.index'),
+                'alerta_omissao', 'consulta_link_aberto' => url('pais.acompanhar'),
+                default => null,
+            };
+        } catch (\Throwable) {
+            return null;
         }
     }
 

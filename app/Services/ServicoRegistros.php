@@ -133,6 +133,25 @@ final class ServicoRegistros
 
         $intercorrencia = $this->executarEfeitosColaterais($categoria, $criado);
 
+        // Registro de saúde/intercorrência feito pelos PAIS (ex.: medicação às
+        // 23h): o cuidador precisa saber antes do próximo turno
+        if (Autenticacao::temPapel('responsavel', 'admin_familia')
+            && in_array($categoria['grupo'], ['saude', 'intercorrencia'], true)) {
+            $dadosCriado = json_decode((string)($criado['dados'] ?? 'null'), true) ?: [];
+            $detalhe = trim(implode(' · ', array_filter([
+                (string)($dadosCriado['nome'] ?? ''),
+                (string)($dadosCriado['dose'] ?? ''),
+                (string)($dadosCriado['tipo'] ?? ''),
+                (string)($criado['observacao'] ?? ''),
+            ])));
+            (new ServicoAvisos())->avisarCuidadores(
+                'registro_pais',
+                ServicoAvisos::nomeDoAutor() . ' registrou ' . $categoria['nome'] . ' às ' . data_br((string)$criado['inicio'], 'H:i'),
+                $detalhe !== '' ? mb_substr($detalhe, 0, 200) : null,
+                url('registro.ver', ['codigo' => (string)$criado['codigo_publico']])
+            );
+        }
+
         $this->log->registrar(
             Autenticacao::familiaId(),
             Autenticacao::id(),

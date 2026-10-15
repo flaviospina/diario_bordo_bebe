@@ -62,7 +62,7 @@ $nomesPapeis = [
                         <?= Csrf::campo() ?>
                         <input type="hidden" name="acao" value="papel">
                         <input type="hidden" name="usuario" value="<?= e($usuario['codigo_publico']) ?>">
-                        <select name="novo_papel" onchange="this.form.submit()" aria-label="Papel de <?= e($usuario['nome']) ?>">
+                        <select name="novo_papel" data-enviar-ao-mudar aria-label="Papel de <?= e($usuario['nome']) ?>">
                             <?php foreach ($nomesPapeis as $valor => $rotulo): ?>
                                 <option value="<?= e($valor) ?>" <?= $usuario['papel'] === $valor ? 'selected' : '' ?>><?= e($rotulo) ?></option>
                             <?php endforeach; ?>

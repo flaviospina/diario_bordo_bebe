@@ -36,6 +36,13 @@ final class IntercorrenciaController
         }
         if ($intercorrencia['ciencia_em'] === null) {
             (new RepositorioIntercorrencias())->registrarCiencia((int)$intercorrencia['id'], Autenticacao::id());
+            (new \App\Services\ServicoAvisos())->avisarUsuario(
+                (int)$intercorrencia['usuario_id'],
+                'intercorrencia_ciencia',
+                \App\Services\ServicoAvisos::nomeDoAutor() . ' tomou ciência da intercorrência',
+                mb_substr((string)$intercorrencia['descricao'], 0, 160),
+                url('intercorrencia.ver', ['codigo' => (string)$intercorrencia['codigo_publico']])
+            );
             (new RepositorioLogAcessos())->registrar(
                 Autenticacao::familiaId(),
                 Autenticacao::id(),

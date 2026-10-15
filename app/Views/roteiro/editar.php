@@ -30,7 +30,7 @@ $diasDoEditando = $editando !== null ? explode(',', (string)$editando['dias_sema
 
 <?php if (count($criancas) > 1): ?>
     <form method="get" action="<?= e(url('roteiro.editar')) ?>" class="form-inline" style="margin-bottom:1rem">
-        <select name="crianca" onchange="this.form.submit()" aria-label="Criança">
+        <select name="crianca" data-enviar-ao-mudar aria-label="Criança">
             <?php foreach ($criancas as $opcao): ?>
                 <option value="<?= e($opcao['slug']) ?>" <?= $opcao['slug'] === $crianca['slug'] ? 'selected' : '' ?>>
                     <?= e($opcao['apelido'] ?: $opcao['nome']) ?>

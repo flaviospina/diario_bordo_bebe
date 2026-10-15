@@ -50,6 +50,7 @@ final class PainelAdminController
             'titulo' => 'Painel da plataforma',
             'saude' => $saude,
             'contatos' => $contatos,
+            'smtp' => self::diagnosticoSmtp(),
             'ultimaExecucaoEngajamento' => $ultimaExecucao,
             'migracaoPendente' => $migracaoPendente,
             'familias' => (new RepositorioFamilias())->listarTodas(),
@@ -176,6 +177,29 @@ final class PainelAdminController
             Resposta::redirecionarRota('admin.painel');
         }
 
+        // ── E-mail de teste (diagnóstico do SMTP sem esperar um ciclo) ─
+        if ($acao === 'email_testar') {
+            $destino = (string)(Autenticacao::usuario()['email'] ?? '');
+            $email = new \App\Services\ServicoEmail();
+            $ok = $email->enviarHtml(
+                $destino,
+                'Teste de e-mail — Diário do Bebê',
+                '<h2 style="margin:0 0 12px; font-size:19px;">O e-mail está funcionando ✅</h2>'
+                . '<p style="margin:0 0 12px;">Este é um teste disparado pelo Painel em ' . e(date('d/m/Y H:i')) . '. '
+                . 'Se ele chegou, as credenciais SMTP do <code>.env</code> estão corretas.</p>',
+                'Teste de e-mail do Diário do Bebê enviado em ' . date('d/m/Y H:i') . '. Se chegou, o SMTP está correto.',
+                'teste_smtp'
+            );
+            $ultimo = (new \App\Repositories\RepositorioEmails())->listar(1)[0] ?? null;
+            Sessao::flash(
+                $ok ? 'sucesso' : 'erro',
+                $ok
+                    ? 'E-mail de teste enviado para ' . $destino . ' — confira a caixa de entrada (e o spam).'
+                    : 'O envio falhou. Resposta do servidor de e-mail: ' . (string)($ultimo['erro'] ?? 'erro desconhecido')
+            );
+            Resposta::redirecionarRota('admin.painel');
+        }
+
         // ── Contato e suporte (usado nos e-mails automáticos) ─
         if ($acao === 'contato_salvar') {
             $config = new \App\Repositories\RepositorioConfiguracoesPlataforma();
@@ -288,6 +312,44 @@ final class PainelAdminController
         }
         $log->registrar(null, Autenticacao::id(), 'plataforma_' . $acao, 'familias', (int)$familia['id'], $requisicao->ip());
         Resposta::redirecionarRota('admin.painel');
+    }
+
+    /**
+     * O que o .env entrega ao envio de e-mail — SEM a senha, só se ela está
+     * definida e sinais de erro comuns (aspas, espaços) ao colar no arquivo.
+     * @return array<string,mixed>
+     */
+    private static function diagnosticoSmtp(): array
+    {
+        $senha = \App\Core\Ambiente::obter('SMTP_SENHA', '');
+        $alertas = [];
+        if ($senha === '') {
+            $alertas[] = 'SMTP_SENHA está vazia: nenhum e-mail sai pelo SMTP.';
+        }
+        if ($senha !== '' && (str_starts_with($senha, '"') || str_starts_with($senha, "'") || str_ends_with($senha, '"') || str_ends_with($senha, "'"))) {
+            $alertas[] = 'A senha parece estar entre aspas — no .env a linha deve ser SMTP_SENHA=valor, sem aspas.';
+        }
+        if ($senha !== trim($senha)) {
+            $alertas[] = 'A senha tem espaço no início ou no fim — apague-o no .env.';
+        }
+        $host = \App\Core\Ambiente::obter('SMTP_HOST', '');
+        if ($host === '') {
+            $alertas[] = 'SMTP_HOST vazio: o app cai no mail() da hospedagem (mais chance de spam).';
+        }
+        $usuario = \App\Core\Ambiente::obter('SMTP_USUARIO', '');
+        if ($usuario !== '' && !str_contains($usuario, '@')) {
+            $alertas[] = 'SMTP_USUARIO precisa ser o e-mail completo (ex.: no-reply@itthrive.com.br).';
+        }
+        return [
+            'host' => $host,
+            'porta' => \App\Core\Ambiente::obter('SMTP_PORTA', '465'),
+            'seguranca' => \App\Core\Ambiente::obter('SMTP_SEGURANCA', 'ssl'),
+            'usuario' => $usuario,
+            'remetente' => \App\Core\Ambiente::obter('EMAIL_REMETENTE', ''),
+            'senha_definida' => $senha !== '',
+            'senha_tamanho' => mb_strlen($senha),
+            'alertas' => $alertas,
+        ];
     }
 
     /** Corpo HTML do e-mail de convite de família fundadora. */

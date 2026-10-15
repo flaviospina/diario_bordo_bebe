@@ -47,14 +47,18 @@ final class CuidadorController
             static fn(array $c): bool => in_array($c['slug'], (array)$config->obter('acoes_rapidas'), true)
         ));
 
+        // Responsáveis registram a qualquer hora (24 h); o cuidador vê a janela de trabalho
+        $diaInteiro = \App\Core\Autenticacao::temPapel('responsavel', 'admin_familia');
+
         Visao::exibir('cuidador/dia', [
             'titulo' => 'Meu Dia',
             'crianca' => $crianca,
             'criancas' => $criancas,
-            'dia' => $grade->montarDia($crianca, $data),
+            'dia' => $grade->montarDia($crianca, $data, $diaInteiro),
             'categorias' => $categorias,
             'rapidas' => $rapidas,
             'ehHoje' => $data === hoje(),
+            'temPush' => (new \App\Repositories\RepositorioPushInscricoes())->temInscricao(\App\Core\Autenticacao::id()),
         ]);
     }
 }

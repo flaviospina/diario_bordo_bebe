@@ -5,6 +5,7 @@ use App\Core\Sessao;
 
 /** @var array $saude tiles + famílias com situação e lembretes */
 /** @var array $contatos whatsapp_suporte / email_suporte */
+/** @var array $smtp diagnóstico do SMTP (sem senha) */
 /** @var array $familias */
 /** @var array $planos */
 /** @var array $convitesFamilia */
@@ -118,6 +119,29 @@ $esperaNovos = count(array_filter($listaEspera, static fn(array $l): bool => $l[
             o cron não está rodando: confira horário/fuso e o token do comando).
         </span>
     </div>
+</div>
+
+<div class="cartao diagnostico-email">
+    <h3><?= icone_ui('documento', 18, '#3E6A64') ?> E-mail (SMTP) — diagnóstico</h3>
+    <p class="texto-apoio" style="margin-top:0">O que o <code>.env</code> do servidor está entregando ao envio.
+        A senha nunca aparece aqui — só se está definida.</p>
+    <dl>
+        <dt>Servidor</dt><dd><?= $smtp['host'] !== '' ? e($smtp['host']) . ':' . e($smtp['porta']) . ' (' . e($smtp['seguranca']) . ')' : '<span class="diag-alerta">não configurado</span>' ?></dd>
+        <dt>Usuário</dt><dd><?= $smtp['usuario'] !== '' ? e($smtp['usuario']) : '<span class="diag-alerta">vazio</span>' ?></dd>
+        <dt>Remetente</dt><dd><?= e($smtp['remetente']) ?></dd>
+        <dt>Senha</dt><dd><?= $smtp['senha_definida']
+            ? '<span class="diag-ok">definida</span> (' . (int)$smtp['senha_tamanho'] . ' caracteres)'
+            : '<span class="diag-alerta">não definida</span>' ?></dd>
+    </dl>
+    <?php foreach ($smtp['alertas'] as $alerta): ?>
+        <p class="diag-alerta" style="margin:.2rem 0">⚠️ <?= e($alerta) ?></p>
+    <?php endforeach; ?>
+    <form method="post" action="<?= e(url('admin.painel.acao')) ?>" class="form-inline" style="margin-top:.6rem">
+        <?= Csrf::campo() ?>
+        <input type="hidden" name="acao" value="email_testar">
+        <button type="submit" class="botao botao-primario botao-pequeno">Enviar e-mail de teste para mim</button>
+        <span class="texto-apoio" style="font-size:.8rem">Se falhar, a resposta exata do servidor aparece aqui em cima.</span>
+    </form>
 </div>
 
 <div class="cartao">

@@ -146,6 +146,8 @@ return static function (Roteador $r): void {
     // Perfil complementar do próprio usuário (campos opcionais)
     $r->get('/perfil', 'PerfilController@editar')->nome('perfil.editar')->middleware('autenticado');
     $r->post('/perfil', 'PerfilController@salvar')->nome('perfil.salvar')->middleware('autenticado');
+    // Central de avisos (sino) — Rodada 4
+    $r->get('/avisos', 'AvisosController@index')->nome('avisos.index')->middleware('autenticado');
     $r->get('/auditoria', 'AuditoriaController@index')->nome('auditoria.index')
         ->middleware('autenticado', 'papel:admin_familia');
 
@@ -176,6 +178,13 @@ return static function (Roteador $r): void {
     $r->post('/api/sincronizar', 'Api\SincronizacaoApiController@sincronizar')->nome('api.sincronizar')
         ->middleware('autenticado', 'papel:cuidador,responsavel');
     $r->get('/api/dia/{data}', 'Api\RegistroApiController@dia')->nome('api.dia')
+        ->middleware('autenticado');
+    // Web Push (Rodada 4): inscrição do aparelho
+    $r->post('/api/push/inscrever', 'Api\PushApiController@inscrever')->nome('api.push.inscrever')
+        ->middleware('autenticado');
+    $r->post('/api/push/remover', 'Api\PushApiController@remover')->nome('api.push.remover')
+        ->middleware('autenticado');
+    $r->post('/api/push/testar', 'Api\PushApiController@testar')->nome('api.push.testar')
         ->middleware('autenticado');
 
     // Autenticadas por token de serviço (sem sessão): cron/n8n

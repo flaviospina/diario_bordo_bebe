@@ -247,6 +247,16 @@ final class RegistroController
             Resposta::redirecionarRota('registro.editar', ['codigo' => $registro['codigo_publico']]);
         }
         $servico->editar($registro, $campos, trim((string)$requisicao->post('motivo', '')) ?: null, $requisicao->ip());
+        (new \App\Services\ServicoAvisos())->avisarUsuario(
+            (int)$registro['usuario_id'],
+            'registro_ajustado',
+            \App\Services\ServicoAvisos::nomeDoAutor() . ' ajustou o registro "' . $registro['categoria_nome']
+                . '" das ' . data_br((string)$registro['inicio'], 'H:i'),
+            trim((string)$requisicao->post('motivo', '')) !== ''
+                ? 'Motivo: ' . trim((string)$requisicao->post('motivo', ''))
+                : 'A versão anterior continua guardada na auditoria.',
+            url('registro.ver', ['codigo' => (string)$registro['codigo_publico']])
+        );
         Sessao::flash('sucesso', 'Registro atualizado (a versão anterior fica guardada na auditoria).');
         Resposta::redirecionarRota('registro.ver', ['codigo' => $registro['codigo_publico']]);
     }
@@ -263,6 +273,14 @@ final class RegistroController
         $permissao = $registro['excluido_em'] !== null ? 'nada' : $servico->permissaoEdicao($registro);
         if ($permissao === 'editar') {
             $servico->excluir($registro, $motivo, $requisicao->ip());
+            (new \App\Services\ServicoAvisos())->avisarUsuario(
+                (int)$registro['usuario_id'],
+                'registro_excluido',
+                \App\Services\ServicoAvisos::nomeDoAutor() . ' excluiu o registro "' . $registro['categoria_nome']
+                    . '" das ' . data_br((string)$registro['inicio'], 'H:i'),
+                'Motivo: ' . $motivo,
+                url('cuidador.dia.data', ['data' => substr((string)$registro['inicio'], 0, 10)])
+            );
             Sessao::flash('sucesso', 'Registro excluído (exclusão lógica — o histórico permanece).');
         } elseif ($permissao === 'solicitar') {
             $servico->solicitarAlteracao($registro, $motivo, ['excluir' => true], 'exclusao');

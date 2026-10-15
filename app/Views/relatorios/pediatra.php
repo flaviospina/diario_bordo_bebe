@@ -92,5 +92,5 @@ $divisor = max(1, $diasComDado);
         <input type="hidden" name="tipo" value="pdf_pediatra">
         <button type="submit" class="botao botao-primario">Baixar PDF (uma página)</button>
     </form>
-    <button type="button" class="botao botao-contorno" onclick="window.print()">Imprimir</button>
+    <button type="button" class="botao botao-contorno" data-imprimir>Imprimir</button>
 </div>

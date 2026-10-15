@@ -128,6 +128,12 @@ final class ConfiguracaoController
             $usuarioId
         );
 
+        (new \App\Services\ServicoAvisos())->avisarCuidadores(
+            'configuracao',
+            \App\Services\ServicoAvisos::nomeDoAutor() . ' atualizou as configurações da família',
+            'Janela do dia, regras de edição ou alertas podem ter mudado. Vale dar uma olhada no Meu Dia.',
+            url('cuidador.dia')
+        );
         Sessao::flash('sucesso', 'Configurações salvas.');
         Resposta::redirecionarRota('config.familia');
     }
