@@ -17,7 +17,7 @@ $acao = $modo === 'editar'
         As mudanças propostas serão enviadas aos responsáveis para aprovação.</div>
 <?php endif; ?>
 
-<form method="post" action="<?= e($acao) ?>" class="formulario formulario-registro" data-form-registro
+<form method="post" action="<?= e($acao) ?>" class="formulario formulario-registro" data-form-registro enctype="multipart/form-data"
       <?= $modo === 'editar' ? 'data-codigo="' . e($registro['codigo_publico']) . '" data-atualizado-em="' . e((string)$registro['atualizado_em']) . '"' : '' ?>>
     <?= Csrf::campo() ?>
 
@@ -62,6 +62,9 @@ $acao = $modo === 'editar'
 
     <label for="motivo"><?= $modo === 'editar' ? 'Motivo da edição (recomendado)' : 'Motivo da alteração *' ?></label>
     <textarea id="motivo" name="motivo" rows="2" <?= $modo === 'solicitar' ? 'required' : '' ?>></textarea>
+
+    <label for="foto">Adicionar foto (opcional)</label>
+    <input type="file" id="foto" name="foto" accept="image/jpeg,image/png,image/webp" capture="environment">
 
     <button type="submit" class="botao botao-primario botao-largo">
         <?= $modo === 'editar' ? 'Salvar alterações' : 'Enviar solicitação' ?>

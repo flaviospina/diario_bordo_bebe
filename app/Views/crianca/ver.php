@@ -96,6 +96,18 @@ $saude = array_filter([
     'Tipo sanguíneo' => $crianca['tipo_sanguineo'],
 ], $temValor);
 ?>
+<?php if (!empty($experimentados)): ?>
+    <div class="cartao">
+        <h3><?= icone_ui('alimentacao', 18, '#3E6A64') ?> Introdução alimentar — <?= count($experimentados) ?> alimento(s) experimentado(s)</h3>
+        <p class="lista-chips">
+            <?php foreach ($experimentados as $alimento): ?>
+                <span class="chip-alimento" title="desde <?= e(data_br($alimento['primeira_vez'] . ' 00:00:00', 'd/m/Y')) ?> · <?= (int)$alimento['vezes'] ?>×"><?= e($alimento['nome']) ?></span>
+            <?php endforeach; ?>
+        </p>
+        <p class="texto-apoio" style="margin:.4rem 0 0"><a href="<?= e(url('alimentacao')) ?>">Guia de introdução alimentar por idade →</a></p>
+    </div>
+<?php endif; ?>
+
 <div class="cartao cartao-saude">
     <h3><?= icone_ui('coracao-pulso', 18, '#B05E3C') ?> Saúde</h3>
     <?php if ($saude === []): ?>

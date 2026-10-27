@@ -43,13 +43,15 @@ final class Visao
         self::exibir('erros/403', ['titulo' => 'Acesso negado'], 'base', 403);
     }
 
-    private static function capturar(string $view, array $dados): string
+    private static function capturar(string $view, array $__variaveis): string
     {
         $arquivo = RAIZ_PROJETO . '/app/Views/' . $view . '.php';
         if (!is_file($arquivo)) {
             throw new \RuntimeException("View inexistente: {$view}");
         }
-        extract($dados, EXTR_SKIP);
+        // Nome "reservado" (__variaveis) para que chaves como 'dados' ou 'view'
+        // cheguem à view — com EXTR_SKIP, um parâmetro homônimo as engolia.
+        extract($__variaveis, EXTR_SKIP);
         ob_start();
         require $arquivo;
         return (string)ob_get_clean();

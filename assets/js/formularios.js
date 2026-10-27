@@ -32,3 +32,25 @@
         atualizar();
     });
 })();
+
+// ── Introdução alimentar: busca na lista de alimentos (Rodada 5) ──
+(function () {
+    document.querySelectorAll('[data-alimentos]').forEach(function (bloco) {
+        const busca = bloco.querySelector('[data-alimentos-busca]');
+        if (!busca) return;
+        busca.addEventListener('input', function () {
+            const termo = busca.value.trim().toLowerCase();
+            bloco.querySelectorAll('.opcao-alimento').forEach(function (opcao) {
+                const nome = opcao.dataset.nome || '';
+                opcao.hidden = termo !== '' && nome.indexOf(termo) === -1 && !opcao.querySelector('input').checked;
+            });
+            bloco.querySelectorAll('.grupo-folha').forEach(function (titulo) {
+                const grade = titulo.nextElementSibling;
+                if (!grade) return;
+                const visiveis = grade.querySelectorAll('.opcao-alimento:not([hidden])').length;
+                titulo.hidden = visiveis === 0;
+                grade.hidden = visiveis === 0;
+            });
+        });
+    });
+})();

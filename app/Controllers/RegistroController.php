@@ -168,6 +168,14 @@ final class RegistroController
             ], $requisicao->ip());
             $this->notificarIntercorrencia($resultado['intercorrencia']);
             $nomes[] = $item['categoria']['nome'];
+            // Foto do grupo: fica no primeiro registro criado
+            if ($nomes !== [] && count($nomes) === 1 && !$resultado['duplicado']
+                && ($_FILES['foto']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                $erroFoto = (new ServicoFotos())->anexar($_FILES['foto'], (int)$resultado['registro']['id']);
+                if ($erroFoto !== null) {
+                    Sessao::flash('aviso', 'Registros salvos, mas a foto falhou: ' . $erroFoto);
+                }
+            }
         }
 
         Sessao::flash('sucesso', count($nomes) . ' atividades registradas juntas: ' . implode(', ', $nomes) . '.');
@@ -247,6 +255,12 @@ final class RegistroController
             Resposta::redirecionarRota('registro.editar', ['codigo' => $registro['codigo_publico']]);
         }
         $servico->editar($registro, $campos, trim((string)$requisicao->post('motivo', '')) ?: null, $requisicao->ip());
+        if (($_FILES['foto']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $erroFoto = (new ServicoFotos())->anexar($_FILES['foto'], (int)$registro['id']);
+            if ($erroFoto !== null) {
+                Sessao::flash('aviso', 'Registro atualizado, mas a foto falhou: ' . $erroFoto);
+            }
+        }
         (new \App\Services\ServicoAvisos())->avisarUsuario(
             (int)$registro['usuario_id'],
             'registro_ajustado',
@@ -355,7 +369,7 @@ final class RegistroController
         $entrada = [];
         foreach (($schema['campos'] ?? []) as $campo) {
             $valor = $_POST[$prefixo . $campo['nome']] ?? null;
-            if (is_string($valor)) {
+            if (is_string($valor) || is_array($valor)) {
                 $entrada[$campo['nome']] = $valor;
             }
         }

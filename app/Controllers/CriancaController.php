@@ -42,6 +42,8 @@ final class CriancaController
             'ultimas' => $medicoes->ultimasMedidas((int)$crianca['id']),
             'pendentes' => $ehResponsavel ? $medicoes->pendentes((int)$crianca['id']) : [],
             'historico' => $historico,
+            'experimentados' => (new \App\Services\ServicoAlimentacao())
+                ->experimentados(\App\Core\Autenticacao::familiaId(), (int)$crianca['id']),
             'curvas' => (new ServicoCrescimento())->curvas($crianca, $historico),
             'calendarioVacinal' => $this->calendarioVacinal($crianca, $vacinas),
             'consultas' => (new RepositorioConsultasMedicas())->listarConsultas((int)$crianca['id'], 20),

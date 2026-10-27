@@ -25,6 +25,9 @@ final class ServicoEventos
         'intercorrencia' => 'Intercorrência',
         'medicao' => 'Nova medição confirmada',
         'vacina' => 'Vacina aplicada',
+        'saude' => 'Atenção à saúde',
+        'suprimento' => 'Pedido de compra',
+        'alimentacao' => 'Reação alimentar',
     ];
 
     public function __construct(private readonly ?int $familiaId = null)

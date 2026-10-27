@@ -177,6 +177,42 @@ final class PainelAdminController
             Resposta::redirecionarRota('admin.painel');
         }
 
+        // ── Conta de e-mail de envio (Rodada 5): tudo pelo Painel, nada no .env ─
+        if ($acao === 'email_config_salvar') {
+            $config = new \App\Repositories\RepositorioConfiguracoesPlataforma();
+            $remetente = mb_strtolower(trim((string)$requisicao->post('email_remetente', '')));
+            $usuario = mb_strtolower(trim((string)$requisicao->post('smtp_usuario', '')));
+            $host = trim((string)$requisicao->post('smtp_host', ''));
+            if ($remetente !== '' && !filter_var($remetente, FILTER_VALIDATE_EMAIL)) {
+                Sessao::flash('erro', 'O e-mail remetente informado não é válido.');
+                Resposta::redirecionarRota('admin.painel');
+            }
+            try {
+                $config->salvar('email_remetente', mb_substr($remetente, 0, 190));
+                $config->salvar('email_nome', mb_substr(trim((string)$requisicao->post('email_nome', '')), 0, 80));
+                $config->salvar('smtp_host', mb_substr($host, 0, 190));
+                $config->salvar('smtp_porta', (string)max(1, min(65535, (int)$requisicao->post('smtp_porta', '465'))));
+                $config->salvar('smtp_seguranca', in_array($requisicao->post('smtp_seguranca'), ['ssl', 'tls'], true)
+                    ? (string)$requisicao->post('smtp_seguranca') : 'ssl');
+                $config->salvar('smtp_usuario', mb_substr($usuario, 0, 190));
+                $senha = (string)$requisicao->post('smtp_senha', '');
+                if ($senha !== '') {
+                    $config->salvarSegredo('smtp_senha', trim($senha)); // em branco = mantém a atual
+                }
+                if ($requisicao->post('smtp_limpar') === '1') {
+                    foreach (['smtp_host', 'smtp_porta', 'smtp_seguranca', 'smtp_usuario', 'smtp_senha'] as $chave) {
+                        $config->salvar($chave, '');
+                    }
+                }
+            } catch (\Throwable $excecao) {
+                Sessao::flash('erro', 'Não foi possível salvar: ' . mb_substr($excecao->getMessage(), 0, 160));
+                Resposta::redirecionarRota('admin.painel');
+            }
+            $log->registrar(null, Autenticacao::id(), 'plataforma_email_config', 'configuracoes_plataforma', null, $requisicao->ip());
+            Sessao::flash('sucesso', 'Conta de e-mail salva. Use "Enviar e-mail de teste para mim" para confirmar.');
+            Resposta::redirecionarRota('admin.painel');
+        }
+
         // ── E-mail de teste (diagnóstico do SMTP sem esperar um ciclo) ─
         if ($acao === 'email_testar') {
             $destino = (string)(Autenticacao::usuario()['email'] ?? '');
@@ -321,8 +357,12 @@ final class PainelAdminController
      */
     private static function diagnosticoSmtp(): array
     {
-        $senha = \App\Core\Ambiente::obter('SMTP_SENHA', '');
+        $config = \App\Services\ConfiguracaoEmail::obter();
+        $senha = $config['senha'];
         $alertas = [];
+        if ($config['origem'] === 'env') {
+            $alertas[] = 'Usando o .env do servidor. Preencha o cartão "Conta de e-mail de envio" para configurar pelo Painel (recomendado).';
+        }
         if ($senha === '') {
             $alertas[] = 'SMTP_SENHA está vazia: nenhum e-mail sai pelo SMTP.';
         }
@@ -332,20 +372,22 @@ final class PainelAdminController
         if ($senha !== trim($senha)) {
             $alertas[] = 'A senha tem espaço no início ou no fim — apague-o no .env.';
         }
-        $host = \App\Core\Ambiente::obter('SMTP_HOST', '');
+        $host = $config['host'];
         if ($host === '') {
-            $alertas[] = 'SMTP_HOST vazio: o app cai no mail() da hospedagem (mais chance de spam).';
+            $alertas[] = 'Servidor SMTP vazio: o app cai no mail() da hospedagem (mais chance de spam).';
         }
-        $usuario = \App\Core\Ambiente::obter('SMTP_USUARIO', '');
+        $usuario = $config['usuario'];
         if ($usuario !== '' && !str_contains($usuario, '@')) {
-            $alertas[] = 'SMTP_USUARIO precisa ser o e-mail completo (ex.: no-reply@itthrive.com.br).';
+            $alertas[] = 'O usuário SMTP precisa ser o e-mail completo (ex.: no-reply@itthrive.com.br).';
         }
         return [
+            'origem' => $config['origem'],
             'host' => $host,
-            'porta' => \App\Core\Ambiente::obter('SMTP_PORTA', '465'),
-            'seguranca' => \App\Core\Ambiente::obter('SMTP_SEGURANCA', 'ssl'),
+            'porta' => (string)$config['porta'],
+            'seguranca' => $config['seguranca'],
             'usuario' => $usuario,
-            'remetente' => \App\Core\Ambiente::obter('EMAIL_REMETENTE', ''),
+            'remetente' => $config['remetente'],
+            'nome' => $config['nome'],
             'senha_definida' => $senha !== '',
             'senha_tamanho' => mb_strlen($senha),
             'alertas' => $alertas,

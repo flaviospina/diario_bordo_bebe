@@ -35,8 +35,20 @@ final class SuprimentoController
             }
             $nivel = in_array($requisicao->post('nivel'), ['baixo', 'acabou'], true)
                 ? (string)$requisicao->post('nivel') : 'baixo';
-            $repositorio->criar(mb_substr($item, 0, 120), $nivel, Autenticacao::id());
-            Sessao::flash('sucesso', 'Pedido registrado.');
+            $suprimentoId = $repositorio->criar(mb_substr($item, 0, 120), $nivel, Autenticacao::id());
+            $criancas = (new \App\Repositories\RepositorioCriancas())->listar();
+            if ($criancas !== []) {
+                (new \App\Services\ServicoEventos())->registrar(
+                    (int)$criancas[0]['id'],
+                    'suprimento',
+                    'Pedido de compra: ' . mb_substr($item, 0, 120) . ($nivel === 'acabou' ? ' (acabou)' : ' (está acabando)'),
+                    'Pedido por ' . \App\Services\ServicoAvisos::nomeDoAutor() . '. A lista completa está em Itens / Suprimentos.',
+                    'suprimentos',
+                    $suprimentoId,
+                    agora()
+                );
+            }
+            Sessao::flash('sucesso', 'Pedido registrado — os responsáveis foram avisados por e-mail.');
         } elseif ($acao === 'resolver' && Autenticacao::temPapel('responsavel', 'admin_familia')) {
             $item = $repositorio->buscar((int)$requisicao->post('id', '0'));
             $repositorio->resolver((int)$requisicao->post('id', '0'));

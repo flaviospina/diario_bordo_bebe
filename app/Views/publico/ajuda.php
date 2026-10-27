@@ -141,8 +141,48 @@
                     apaga nada às escondidas, e isso protege você também.</p>
             </div>
         </div>
-        <p class="texto-apoio"><strong>Extras úteis:</strong> em <strong>Itens</strong> você avisa quando
-            fralda/fórmula estão acabando; em <strong>Turnos</strong> o app marca sua chegada e saída
+        <div class="tutorial-linha">
+            <div>
+                <h4>4 · Pedir compras do jeito certo (fralda, fórmula, lenço…)</h4>
+                <ol class="tutorial-passos">
+                    <li>Toque em <strong>Itens</strong> (rodapé) → escreva o item → "Está acabando" ou "Acabou" → <strong>Pedir</strong>.</li>
+                    <li>Ou, na janela de registro (+), use <strong>Apoio doméstico → Pedido de suprimento</strong>: também entra na lista de Itens.</li>
+                    <li>Nos dois caminhos os pais recebem um <strong>e-mail na hora</strong> e o pedido fica na lista até
+                        alguém marcar como resolvido — aí você recebe um aviso.</li>
+                </ol>
+                <p class="texto-apoio">Escrever o pedido na observação de outro registro (ex.: "comprar fralda" numa troca
+                    de fralda) <strong>não</strong> cria o pedido — use Itens ou "Pedido de suprimento".</p>
+            </div>
+        </div>
+
+        <div class="tutorial-linha">
+            <div>
+                <h4>5 · Introdução alimentar e fotos</h4>
+                <ol class="tutorial-passos">
+                    <li>A partir dos 6 meses, use <strong>Alimentação → Introdução alimentar</strong>: escolha a refeição e
+                        marque o que o bebê comeu numa lista <strong>já filtrada pela idade</strong> (frutas, legumes, carnes,
+                        ovo, cereais…). Alimentos ainda não indicados aparecem separados, com a idade certa.</li>
+                    <li>Marque a aceitação e, se houver qualquer <strong>reação</strong> (pele, vômito, diarreia), registre:
+                        os pais recebem um e-mail imediatamente.</li>
+                    <li><strong>Foto em qualquer registro:</strong> no formulário (inclusive no de várias atividades juntas e
+                        ao editar) há o campo "Foto" — a câmera abre direto.</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="tutorial-linha">
+            <div>
+                <h4>6 · Avisos e notificações</h4>
+                <ol class="tutorial-passos">
+                    <li>O <strong>sino</strong> no topo mostra o que os pais mudaram e que afeta o seu dia: registro ajustado,
+                        solicitação decidida, roteiro alterado, item comprado, medicação dada à noite.</li>
+                    <li>Toque no sino → <strong>Ativar notificações</strong> → Permitir: os avisos chegam no celular
+                        mesmo com o app fechado. No iPhone, só com o app na Tela de Início.</li>
+                    <li>O botão <strong>+</strong> de registrar está em todas as telas — não precisa voltar ao Meu Dia.</li>
+                </ol>
+            </div>
+        </div>
+        <p class="texto-apoio"><strong>Turnos:</strong> o app marca sua chegada e saída
             (o primeiro registro do dia já abre o turno sozinho).</p>
     </section>
 
@@ -218,7 +258,47 @@
                 </ol>
                 <p class="texto-apoio">Também em Ajustes: o <strong>Roteiro</strong> do dia (os horários
                     que guiam a babá), as categorias ativas e os alertas. Em <strong>Relatórios</strong>,
-                    o resumo por dia, o modo pediatra e as exportações em PDF/CSV.</p>
+                    o resumo por dia, o modo pediatra, o <strong>Acompanhamento com IA</strong> e as exportações em PDF/CSV.</p>
+            </div>
+        </div>
+
+        <div class="tutorial-linha">
+            <div>
+                <h4>5 · Vocês também registram — a qualquer hora</h4>
+                <ol class="tutorial-passos">
+                    <li>O <strong>Meu Dia</strong> dos responsáveis cobre as <strong>24 horas</strong>: madrugada, noite,
+                        fim de semana — a janela de horário vale só para o trabalho da babá.</li>
+                    <li>O botão <strong>+</strong> está em todas as telas. Registros feitos fora da janela aparecem
+                        em "Fora da janela" na tela da babá — nada some.</li>
+                    <li>Uma medicação registrada por vocês à noite <strong>avisa a babá</strong> antes do próximo turno.</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="tutorial-linha">
+            <div>
+                <h4>6 · O que chega no seu e-mail e no celular</h4>
+                <ol class="tutorial-passos">
+                    <li><strong>Na hora, por e-mail:</strong> marco de desenvolvimento, intercorrência, medição confirmada,
+                        vacina, pedido de compra da babá, sintoma, febre, medicação, vômito e reação a alimento.</li>
+                    <li><strong>Avisos no app e no celular</strong> (sino → Ativar notificações): os mesmos eventos,
+                        mais solicitações de correção e a ficha aberta pelo pediatra.</li>
+                    <li><strong>Semanalmente:</strong> o acompanhamento com IA; <strong>mensalmente:</strong> o resumo
+                        do mês; e um lembrete 2 dias antes da consulta marcada.</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="tutorial-linha">
+            <div>
+                <h4>7 · Introdução alimentar</h4>
+                <ol class="tutorial-passos">
+                    <li>Em <a href="<?= e(url('alimentacao')) ?>"><strong>Introdução alimentar por idade</strong></a> está o guia
+                        completo: as fases (6 m, 7–8 m, 9–11 m, 12–23 m), mais de 100 alimentos com a idade indicada,
+                        alergênicos, riscos de engasgo e o que evitar — com as fontes (Ministério da Saúde, SBP, OMS).</li>
+                    <li>Na ficha do bebê (e na ficha do pediatra) aparece a lista do que ele <strong>já experimentou</strong>,
+                        com a data da primeira vez.</li>
+                </ol>
             </div>
         </div>
     </section>

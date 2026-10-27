@@ -36,6 +36,28 @@ final class HomeController
         Visao::exibir('publico/ajuda', ['titulo' => 'Como usar'], '');
     }
 
+    /** Guia público de introdução alimentar por idade (Rodada 5). */
+    public function alimentacao(Requisicao $requisicao): void
+    {
+        $idade = null;
+        if (Autenticacao::estaLogado() && Autenticacao::papel() !== 'super_admin') {
+            try {
+                $crianca = (new \App\Services\ServicoGrade())->criancaAtual($requisicao->get('crianca'));
+                if ($crianca !== null && !empty($crianca['data_nascimento'])) {
+                    $idade = \App\Services\ServicoCrescimento::idadeEmMeses((string)$crianca['data_nascimento'], hoje());
+                }
+            } catch (\Throwable) {
+                $idade = null;
+            }
+        }
+        Visao::exibir('publico/alimentacao', [
+            'titulo' => 'Introdução alimentar por idade',
+            'idadeMeses' => $idade,
+            'grupos' => \App\Services\ServicoAlimentacao::porIdade($idade),
+            'fase' => \App\Services\ServicoAlimentacao::fase($idade),
+        ], Autenticacao::estaLogado() ? 'base' : 'publico');
+    }
+
     /** Novidades da plataforma: cada nova funcionalidade explicada em detalhes. */
     public function novidades(Requisicao $requisicao): void
     {

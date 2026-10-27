@@ -30,6 +30,40 @@ final class RepositorioConfiguracoesPlataforma extends RepositorioSistema
         );
     }
 
+    // ── Segredos (senha do SMTP): AES-256-GCM com a chave do .env ──
+
+    public function salvarSegredo(string $chave, string $valor): void
+    {
+        if ($valor === '') {
+            $this->salvar($chave, '');
+            return;
+        }
+        $iv = random_bytes(12);
+        $tag = '';
+        $cifra = openssl_encrypt($valor, 'aes-256-gcm', self::chaveCripto(), OPENSSL_RAW_DATA, $iv, $tag, '', 16);
+        $this->salvar($chave, 'enc:' . base64_encode($iv . $tag . (string)$cifra));
+    }
+
+    public function obterSegredo(string $chave): string
+    {
+        $bruto = $this->obter($chave);
+        if (!str_starts_with($bruto, 'enc:')) {
+            return $bruto;
+        }
+        $dados = base64_decode(substr($bruto, 4), true) ?: '';
+        if (strlen($dados) < 29) {
+            return '';
+        }
+        $texto = openssl_decrypt(substr($dados, 28), 'aes-256-gcm', self::chaveCripto(), OPENSSL_RAW_DATA, substr($dados, 0, 12), substr($dados, 12, 16));
+        return $texto === false ? '' : $texto;
+    }
+
+    private static function chaveCripto(): string
+    {
+        $semente = \App\Core\Ambiente::obter('APP_CHAVE_SECRETA', '') ?: \App\Core\Ambiente::obter('BD_SENHA', 'diario-do-bebe');
+        return hash('sha256', 'config-plataforma|' . $semente, true);
+    }
+
     /**
      * Link wa.me a partir do número salvo: aceita "11 99335-8259",
      * "(11) 99335-8259" ou "5511993358259" e devolve null sem número.

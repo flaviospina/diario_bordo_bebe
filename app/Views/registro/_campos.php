@@ -60,6 +60,50 @@
             <textarea id="<?= e($id) ?>" name="<?= e($nome) ?>" rows="3" maxlength="2000"
                       <?= $obrigatorio ? 'required' : '' ?>><?= $atual !== null ? e((string)$atual) : '' ?></textarea>
             <?php break; ?>
+        <?php case 'alimentos': ?>
+            <?php
+            // Catálogo filtrado pela idade da criança (criar/varios têm $crianca; editar tem o slug no registro)
+            $criancaCampo = $crianca ?? (isset($registro['crianca_slug'])
+                ? (new \App\Repositories\RepositorioCriancas())->buscarPorSlug((string)$registro['crianca_slug']) : null);
+            $idadeMesesCampo = !empty($criancaCampo['data_nascimento'])
+                ? \App\Services\ServicoCrescimento::idadeEmMeses((string)$criancaCampo['data_nascimento'], hoje()) : null;
+            $selecionados = is_array($atual) ? array_map('strval', $atual) : [];
+            $grupos = \App\Services\ServicoAlimentacao::porIdade($idadeMesesCampo);
+            $faseAlimentar = \App\Services\ServicoAlimentacao::fase($idadeMesesCampo);
+            ?>
+            <div class="alimentos-campo" data-alimentos>
+                <p class="texto-apoio alimentos-fase"><strong><?= e($faseAlimentar['titulo']) ?>.</strong>
+                    <?= e($faseAlimentar['texto']) ?>
+                    <a href="<?= e(url('alimentacao')) ?>" target="_blank" rel="noopener">Ver o guia completo →</a></p>
+                <input type="search" class="alimentos-busca" placeholder="Buscar alimento…" aria-label="Buscar alimento" data-alimentos-busca>
+                <?php foreach ($grupos as $chaveGrupo => $grupo): ?>
+                    <?php if ($grupo['evitar'] || $grupo['agora'] === []) { continue; } ?>
+                    <p class="grupo-folha"><?= e($grupo['icone']) ?> <?= e($grupo['rotulo']) ?></p>
+                    <div class="grupo-opcoes grupo-alimentos">
+                        <?php foreach ($grupo['agora'] as $item): ?>
+                            <label class="opcao-botao opcao-alimento" data-nome="<?= e(mb_strtolower($item['nome'])) ?>"
+                                   title="<?= e((string)($item['obs'] ?? '')) ?>">
+                                <input type="checkbox" name="<?= e($nome) ?>[]" value="<?= e($item['slug']) ?>"
+                                    <?= in_array($item['slug'], $selecionados, true) ? 'checked' : '' ?>>
+                                <span><?= e($item['nome']) ?><?= !empty($item['alergenico']) ? ' <small>⚠️</small>' : '' ?><?= !empty($item['engasgo']) ? ' <small>✂️</small>' : '' ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endforeach; ?>
+                <?php $aindaNao = []; foreach ($grupos as $grupo) { if (!$grupo['evitar']) { $aindaNao = array_merge($aindaNao, $grupo['depois']); } } ?>
+                <?php if ($aindaNao !== []): ?>
+                    <details class="alimentos-depois">
+                        <summary class="texto-apoio">Ainda não indicados para a idade (<?= count($aindaNao) ?>)</summary>
+                        <p class="texto-apoio" style="margin:.3rem 0 0">
+                            <?php foreach ($aindaNao as $item): ?>
+                                <span class="chip-depois"><?= e($item['nome']) ?> · a partir de <?= (int)$item['idade'] ?> m</span>
+                            <?php endforeach; ?>
+                        </p>
+                    </details>
+                <?php endif; ?>
+                <p class="texto-apoio" style="font-size:.78rem; margin:.4rem 0 0">⚠️ alergênico comum (um por vez, observe reações) · ✂️ cortar/amassar — risco de engasgo. Quem libera cada alimento é o pediatra.</p>
+            </div>
+            <?php break; ?>
         <?php default: ?>
             <input type="text" id="<?= e($id) ?>" name="<?= e($nome) ?>" maxlength="255"
                    value="<?= $atual !== null ? e((string)$atual) : '' ?>" <?= $obrigatorio ? 'required' : '' ?>>

@@ -56,6 +56,23 @@ return [
             $opcao('otima', 'Ótima'), $opcao('boa', 'Boa'), $opcao('parcial', 'Parcial'), $opcao('recusou', 'Recusou'),
         ]]),
     ]]],
+    ['grupo' => 'alimentacao', 'nome' => 'Introdução alimentar', 'slug' => 'introducao-alimentar', 'icone' => '🥑', 'cor' => '#e8871e', 'ordem' => 41, 'schema_campos' => ['campos' => [
+        $campo('refeicao', 'Refeição', 'opcoes', ['obrigatorio' => true, 'opcoes' => [
+            $opcao('cafe', 'Café da manhã'), $opcao('lanche_manha', 'Lanche da manhã'), $opcao('almoco', 'Almoço'),
+            $opcao('lanche_tarde', 'Lanche da tarde'), $opcao('jantar', 'Jantar'),
+        ]]),
+        $campo('alimentos', 'O que comeu', 'alimentos', ['obrigatorio' => true]),
+        $campo('textura', 'Textura', 'opcoes', ['opcoes' => [
+            $opcao('amassada', 'Amassada'), $opcao('pedacos', 'Pedaços macios'), $opcao('familia', 'Comida da família'),
+        ]]),
+        $campo('aceitacao', 'Aceitação', 'opcoes', ['opcoes' => [
+            $opcao('tudo', 'Comeu tudo'), $opcao('metade', 'Metade'), $opcao('pouco', 'Pouco'), $opcao('recusou', 'Recusou'),
+        ]]),
+        $campo('reacao', 'Alguma reação?', 'opcoes', ['opcoes' => [
+            $opcao('nenhuma', 'Nenhuma'), $opcao('pele', 'Pele (vermelhidão, manchas)'), $opcao('vomito', 'Vômito'),
+            $opcao('diarreia', 'Diarreia'), $opcao('respiratoria', 'Chiado / respiração'), $opcao('outra', 'Outra'),
+        ]]),
+    ]]],
     ['grupo' => 'alimentacao', 'nome' => 'Água', 'slug' => 'agua', 'icone' => '💧', 'cor' => '#e8871e', 'ordem' => 50, 'schema_campos' => ['campos' => [
         $campo('volume_ml', 'Volume (ml)', 'numero', ['unidade' => 'ml', 'minimo' => 0, 'maximo' => 500, 'passo' => 10]),
     ]]],

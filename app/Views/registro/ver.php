@@ -44,7 +44,9 @@ $statusRotulo = ['feito' => '✔ Feito', 'parcial' => '◐ Parcial', 'nao_feito'
         <hr>
         <?php foreach ($dados as $nome => $valor): ?>
             <p><strong><?= e($rotulosCampos[$nome]['rotulo'] ?? $nome) ?>:</strong>
-                <?= e((string)($rotulosCampos[$nome]['opcoes'][$valor] ?? $valor)) ?></p>
+                <?= is_array($valor)
+                    ? e(\App\Services\ServicoAlimentacao::nomes($valor))
+                    : e((string)($rotulosCampos[$nome]['opcoes'][$valor] ?? $valor)) ?></p>
         <?php endforeach; ?>
     <?php endif; ?>
 

@@ -102,6 +102,20 @@ final class ServicoRegistros
                 case 'texto_longo':
                     $dados[$nome] = mb_substr((string)$bruto, 0, 2000);
                     break;
+                case 'alimentos':
+                    $catalogo = ServicoAlimentacao::itens();
+                    $lista = array_values(array_unique(array_filter(
+                        array_map('strval', (array)$bruto),
+                        static fn(string $slug): bool => isset($catalogo[$slug])
+                    )));
+                    if ($lista === []) {
+                        if (!empty($campo['obrigatorio']) && $exigirObrigatorios) {
+                            $erros[] = "Marque ao menos um alimento em \"{$rotulo}\".";
+                        }
+                        break;
+                    }
+                    $dados[$nome] = array_slice($lista, 0, 20);
+                    break;
                 default: // texto
                     $dados[$nome] = mb_substr((string)$bruto, 0, 255);
             }
@@ -205,6 +219,42 @@ final class ServicoRegistros
             return ['codigo' => $codigo, 'gravidade' => $gravidade];
         }
 
+        // Saúde (Rodada 5): sintoma, febre, medicação e vômito avisam os pais na hora
+        $eventoSaude = match ((string)$categoria['slug']) {
+            'sintoma' => 'Sintoma: ' . str_replace('_', ' ', (string)($dados['tipo'] ?? 'não informado')),
+            'temperatura' => isset($dados['valor_c']) && (float)$dados['valor_c'] >= 37.8
+                ? 'Febre: ' . number_format((float)$dados['valor_c'], 1, ',', '') . ' °C' : null,
+            'medicacao' => 'Medicação: ' . trim((string)($dados['nome'] ?? '')) . ' ' . trim((string)($dados['dose'] ?? '')),
+            'vomito' => 'Vômito',
+            default => null,
+        };
+        if ($eventoSaude !== null) {
+            (new ServicoEventos())->registrar(
+                (int)$registro['crianca_id'],
+                'saude',
+                mb_substr(trim($eventoSaude), 0, 160),
+                trim((string)($registro['observacao'] ?? '')) ?: null,
+                'registros',
+                (int)$registro['id'],
+                (string)$registro['inicio']
+            );
+        }
+
+        // Introdução alimentar: reação a alimento é evento importante
+        if ($categoria['slug'] === ServicoAlimentacao::SLUG_CATEGORIA
+            && ($dados['reacao'] ?? 'nenhuma') !== 'nenhuma') {
+            (new ServicoEventos())->registrar(
+                (int)$registro['crianca_id'],
+                'alimentacao',
+                'Reação após comer: ' . str_replace('_', ' ', (string)$dados['reacao']),
+                'Alimentos: ' . ServicoAlimentacao::nomes((array)($dados['alimentos'] ?? []))
+                    . ((($registro['observacao'] ?? '') !== '') ? "\n" . $registro['observacao'] : ''),
+                'registros',
+                (int)$registro['id'],
+                (string)$registro['inicio']
+            );
+        }
+
         // Marco de desenvolvimento: evento importante + e-mail aos responsáveis
         if ($categoria['slug'] === 'marco-desenvolvimento') {
             (new ServicoEventos())->registrar(
@@ -221,7 +271,16 @@ final class ServicoRegistros
         // Pedido de suprimento vira item na lista de suprimentos
         if ($categoria['slug'] === 'pedido-suprimento' && !empty($dados['item'])) {
             $nivel = in_array($dados['nivel'] ?? '', ['baixo', 'acabou'], true) ? (string)$dados['nivel'] : 'baixo';
-            (new RepositorioSuprimentos())->criar((string)$dados['item'], $nivel, Autenticacao::id());
+            $suprimentoId = (new RepositorioSuprimentos())->criar((string)$dados['item'], $nivel, Autenticacao::id());
+            (new ServicoEventos())->registrar(
+                (int)$registro['crianca_id'],
+                'suprimento',
+                'Pedido de compra: ' . $dados['item'] . ($nivel === 'acabou' ? ' (acabou)' : ' (está acabando)'),
+                'Pedido por ' . ServicoAvisos::nomeDoAutor() . '. A lista completa está em Itens / Suprimentos.',
+                'suprimentos',
+                $suprimentoId,
+                (string)$registro['inicio']
+            );
             if ($nivel === 'acabou') {
                 (new ServicoNotificacoes())->notificarSuprimento(
                     Autenticacao::familiaId(),

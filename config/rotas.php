@@ -15,6 +15,7 @@ return static function (Roteador $r): void {
     $r->get('/', 'HomeController@inicio')->nome('home');
     $r->post('/quero-convite', 'HomeController@listaEspera')->nome('lista.espera');
     $r->get('/ajuda', 'HomeController@ajuda')->nome('ajuda');
+    $r->get('/alimentacao', 'HomeController@alimentacao')->nome('alimentacao');
     $r->get('/novidades', 'HomeController@novidades')->nome('novidades');
     $r->post('/novidades/vistas', 'HomeController@novidadesVistas')->nome('novidades.vistas')
         ->middleware('autenticado_basico');

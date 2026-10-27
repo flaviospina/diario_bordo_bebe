@@ -121,9 +121,64 @@ $esperaNovos = count(array_filter($listaEspera, static fn(array $l): bool => $l[
     </div>
 </div>
 
+<div class="cartao">
+    <h3><?= icone_ui('documento', 18, '#3E6A64') ?> Conta de e-mail de envio</h3>
+    <p class="texto-apoio" style="margin-top:0">É esta conta que manda todos os e-mails do app (convites, lembretes, avisos de eventos).
+        Configurando aqui, o <code>.env</code> deixa de ser necessário. A senha fica criptografada no banco e nunca é exibida.</p>
+    <form method="post" action="<?= e(url('admin.painel.acao')) ?>" class="formulario">
+        <?= Csrf::campo() ?>
+        <input type="hidden" name="acao" value="email_config_salvar">
+        <div class="linha-campos">
+            <div>
+                <label for="email_remetente">E-mail do Diário do Bebê (remetente)</label>
+                <input type="email" id="email_remetente" name="email_remetente" maxlength="190"
+                       value="<?= e($smtp['remetente']) ?>" placeholder="no-reply@itthrive.com.br">
+            </div>
+            <div>
+                <label for="email_nome">Nome que aparece no e-mail</label>
+                <input type="text" id="email_nome" name="email_nome" maxlength="80" value="<?= e($smtp['nome']) ?>" placeholder="Diário do Bebê">
+            </div>
+        </div>
+        <div class="linha-campos">
+            <div>
+                <label for="smtp_host">Servidor SMTP</label>
+                <input type="text" id="smtp_host" name="smtp_host" maxlength="190" value="<?= e($smtp['host']) ?>" placeholder="mail.itthrive.com.br">
+            </div>
+            <div>
+                <label for="smtp_porta">Porta</label>
+                <input type="number" id="smtp_porta" name="smtp_porta" min="1" max="65535" value="<?= e($smtp['porta']) ?>">
+            </div>
+            <div>
+                <label for="smtp_seguranca">Segurança</label>
+                <select id="smtp_seguranca" name="smtp_seguranca">
+                    <option value="ssl" <?= $smtp['seguranca'] === 'ssl' ? 'selected' : '' ?>>SSL (porta 465)</option>
+                    <option value="tls" <?= $smtp['seguranca'] === 'tls' ? 'selected' : '' ?>>STARTTLS (porta 587)</option>
+                </select>
+            </div>
+        </div>
+        <div class="linha-campos">
+            <div>
+                <label for="smtp_usuario">Usuário SMTP (o e-mail completo da conta)</label>
+                <input type="email" id="smtp_usuario" name="smtp_usuario" maxlength="190" value="<?= e($smtp['usuario']) ?>" placeholder="no-reply@itthrive.com.br">
+            </div>
+            <div>
+                <label for="smtp_senha">Senha da conta <?= $smtp['senha_definida'] ? '<small>(definida — deixe em branco para manter)</small>' : '' ?></label>
+                <input type="password" id="smtp_senha" name="smtp_senha" maxlength="190" autocomplete="new-password"
+                       placeholder="<?= $smtp['senha_definida'] ? '••••••••' : 'senha da conta de e-mail' ?>">
+            </div>
+        </div>
+        <div class="form-inline" style="gap:.8rem; align-items:center">
+            <button type="submit" class="botao botao-primario">Salvar conta de e-mail</button>
+            <label class="caixa-selecao" style="font-size:.82rem"><input type="checkbox" name="smtp_limpar" value="1">
+                <span>Apagar a configuração do Painel e voltar a usar o .env</span></label>
+        </div>
+    </form>
+</div>
+
 <div class="cartao diagnostico-email">
     <h3><?= icone_ui('documento', 18, '#3E6A64') ?> E-mail (SMTP) — diagnóstico</h3>
-    <p class="texto-apoio" style="margin-top:0">O que o <code>.env</code> do servidor está entregando ao envio.
+    <p class="texto-apoio" style="margin-top:0">Configuração em uso agora:
+        <strong><?= $smtp['origem'] === 'painel' ? 'a do Painel (cartão acima)' : 'a do arquivo .env do servidor' ?></strong>.
         A senha nunca aparece aqui — só se está definida.</p>
     <dl>
         <dt>Servidor</dt><dd><?= $smtp['host'] !== '' ? e($smtp['host']) . ':' . e($smtp['porta']) . ' (' . e($smtp['seguranca']) . ')' : '<span class="diag-alerta">não configurado</span>' ?></dd>

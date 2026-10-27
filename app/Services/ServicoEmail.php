@@ -42,8 +42,9 @@ final class ServicoEmail
         ?int $referenciaId = null,
         ?int $familiaId = null
     ): bool {
-        $remetente = Ambiente::obter('EMAIL_REMETENTE', 'nao-responda@localhost');
-        $nomeRemetente = Ambiente::obter('EMAIL_NOME_REMETENTE', 'Diário do Bebê');
+        $config = ConfiguracaoEmail::obter();
+        $remetente = $config['remetente'];
+        $nomeRemetente = $config['nome'];
         $html = self::layout($assunto, $conteudoHtml);
 
         $limite = "=_diariobebe_" . bin2hex(random_bytes(12));
@@ -63,15 +64,15 @@ final class ServicoEmail
 
         $erro = null;
         $ok = false;
-        $hostSmtp = Ambiente::obter('SMTP_HOST', '');
+        $hostSmtp = $config['host'];
         try {
             if ($hostSmtp !== '') {
                 $smtp = new ClienteSmtp(
                     $hostSmtp,
-                    (int)Ambiente::obter('SMTP_PORTA', '465'),
-                    Ambiente::obter('SMTP_USUARIO', $remetente),
-                    Ambiente::obter('SMTP_SENHA', ''),
-                    Ambiente::obter('SMTP_SEGURANCA', 'ssl')
+                    $config['porta'],
+                    $config['usuario'] !== '' ? $config['usuario'] : $remetente,
+                    $config['senha'],
+                    $config['seguranca']
                 );
                 $mensagem = 'To: ' . $destinatario . "\r\n"
                     . 'Subject: ' . mb_encode_mimeheader($assunto, 'UTF-8') . "\r\n"

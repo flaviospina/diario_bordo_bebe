@@ -83,7 +83,8 @@ $saude = array_filter([
                 ? 'Eventos importantes dos últimos 90 dias.'
                 : 'Eventos importantes desde ' . e(data_br($eventosDesde, 'd/m/Y')) . '.' ?>
         </p>
-        <?php $iconeEvento = ['marco' => 'estrela', 'intercorrencia' => 'alerta', 'medicao' => 'grafico', 'vacina' => 'vacina']; ?>
+        <?php $iconeEvento = ['marco' => 'estrela', 'intercorrencia' => 'alerta', 'medicao' => 'grafico', 'vacina' => 'vacina',
+    'saude' => 'saude', 'suprimento' => 'cesto', 'alimentacao' => 'alimentacao']; ?>
         <?php foreach (array_slice($eventos, 0, 12) as $evento): ?>
             <div class="evento-item">
                 <span class="selo-categoria selo-evento selo-evento-<?= e($evento['tipo']) ?>">
@@ -160,6 +161,17 @@ $nascimento = array_filter([
             <?php endforeach; ?>
             </tbody>
         </table></div>
+    </div>
+<?php endif; ?>
+
+<?php if (!empty($experimentados)): ?>
+    <div class="cartao">
+        <h3><?= icone_ui('alimentacao', 18, '#3E6A64') ?> Introdução alimentar — <?= count($experimentados) ?> alimento(s)</h3>
+        <p class="lista-chips">
+            <?php foreach ($experimentados as $alimento): ?>
+                <span class="chip-alimento"><?= e($alimento['nome']) ?> <small>desde <?= e(data_br($alimento['primeira_vez'] . ' 00:00:00', 'd/m')) ?></small></span>
+            <?php endforeach; ?>
+        </p>
     </div>
 <?php endif; ?>
 

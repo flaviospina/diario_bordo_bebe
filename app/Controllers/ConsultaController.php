@@ -86,6 +86,7 @@ final class ConsultaController
             'eventos' => (new \App\Repositories\RepositorioEventos($familiaId))
                 ->listarDesde((int)$crianca['id'], $eventosDesde),
             'eventosDesde' => $eventosDesde,
+            'experimentados' => (new \App\Services\ServicoAlimentacao())->experimentados($familiaId, (int)$crianca['id']),
             'primeiraConsulta' => $consultasAnteriores === [],
         ], 'publico');
     }

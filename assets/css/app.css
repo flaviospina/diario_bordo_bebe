@@ -1221,3 +1221,26 @@ a.fab-registrar { text-decoration: none; }
 .diag-alerta { color: var(--pessego-escuro); font-weight: 700; }
 /* Atributo hidden vence qualquer display de classe (botões .botao ocultos) */
 [hidden] { display: none !important; }
+
+/* ══ Rodada 5: introdução alimentar ══ */
+.alimentos-fase { margin: 0 0 .6rem; }
+.alimentos-busca { width: 100%; margin-bottom: .4rem; }
+.grupo-alimentos { margin-bottom: .5rem; }
+.opcao-alimento span { font-size: .85rem; }
+.opcao-alimento small { font-size: .7rem; }
+.opcao-alimento[hidden] { display: none !important; }
+.chip-depois, .chip-alimento {
+    display: inline-block; margin: 0 .3rem .3rem 0; padding: .2rem .6rem;
+    border-radius: 999px; background: #F1EDE6; color: var(--tinta-suave); font-size: .78rem;
+}
+.chip-alimento { background: var(--salvia-suave); color: var(--salvia-escura); font-weight: 600; }
+.chip-alimento small { font-weight: 400; }
+.lista-chips { margin: 0; }
+.tabela-alimentos th:first-child, .tabela-alimentos td:first-child { white-space: nowrap; }
+.selo-idade {
+    display: inline-block; min-width: 2.2rem; text-align: center; padding: .1rem .4rem;
+    border-radius: 999px; background: var(--salvia-suave); color: var(--salvia-escura); font-size: .72rem; font-weight: 800;
+}
+.selo-idade-depois { background: #F1EDE6; color: var(--tinta-suave); }
+.selo-idade-evitar { background: var(--pessego-suave); color: var(--pessego-escuro); }
+.fase-atual { border-color: var(--salvia); }

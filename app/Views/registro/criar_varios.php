@@ -13,7 +13,7 @@ $horaPadrao = is_string($_GET['hora'] ?? null) && preg_match('/^([01]\d|2[0-3]):
 <p class="texto-apoio"><?= e($crianca['apelido'] ?: $crianca['nome']) ?> — tudo no mesmo horário,
     agrupado na linha do tempo. Para foto ou horário de fim, registre a atividade sozinha.</p>
 
-<form method="post" action="<?= e(url('registro.varios.salvar')) ?>" class="formulario">
+<form method="post" action="<?= e(url('registro.varios.salvar')) ?>" class="formulario" enctype="multipart/form-data">
     <?= Csrf::campo() ?>
     <input type="hidden" name="crianca" value="<?= e($crianca['slug']) ?>">
     <input type="hidden" name="categorias" value="<?= e(implode(',', array_column($categorias, 'slug'))) ?>">
@@ -46,6 +46,9 @@ $horaPadrao = is_string($_GET['hora'] ?? null) && preg_match('/^([01]\d|2[0-3]):
             <input type="text" id="obs_<?= e($categoria['slug']) ?>" name="obs_<?= e($categoria['slug']) ?>" maxlength="500">
         </fieldset>
     <?php endforeach; ?>
+
+    <label for="foto">Foto (opcional — fica no primeiro registro do grupo)</label>
+    <input type="file" id="foto" name="foto" accept="image/jpeg,image/png,image/webp" capture="environment">
 
     <button type="submit" class="botao botao-primario botao-largo">
         Salvar as <?= count($categorias) ?> atividades
