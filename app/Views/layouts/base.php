@@ -107,6 +107,7 @@ if ($usuario !== null) {
                 <?php endif; ?>
                 <?php if ($papel !== 'super_admin'): ?>
                     <a href="<?= e(url('suprimentos.index')) ?>">Suprimentos</a>
+                    <a href="<?= e(url('compras')) ?>">Compras</a>
                     <a href="<?= e(url('turnos.index')) ?>">Turnos</a>
                 <?php endif; ?>
                 <?php if ($papel === 'super_admin'): ?>

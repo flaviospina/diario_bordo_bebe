@@ -73,6 +73,7 @@ final class PaisController
             'solicitacoesPendentes' => (new RepositorioSolicitacoes())->contarPendentes(),
             'medicoesPendentes' => (new \App\Repositories\RepositorioMedicoes())->pendentes(),
             'intercorrenciasSemCiencia' => (new RepositorioIntercorrencias())->contarSemCiencia(),
+            'cardapioDia' => (new \App\Services\ServicoCardapio())->cardapioDoDia((int)$crianca['id'], $data),
             'intercorrencias' => array_values(array_filter(
                 (new RepositorioIntercorrencias())->listar(10),
                 static fn(array $i): bool => substr((string)$i['ocorrido_em'], 0, 10) === $data

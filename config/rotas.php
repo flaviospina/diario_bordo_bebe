@@ -157,6 +157,13 @@ return static function (Roteador $r): void {
         ->middleware('autenticado');
     $r->post('/suprimentos', 'SuprimentoController@acao')->nome('suprimentos.acao')
         ->middleware('autenticado');
+    // Compras semanais + cardápio (Rodada 6)
+    $r->get('/compras', 'ComprasController@index')->nome('compras')
+        ->middleware('autenticado');
+    $r->post('/compras/acao', 'ComprasController@acao')->nome('compras.acao')
+        ->middleware('autenticado');
+    $r->post('/api/compras/marcar', 'ComprasController@marcar')->nome('api.compras.marcar')
+        ->middleware('autenticado');
     $r->get('/turnos', 'TurnoController@index')->nome('turnos.index')
         ->middleware('autenticado');
     $r->post('/turnos', 'TurnoController@ajustar')->nome('turnos.acao')

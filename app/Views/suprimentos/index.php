@@ -9,6 +9,14 @@ $niveis = ['ok' => 'Ok', 'baixo' => 'Acabando', 'acabou' => 'Acabou'];
 ?>
 <h2>Suprimentos</h2>
 
+<a class="cartao-pendencia" href="<?= e(url('compras')) ?>" style="margin-bottom:.9rem">
+    <span class="selo-categoria" style="width:42px;height:42px;background:var(--pessego-suave)"><?= icone_ui('carrinho-compras', 21, 'var(--pessego-escuro)') ?></span>
+    <div>
+        <div class="titulo">Compras semanais e cardápio</div>
+        <div class="detalhe">Lista do mercado por categoria, marcada no celular, e o cardápio de cada dia</div>
+    </div>
+</a>
+
 <div class="cartao">
     <h3>Pedir item</h3>
     <form method="post" action="<?= e(url('suprimentos.acao')) ?>" class="formulario">

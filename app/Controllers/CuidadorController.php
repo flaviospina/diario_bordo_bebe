@@ -59,6 +59,8 @@ final class CuidadorController
             'rapidas' => $rapidas,
             'ehHoje' => $data === hoje(),
             'temPush' => (new \App\Repositories\RepositorioPushInscricoes())->temInscricao(\App\Core\Autenticacao::id()),
+            'cardapioDia' => (new \App\Services\ServicoCardapio())->cardapioDoDia((int)$crianca['id'], $data),
+            'podeMontarCardapio' => $diaInteiro,
         ]);
     }
 }

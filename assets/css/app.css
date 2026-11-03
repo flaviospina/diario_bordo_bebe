@@ -1244,3 +1244,58 @@ a.fab-registrar { text-decoration: none; }
 .selo-idade-depois { background: #F1EDE6; color: var(--tinta-suave); }
 .selo-idade-evitar { background: var(--pessego-suave); color: var(--pessego-escuro); }
 .fase-atual { border-color: var(--salvia); }
+
+/* ══ Rodada 6: compras semanais + cardápio ══ */
+.compras-cabeca { display: flex; justify-content: space-between; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.compras-progresso-texto { font-size: .9rem; color: var(--tinta-suave); }
+.compras-progresso-texto strong { color: var(--salvia-escura); font-size: 1.1rem; }
+.barra-progresso { height: 10px; border-radius: 999px; background: #F1EDE6; margin: .6rem 0 .7rem; overflow: hidden; }
+.barra-progresso-preenchida { height: 100%; background: var(--salvia); border-radius: 999px; transition: width .25s ease; }
+.compras-acoes { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .6rem; }
+.filtros-compras { display: flex; gap: .3rem; }
+.chip-filtro {
+    border: 1px solid var(--borda); background: var(--nuvem); color: var(--tinta-suave);
+    border-radius: 999px; padding: .25rem .7rem; font-size: .8rem; font-weight: 700; cursor: pointer;
+}
+.chip-filtro.chip-ativo { background: var(--salvia-suave); color: var(--salvia-escura); border-color: var(--salvia-suave); }
+.categoria-compras-titulo { display: flex; justify-content: space-between; align-items: center; }
+.contador-categoria { font-size: .78rem; color: var(--salvia-escura); font-weight: 800; }
+.lista-compras { list-style: none; margin: 0 0 .4rem; padding: 0; }
+.item-compra { display: flex; align-items: center; gap: .3rem; border-top: 1px solid var(--borda); }
+.item-compra:first-child { border-top: 0; }
+.item-compra-rotulo { display: flex; align-items: center; gap: .7rem; flex: 1; padding: .55rem 0; cursor: pointer; min-height: 48px; }
+.item-compra-rotulo input { width: 1.5rem; height: 1.5rem; min-height: 0; accent-color: var(--salvia); flex-shrink: 0; }
+.item-compra-texto { flex: 1; min-width: 0; }
+.item-compra-texto strong { display: block; font-size: .95rem; }
+.item-compra-texto small { color: var(--tinta-suave); font-size: .78rem; }
+.item-compra-qtd { font-size: .8rem; color: var(--salvia-escura); font-weight: 700; text-align: right; white-space: nowrap; }
+.item-comprado .item-compra-texto strong { text-decoration: line-through; color: var(--tinta-suave); }
+.item-comprado .item-compra-qtd { color: var(--tinta-suave); }
+.botao-remover-item { border: 0; background: transparent; color: var(--tinta-suave); font-size: 1.2rem; padding: .2rem .5rem; cursor: pointer; }
+.tabela-cardapio input { width: 100%; min-width: 9rem; padding: .35rem .5rem; font-size: .85rem; }
+.tabela-cardapio .linha-hoje td { background: var(--salvia-suave); }
+.cartao-cardapio-dia { border-color: var(--salvia); }
+.cardapio-dia-itens { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin: .4rem 0 .6rem; }
+.cardapio-dia-itens div { background: var(--areia); border-radius: var(--raio-pequeno); padding: .5rem .6rem; }
+.cardapio-dia-itens span { display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; color: var(--tinta-suave); }
+.cardapio-dia-itens strong { font-size: .9rem; }
+@media (max-width: 600px) { .cardapio-dia-itens { grid-template-columns: 1fr; } }
+.foto-obrigatoria-aviso { color: var(--pessego-escuro); font-size: .82rem; margin: -.3rem 0 .6rem; }
+@media print {
+    .nao-imprimir, .compras-acoes, .botao-remover-item, details { display: none !important; }
+    .item-compra { break-inside: avoid; }
+    .cartao { box-shadow: none; border: 1px solid #ccc; }
+}
+
+/* ── Rodada 6: cartão "Cardápio de hoje" e cardápio no registro ── */
+.cartao-cardapio-dia { margin-bottom: .9rem; }
+.cartao-cardapio-cabeca { display: flex; align-items: center; gap: .7rem; }
+.lista-cardapio-dia { list-style: none; margin: .7rem 0 0; padding: 0; display: grid; gap: .45rem; }
+.lista-cardapio-dia li { display: flex; align-items: center; gap: .6rem; padding: .55rem .7rem; background: var(--areia); border-radius: var(--raio-pequeno); }
+.lista-cardapio-dia li > div { flex: 1; display: flex; flex-direction: column; gap: .1rem; }
+.lista-cardapio-dia strong { font-size: .82rem; color: var(--tinta-suave); text-transform: uppercase; letter-spacing: .02em; }
+.lista-cardapio-dia .cardapio-texto { font-size: .95rem; color: var(--tinta); }
+.cardapio-no-registro { background: var(--pessego-suave); border-radius: var(--raio-pequeno); padding: .7rem .85rem; margin-bottom: .9rem; }
+.cardapio-no-registro ul { margin: .35rem 0; padding-left: 1.1rem; font-size: .92rem; }
+.cardapio-no-registro li { margin: .15rem 0; }
+@media print { .cartao-cardapio-dia .botao { display: none; } }

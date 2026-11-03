@@ -125,6 +125,13 @@ $podeConfirmarMedicao = in_array($papelAtual, ['responsavel', 'admin_familia'], 
     </div>
 <?php endforeach; ?>
 
+<?php
+$dataCardapio = (string)$dia['data'];
+$podeRegistrarRefeicao = $podeConfirmarMedicao;
+$podeMontarCardapio = $podeConfirmarMedicao;
+require RAIZ_PROJETO . '/app/Views/compras/_cardapio_dia.php';
+?>
+
 <?php if ($solicitacoesPendentes > 0): ?>
     <a class="cartao-pendencia" href="<?= e(url('solicitacoes.lista')) ?>">
         <span class="selo-categoria" style="width:42px;height:42px;background:#E3EDF8"><?= icone_ui('balao', 21, '#3D6CA3') ?></span>

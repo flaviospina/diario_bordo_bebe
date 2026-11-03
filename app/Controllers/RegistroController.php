@@ -19,6 +19,17 @@ use App\Services\ServicoRegistros;
 
 final class RegistroController
 {
+    /** Refeições da introdução alimentar que exigem foto do prato (Rodada 6). */
+    public const REFEICOES_COM_FOTO = ['almoco', 'jantar'];
+
+    /** Foto obrigatória quando é almoço/jantar da introdução alimentar e a atividade foi feita. */
+    private static function exigeFotoDaRefeicao(array $categoria, array $dados, string $status): bool
+    {
+        return $categoria['slug'] === 'introducao-alimentar'
+            && $status !== 'nao_feito'
+            && in_array((string)($dados['refeicao'] ?? ''), self::REFEICOES_COM_FOTO, true);
+    }
+
     // ── Criação ───────────────────────────────────────────────
 
     public function criarForm(Requisicao $requisicao): void
@@ -30,14 +41,38 @@ final class RegistroController
             Sessao::flash('erro', 'Cadastre uma criança antes de registrar.');
             Resposta::redirecionarRota('cuidador.dia');
         }
+        $dataPadrao = $requisicao->get('data') ?? hoje();
+        if (!is_string($dataPadrao) || preg_match('/^\d{4}-\d{2}-\d{2}$/', $dataPadrao) !== 1) {
+            $dataPadrao = hoje();
+        }
+
+        // Rodada 6: vindo do cartão "Cardápio de hoje", pré-seleciona refeição e alimentos do cardápio
+        $prefill = [];
+        $cardapioDia = null;
+        if ($categoria['slug'] === 'introducao-alimentar') {
+            $refeicao = (string)$requisicao->get('refeicao', '');
+            if (in_array($refeicao, ['cafe', 'lanche_manha', 'almoco', 'lanche_tarde', 'jantar'], true)) {
+                $prefill['refeicao'] = $refeicao;
+            }
+            $cardapioDia = (new \App\Services\ServicoCardapio())->cardapioDoDia((int)$crianca['id'], $dataPadrao);
+            if ($cardapioDia !== null && (string)$requisicao->get('cardapio', '') === '1'
+                && in_array($refeicao, ['almoco', 'jantar'], true)) {
+                $slugs = json_decode((string)($cardapioDia[$refeicao . '_slugs'] ?? '[]'), true);
+                $prefill['alimentos'] = is_array($slugs) ? array_values(array_filter($slugs, 'is_string')) : [];
+            }
+        }
+
         Visao::exibir('registro/criar', [
             'titulo' => $categoria['nome'],
             'categoria' => $categoria,
             'schema' => json_decode((string)$categoria['schema_campos'], true) ?: ['campos' => []],
             'crianca' => $crianca,
             'blocoId' => (int)($requisicao->get('bloco') ?? 0),
-            'dataPadrao' => $requisicao->get('data') ?? hoje(),
+            'dataPadrao' => $dataPadrao,
             'politicaFotos' => (string)(new ServicoConfiguracoes())->obter('fotos'),
+            'prefill' => $prefill,
+            'cardapioDia' => $cardapioDia,
+            'fotoObrigatoriaRefeicoes' => self::REFEICOES_COM_FOTO,
         ]);
     }
 
@@ -71,6 +106,14 @@ final class RegistroController
             Sessao::flash('erro', 'A família configurou foto obrigatória neste diário.');
             Resposta::redirecionarRota('registro.criar', ['categoria' => $categoria['slug']]);
         }
+        $fotoDaRefeicao = self::exigeFotoDaRefeicao($categoria, $validacao['dados'], $status);
+        if ($fotoDaRefeicao && !$temFoto) {
+            Sessao::flash('erro', 'Para registrar o almoço ou o jantar, tire uma foto do prato — ela é obrigatória.');
+            Resposta::redirecionarCaminho(
+                url('registro.criar', ['categoria' => $categoria['slug']])
+                . '?' . http_build_query(['crianca' => $crianca['slug'], 'refeicao' => $validacao['dados']['refeicao']])
+            );
+        }
 
         $resultado = $servico->criar($categoria, [
             'uuid_cliente' => $this->uuidValido($requisicao->post('uuid_cliente')),
@@ -85,7 +128,7 @@ final class RegistroController
             'origem' => 'online',
         ], $requisicao->ip());
 
-        if ($temFoto && $politicaFotos !== 'desativada' && !$resultado['duplicado']) {
+        if ($temFoto && ($politicaFotos !== 'desativada' || $fotoDaRefeicao) && !$resultado['duplicado']) {
             $erroFoto = (new ServicoFotos())->anexar($_FILES['foto'], (int)$resultado['registro']['id']);
             if ($erroFoto !== null) {
                 Sessao::flash('aviso', 'Registro salvo, mas a foto falhou: ' . $erroFoto);
@@ -144,6 +187,14 @@ final class RegistroController
             );
             if ($validacao['erros'] !== []) {
                 Sessao::flash('erro', $categoria['nome'] . ': ' . implode(' ', $validacao['erros']));
+                Resposta::redirecionarCaminho(
+                    url('registro.varios') . '?categorias=' . implode(',', array_column($categorias, 'slug'))
+                    . '&data=' . substr($inicio, 0, 10) . '&hora=' . substr($inicio, 11, 5)
+                );
+            }
+            if (self::exigeFotoDaRefeicao($categoria, $validacao['dados'], 'feito')
+                && ($_FILES['foto']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+                Sessao::flash('erro', 'Almoço e jantar da introdução alimentar exigem foto do prato.');
                 Resposta::redirecionarCaminho(
                     url('registro.varios') . '?categorias=' . implode(',', array_column($categorias, 'slug'))
                     . '&data=' . substr($inicio, 0, 10) . '&hora=' . substr($inicio, 11, 5)

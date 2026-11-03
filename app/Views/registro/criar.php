@@ -8,6 +8,14 @@ use App\Core\Csrf;
 /** @var int $blocoId */
 /** @var string $dataPadrao */
 /** @var string $politicaFotos */
+/** @var array $prefill */
+/** @var ?array $cardapioDia */
+/** @var array $fotoObrigatoriaRefeicoes */
+
+$prefill = $prefill ?? [];
+$ehIntroducao = $categoria['slug'] === 'introducao-alimentar';
+// Rodada 6: almoço/jantar da introdução alimentar sempre têm campo de foto (obrigatório)
+$mostraFoto = $politicaFotos !== 'desativada' || $ehIntroducao;
 
 $statusPadrao = in_array($_GET['status'] ?? '', ['feito', 'parcial', 'nao_feito'], true)
     ? (string)$_GET['status'] : 'feito';
@@ -24,7 +32,8 @@ $horaPadrao = is_string($_GET['hora'] ?? null) && preg_match('/^([01]\d|2[0-3]):
 
 <form method="post" action="<?= e(url('registro.criar.salvar', ['categoria' => $categoria['slug']])) ?>"
       enctype="multipart/form-data" class="formulario formulario-registro" data-form-registro
-      data-categoria="<?= e($categoria['slug']) ?>">
+      data-categoria="<?= e($categoria['slug']) ?>"
+      <?= $ehIntroducao ? 'data-foto-obrigatoria-refeicoes="' . e(implode(',', $fotoObrigatoriaRefeicoes ?? ['almoco', 'jantar'])) . '"' : '' ?>>
     <?= Csrf::campo() ?>
     <input type="hidden" name="crianca" value="<?= e($crianca['slug']) ?>">
     <input type="hidden" name="bloco" value="<?= (int)$blocoId ?>">
@@ -61,14 +70,41 @@ $horaPadrao = is_string($_GET['hora'] ?? null) && preg_match('/^([01]\d|2[0-3]):
         <textarea id="justificativa" name="justificativa" rows="2"></textarea>
     </div>
 
-    <?php $dados = []; require RAIZ_PROJETO . '/app/Views/registro/_campos.php'; ?>
+    <?php if ($ehIntroducao && !empty($cardapioDia)): ?>
+        <?php
+        $linhasCardapio = array_filter([
+            'Fruta da manhã' => trim((string)($cardapioDia['fruta_manha'] ?? '')),
+            'Almoço' => trim((string)($cardapioDia['almoco'] ?? '')),
+            'Fruta da tarde' => trim((string)($cardapioDia['fruta_tarde'] ?? '')),
+            'Jantar' => trim((string)($cardapioDia['jantar'] ?? '')),
+        ]);
+        ?>
+        <?php if ($linhasCardapio !== []): ?>
+            <div class="cardapio-no-registro" data-cardapio-dia>
+                <strong>Cardápio do dia</strong> <span class="texto-apoio">(<?= e((string)$cardapioDia['semana_titulo']) ?>)</span>
+                <ul>
+                    <?php foreach ($linhasCardapio as $rotuloRefeicao => $textoRefeicao): ?>
+                        <li><strong><?= e($rotuloRefeicao) ?>:</strong> <?= e($textoRefeicao) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+                <span class="texto-apoio">Pode ser diferente do planejado — marque abaixo o que o bebê realmente comeu.</span>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <?php $dados = $prefill; require RAIZ_PROJETO . '/app/Views/registro/_campos.php'; ?>
 
     <label for="observacao">Observação <button type="button" class="botao-voz" data-voz-para="observacao" hidden>🎤 Falar</button></label>
     <textarea id="observacao" name="observacao" rows="2" maxlength="2000"></textarea>
 
-    <?php if ($politicaFotos !== 'desativada'): ?>
-        <label for="foto">Foto<?= $politicaFotos === 'obrigatoria' ? ' *' : ' (opcional)' ?></label>
-        <input type="file" id="foto" name="foto" accept="image/jpeg,image/png,image/webp" capture="environment">
+    <?php if ($mostraFoto): ?>
+        <label for="foto" data-rotulo-foto data-rotulo-base="Foto<?= $politicaFotos === 'obrigatoria' ? ' *' : ' (opcional)' ?>">Foto<?= $politicaFotos === 'obrigatoria' ? ' *' : ' (opcional)' ?></label>
+        <input type="file" id="foto" name="foto" accept="image/jpeg,image/png,image/webp" capture="environment"
+               <?= $politicaFotos === 'obrigatoria' ? 'required' : '' ?>>
+        <?php if ($ehIntroducao): ?>
+            <p class="texto-apoio foto-obrigatoria-aviso" data-aviso-foto-refeicao hidden style="margin:-.3rem 0 .8rem">
+                📷 No almoço e no jantar a foto do prato é obrigatória para salvar o registro.</p>
+        <?php endif; ?>
     <?php endif; ?>
 
     <button type="submit" class="botao botao-primario botao-largo">Salvar registro</button>

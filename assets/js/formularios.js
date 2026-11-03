@@ -54,3 +54,28 @@
         });
     });
 })();
+
+// ── Introdução alimentar: foto obrigatória no almoço e no jantar (Rodada 6) ──
+(function () {
+    document.querySelectorAll('form[data-foto-obrigatoria-refeicoes]').forEach(function (form) {
+        const foto = form.querySelector('input[name=foto]');
+        const rotulo = form.querySelector('[data-rotulo-foto]');
+        const aviso = form.querySelector('[data-aviso-foto-refeicao]');
+        if (!foto) return;
+        const exigem = (form.dataset.fotoObrigatoriaRefeicoes || '').split(',').filter(Boolean);
+        const jaObrigatoria = foto.hasAttribute('required');
+        function atualizar() {
+            const refeicao = form.querySelector('input[name=c_refeicao]:checked');
+            const status = form.querySelector('input[name=status]:checked');
+            const feito = !status || status.value !== 'nao_feito';
+            const exige = !!refeicao && exigem.indexOf(refeicao.value) !== -1 && feito;
+            foto.required = jaObrigatoria || exige;
+            if (rotulo) rotulo.textContent = exige ? 'Foto do prato *' : (rotulo.dataset.rotuloBase || 'Foto');
+            if (aviso) aviso.hidden = !exige;
+        }
+        form.querySelectorAll('input[name=c_refeicao], input[name=status]').forEach(function (r) {
+            r.addEventListener('change', atualizar);
+        });
+        atualizar();
+    });
+})();

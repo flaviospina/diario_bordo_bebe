@@ -82,6 +82,12 @@ $chipRegistro = static function (array $registro): void {
     </a>
 <?php endif; ?>
 
+<?php
+$dataCardapio = (string)$dia['data'];
+$podeRegistrarRefeicao = true;
+require RAIZ_PROJETO . '/app/Views/compras/_cardapio_dia.php';
+?>
+
 <?php if ($dia['modo'] === 'roteiro'): ?>
     <?php if ($dia['linhas'] === []): ?>
         <div class="cartao"><p class="texto-apoio" style="margin:0">Nenhum bloco de roteiro para este dia.

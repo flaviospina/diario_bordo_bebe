@@ -182,6 +182,25 @@
                 </ol>
             </div>
         </div>
+
+        <div class="tutorial-linha">
+            <div>
+                <h4>7 · Cardápio do dia, lista de compras e o almoço com foto</h4>
+                <ol class="tutorial-passos">
+                    <li>No <strong>Meu Dia</strong> aparece o cartão <strong>"Cardápio de hoje"</strong>: fruta da manhã,
+                        almoço, fruta da tarde e jantar que os pais planejaram. Você recebe um aviso (sino, celular e e-mail)
+                        toda vez que eles mudam o cardápio.</li>
+                    <li>Toque em <strong>"Registrar almoço 📷"</strong>: a refeição e os alimentos do cardápio já vêm marcados —
+                        ajuste se o prato foi diferente e marque a aceitação.</li>
+                    <li><strong>Foto do prato é obrigatória</strong> no almoço e no jantar: o app só salva com a foto
+                        (a câmera abre direto no campo "Foto do prato *").</li>
+                    <li>Em <strong>Compras semanais</strong> (menu Compras, ou pelo atalho em Itens) está a lista do mercado por
+                        categoria. No mercado, toque em cada item para marcar <strong>"no carrinho"</strong> — fica salvo na hora
+                        e os pais veem o progresso. Comprar não registra refeição nenhuma: o que o bebê comeu continua sendo
+                        registrado no diário.</li>
+                </ol>
+            </div>
+        </div>
         <p class="texto-apoio"><strong>Turnos:</strong> o app marca sua chegada e saída
             (o primeiro registro do dia já abre o turno sozinho).</p>
     </section>
@@ -298,6 +317,27 @@
                         alergênicos, riscos de engasgo e o que evitar — com as fontes (Ministério da Saúde, SBP, OMS).</li>
                     <li>Na ficha do bebê (e na ficha do pediatra) aparece a lista do que ele <strong>já experimentou</strong>,
                         com a data da primeira vez.</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="tutorial-linha">
+            <div>
+                <h4>8 · Cardápio da semana e compras semanais</h4>
+                <ol class="tutorial-passos">
+                    <li>Menu <strong>Compras</strong> → <strong>Carregar a semana-modelo</strong>: entra a semana pronta de
+                        introdução alimentar (28 itens em 6 categorias e o cardápio dos 7 dias). Carregar de novo não duplica.</li>
+                    <li>Na tabela do cardápio, escreva o que a cuidadora deve preparar em cada dia (fruta da manhã, almoço,
+                        fruta da tarde, jantar) — pode ser diferente do modelo — e toque em <strong>Salvar cardápio e avisar a
+                        cuidadora</strong>: ela recebe aviso no app, no celular e por e-mail.</li>
+                    <li>A lista de compras mostra o progresso (quantos itens já estão no carrinho), filtros
+                        <em>Pendentes / No carrinho</em>, impressão e <strong>Desmarcar tudo</strong> para reaproveitar a lista.
+                        Adicione ou remova itens à vontade.</li>
+                    <li><strong>Nova semana a partir de</strong> uma data cria a próxima semana com os itens do modelo,
+                        todos desmarcados; se já tinha marcado itens no HTML antigo da lista, use <strong>Importar marcações</strong>
+                        (o app lê só o estado salvo no arquivo, sem executar nada).</li>
+                    <li>Almoço e jantar registrados pela cuidadora vêm com <strong>foto do prato</strong> obrigatória —
+                        você vê a foto no registro e no Acompanhar.</li>
                 </ol>
             </div>
         </div>
