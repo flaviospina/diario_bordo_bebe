@@ -125,6 +125,25 @@ $podeConfirmarMedicao = in_array($papelAtual, ['responsavel', 'admin_familia'], 
     </div>
 <?php endforeach; ?>
 
+<?php if (!empty($podeConfirmarMedicao)): ?>
+    <!-- Registro direto pelos pais (Rodada 7): mesmo atalho que a cuidadora tem no Meu Dia -->
+    <div class="registro-pais">
+        <a class="botao botao-primario botao-largo botao-registrar-pais" href="<?= e(url('cuidador.dia.data', ['data' => $dia['data']])) ?>?registrar=1">
+            <?= icone_ui('mais', 20, '#FFFFFF', 2.8) ?> Registrar atividade de <?= e($nomeCurto) ?>
+        </a>
+        <?php if (!empty($rapidas)): ?>
+            <nav class="acoes-rapidas acoes-rapidas-pais" aria-label="Ações rápidas">
+                <?php foreach ($rapidas as $categoria): ?>
+                    <a class="acao-rapida" href="<?= e(url('registro.criar', ['categoria' => $categoria['slug']])) ?>?data=<?= e($dia['data']) ?>&crianca=<?= e($crianca['slug']) ?>">
+                        <span class="acao-icone"><?= icone_categoria((string)$categoria['slug'], (string)$categoria['grupo'], 22) ?></span>
+                        <span><?= e($categoria['nome']) ?></span>
+                    </a>
+                <?php endforeach; ?>
+            </nav>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
+
 <?php
 $dataCardapio = (string)$dia['data'];
 $podeRegistrarRefeicao = $podeConfirmarMedicao;

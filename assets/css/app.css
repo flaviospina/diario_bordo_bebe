@@ -1299,3 +1299,64 @@ a.fab-registrar { text-decoration: none; }
 .cardapio-no-registro ul { margin: .35rem 0; padding-left: 1.1rem; font-size: .92rem; }
 .cardapio-no-registro li { margin: .15rem 0; }
 @media print { .cartao-cardapio-dia .botao { display: none; } }
+
+/* ── Rodada 7: Portal da Colaboradora + registro direto dos pais ── */
+.topo-portal { border-bottom: 3px solid var(--lavanda); }
+.topo-portal .marca-texto { color: #5A539E; }
+.botao-voltar-diario { display: inline-flex; align-items: center; gap: .3rem; white-space: nowrap; }
+.menu-portal { color: #5A539E !important; font-weight: 600; }
+.portal-cabeca { margin-bottom: .9rem; }
+.portal-cabeca h2 { margin: 0 0 .15rem; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.portal-cabeca p { margin: 0; }
+.portal-vazio { text-align: center; display: grid; gap: .6rem; justify-items: center; padding: 1.6rem 1rem; }
+.portal-cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: .7rem; margin: .9rem 0; }
+.portal-cartoes .cartao h3 { display: flex; align-items: center; gap: .4rem; margin: 0 0 .25rem; font-size: 1rem; }
+.resumo-financeiro h3 { margin: 0 0 .3rem; }
+.resumo-topo { display: flex; align-items: center; justify-content: space-between; gap: .7rem; flex-wrap: wrap; margin-bottom: .6rem; }
+.resumo-grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .6rem; margin: .4rem 0 .8rem; }
+.resumo-grade div { background: var(--areia); border-radius: var(--raio-pequeno); padding: .55rem .7rem; }
+.resumo-grade dt { font-size: .76rem; color: var(--tinta-suave); text-transform: uppercase; letter-spacing: .02em; }
+.resumo-grade dd { margin: .1rem 0 0; font-weight: 600; font-size: 1.02rem; }
+.chip-estado { display: inline-block; font-size: .76rem; font-weight: 600; padding: .2rem .6rem; border-radius: 999px; background: var(--borda); color: var(--tinta-suave); white-space: nowrap; }
+.chip-estado.estado-disponivel { background: var(--ok-suave); color: var(--ok-texto); }
+.chip-estado.estado-rascunho { background: var(--tarde-suave); color: var(--tarde-texto); }
+.chip-estado.estado-revogado { background: var(--falta-suave); color: var(--falta-texto); }
+.lista-docs { display: grid; gap: .5rem; }
+.doc-item { display: flex; align-items: center; gap: .7rem; padding: .7rem .85rem; background: var(--nuvem); border: 1px solid var(--borda); border-radius: var(--raio); color: inherit; text-decoration: none; }
+a.doc-item:hover, a.doc-item:focus { border-color: var(--lavanda); }
+.doc-item .titulo { font-weight: 600; }
+.doc-item .detalhe { font-size: .84rem; color: var(--tinta-suave); }
+.doc-item > div { flex: 1; min-width: 0; }
+.doc-selo { width: 40px; height: 40px; background: var(--lavanda-suave); flex-shrink: 0; }
+.acoes-doc { display: flex; flex-wrap: wrap; gap: .5rem; }
+.acoes-doc .botao { display: inline-flex; align-items: center; gap: .35rem; }
+.tabela-valores { width: 100%; border-collapse: collapse; margin: .4rem 0; }
+.tabela-valores th { text-align: left; font-weight: 500; color: var(--tinta-suave); padding: .4rem 0; border-bottom: 1px solid var(--borda-suave); }
+.tabela-valores td { text-align: right; padding: .4rem 0; border-bottom: 1px solid var(--borda-suave); font-variant-numeric: tabular-nums; }
+.tabela-valores .linha-destaque th, .tabela-valores .linha-destaque td { font-weight: 700; color: var(--tinta); }
+.historico-mensal { list-style: none; margin: .3rem 0 .6rem; padding: 0; display: grid; gap: .3rem; }
+.historico-mensal li { display: flex; flex-wrap: wrap; gap: .4rem .6rem; align-items: center; padding: .4rem .6rem; background: var(--areia); border-radius: var(--raio-pequeno); }
+.historico-docs a { margin-right: .5rem; }
+.portal-nota { font-size: .8rem; margin-top: 1rem; }
+.visualizador-pdf { background: #E9E7F7; border-radius: var(--raio); overflow: hidden; border: 1px solid var(--borda); }
+.visualizador-pdf iframe { width: 100%; height: min(78vh, 980px); border: 0; display: block; background: #fff; }
+.visualizador-previa iframe { height: 420px; }
+.filtros-docs { flex-wrap: wrap; gap: .4rem .6rem; margin-bottom: .8rem; }
+.abas-portal { display: flex; gap: .4rem; overflow-x: auto; padding-bottom: .4rem; margin-bottom: .8rem; -webkit-overflow-scrolling: touch; }
+.abas-portal .chip-filtro { white-space: nowrap; text-decoration: none; }
+.grade-gestao-doc { display: grid; grid-template-columns: 1fr; gap: .8rem; }
+@media (min-width: 860px) { .grade-gestao-doc { grid-template-columns: 1fr 1fr; } }
+.grade-valores { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .4rem .8rem; }
+.tabela-rolavel { overflow-x: auto; }
+.tabela-eventos { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.tabela-eventos th, .tabela-eventos td { text-align: left; padding: .4rem .5rem; border-bottom: 1px solid var(--borda-suave); vertical-align: top; }
+.tabela-eventos th { color: var(--tinta-suave); font-weight: 600; font-size: .76rem; text-transform: uppercase; letter-spacing: .02em; }
+.tabela-eventos tr.evento-seguranca td { background: var(--falta-suave); }
+.tabela-eventos tr.evento-administrativo td { background: var(--areia); }
+.tabela-eventos .acoes-linha { white-space: nowrap; display: flex; gap: .4rem; align-items: center; }
+.vinculo-form { border-bottom: 1px solid var(--borda-suave); padding-bottom: .6rem; margin-bottom: .6rem; }
+.cartao-portal { margin-bottom: .9rem; border-left: 4px solid var(--lavanda); }
+.registro-pais { margin-bottom: .9rem; display: grid; gap: .5rem; }
+.botao-registrar-pais { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; font-size: 1.02rem; }
+.acoes-rapidas-pais { position: static; background: none; padding: 0; }
+@media print { .topo-portal .menu, .botao-voltar-diario, .nav-abas { display: none; } }

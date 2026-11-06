@@ -69,6 +69,15 @@ final class Aplicacao
                     if ($requisicao->ehApi()) {
                         Resposta::erroJson('Token CSRF inválido.', 419);
                     }
+                    // Envio maior que post_max_size: o PHP descarta o POST inteiro (inclusive o _csrf).
+                    // Explica o motivo real em vez de "sessão expirou" e volta à página de origem.
+                    if ($_POST === [] && (int)($_SERVER['CONTENT_LENGTH'] ?? 0) > self::limiteBytesIni('post_max_size')) {
+                        Sessao::flash('erro', 'O arquivo enviado é maior que o limite do servidor ('
+                            . ini_get('post_max_size') . '). Reduza o PDF e tente de novo.');
+                        $origem = (string)($_SERVER['HTTP_REFERER'] ?? '');
+                        $mesmaOrigem = $origem !== '' && parse_url($origem, PHP_URL_HOST) === (string)($_SERVER['HTTP_HOST'] ?? '');
+                        Resposta::redirecionarCaminho($mesmaOrigem ? $origem : url('home'));
+                    }
                     Sessao::flash('erro', 'Sua sessão expirou. Tente novamente.');
                     Resposta::redirecionarRota('login');
                 }
@@ -100,6 +109,19 @@ final class Aplicacao
             return;
         }
         throw new \RuntimeException("Middleware desconhecido: {$nome}");
+    }
+
+    /** "8M" / "512K" / "1G" → bytes. */
+    private static function limiteBytesIni(string $chave): int
+    {
+        $valor = trim((string)ini_get($chave));
+        if ($valor === '' || $valor === '0' || $valor === '-1') {
+            return PHP_INT_MAX;
+        }
+        $numero = (int)$valor;
+        return match (strtoupper(substr($valor, -1))) {
+            'G' => $numero * 1073741824, 'M' => $numero * 1048576, 'K' => $numero * 1024, default => $numero,
+        };
     }
 
     /**

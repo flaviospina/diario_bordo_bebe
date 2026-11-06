@@ -95,6 +95,11 @@ self.addEventListener('fetch', (evento) => {
         return;
     }
 
+    // Portal da Colaboradora (contracheques): só rede, nunca cache nem offline
+    if (url.pathname.startsWith(BASE + '/portal')) {
+        return;
+    }
+
     // Navegação: rede primeiro (conteúdo sempre fresco), cache como reserva
     if (requisicao.mode === 'navigate') {
         evento.respondWith(

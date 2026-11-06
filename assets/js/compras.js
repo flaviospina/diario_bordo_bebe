@@ -8,13 +8,6 @@
 (function () {
     const bloco = document.querySelector('[data-compras]');
 
-    // Confirmação para formulários marcados (desmarcar tudo, remover item)
-    document.querySelectorAll('form[data-confirmar]').forEach(function (form) {
-        form.addEventListener('submit', function (evento) {
-            if (!window.confirm(form.dataset.confirmar)) evento.preventDefault();
-        });
-    });
-
     if (!bloco) return;
     const podeMarcar = bloco.dataset.podeMarcar === '1';
     const estado = bloco.querySelector('[data-estado-salvar]');

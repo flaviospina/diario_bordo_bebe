@@ -201,6 +201,20 @@
                 </ol>
             </div>
         </div>
+        <div class="tutorial-linha">
+            <div>
+                <h4>8 · Meus pagamentos (Portal da Colaboradora)</h4>
+                <ol class="tutorial-passos">
+                    <li>No <strong>Meu Dia</strong>, toque no cartão <strong>"Meus pagamentos"</strong> (ou no menu). Abre uma área
+                        <strong>separada do diário</strong>, com o mesmo login — contracheques, vale-transporte, horas extras,
+                        férias/13º e documentos. Para voltar, use <strong>"Voltar ao Diário do Bebê"</strong> no topo.</li>
+                    <li>Em cada documento há <strong>Visualizar PDF</strong> e <strong>Baixar PDF</strong>. Nada precisa ser
+                        confirmado ou aceito: o app apenas registra que o documento foi disponibilizado, acessado ou baixado.</li>
+                    <li>Quando o empregador publica um documento novo, você recebe aviso no sino, no celular e por e-mail
+                        (sem valores). Se ainda não há nada publicado, a tela diz "ainda não está disponível".</li>
+                </ol>
+            </div>
+        </div>
         <p class="texto-apoio"><strong>Turnos:</strong> o app marca sua chegada e saída
             (o primeiro registro do dia já abre o turno sozinho).</p>
     </section>
@@ -338,6 +352,42 @@
                         (o app lê só o estado salvo no arquivo, sem executar nada).</li>
                     <li>Almoço e jantar registrados pela cuidadora vêm com <strong>foto do prato</strong> obrigatória —
                         você vê a foto no registro e no Acompanhar.</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="tutorial-linha">
+            <div>
+                <h4>9 · Registrar direto no Acompanhar</h4>
+                <ol class="tutorial-passos">
+                    <li>No topo do <strong>Acompanhar</strong> há o botão <strong>"Registrar atividade de …"</strong> e as ações
+                        rápidas (mamadeira, água, fralda, soneca…) — o mesmo atalho que a cuidadora tem, sem procurar no menu.</li>
+                    <li>O botão <strong>+</strong> flutuante continua em todas as telas.</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="tutorial-linha">
+            <div>
+                <h4>10 · Gestão da Colaboradora (contracheques e documentos da babá)</h4>
+                <ol class="tutorial-passos">
+                    <li><strong>Configurações → Gestão da Colaboradora</strong> (ou menu "Colaboradora") abre o
+                        <strong>Portal da Colaboradora</strong>, uma área separada do diário. Em <em>Colaboradoras</em>, vincule o
+                        usuário da babá (ela já é cuidadora; não há login novo). Só o admin da família gere; outros responsáveis
+                        só se você conceder.</li>
+                    <li><strong>Importar documento</strong>: escolha o tipo (contracheque, comprovante, vale-transporte, férias,
+                        13º…), a competência e o PDF baixado do eSocial. O arquivo é validado e guardado em área privada, como
+                        <em>rascunho</em> — a babá ainda não vê.</li>
+                    <li>Na tela do documento, confira os <strong>valores</strong> (alguns vêm lidos do PDF como sugestão), marque
+                        <strong>"Conferi estes valores"</strong> e toque em <strong>Publicar</strong>. A babá recebe aviso no
+                        app, no celular e por e-mail.</li>
+                    <li><strong>Vale-transporte</strong> (aba Benefícios): registre o mês de referência, a data em que foi pago e a
+                        competência da folha — ex.: "VT de novembro — pago em 30/10 — folha de outubro".</li>
+                    <li>PDF errado? <strong>Substituir</strong> envia uma nova versão (a antiga fica no histórico, inacessível).
+                        <strong>Revogar</strong> tira o documento do ar preservando o histórico.</li>
+                    <li><strong>Histórico de acessos</strong>: primeiro e último acesso, aberturas e downloads por documento e
+                        versão — registrados automaticamente pelo servidor quando a babá abre ou baixa o PDF. Não há botão de
+                        ciência ou aceite; "documento acessado" não significa leitura, concordância ou quitação.</li>
                 </ol>
             </div>
         </div>

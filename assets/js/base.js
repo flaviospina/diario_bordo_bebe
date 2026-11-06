@@ -37,6 +37,13 @@ document.addEventListener('click', function (evento) {
     const alvo = evento.target && evento.target.closest ? evento.target.closest('[data-imprimir]') : null;
     if (alvo) window.print();
 });
+// Confirmação para formulários marcados com data-confirmar (compras, portal da colaboradora…)
+document.addEventListener('submit', function (evento) {
+    const form = evento.target;
+    if (form && form.matches && form.matches('form[data-confirmar]') && !window.confirm(form.dataset.confirmar)) {
+        evento.preventDefault();
+    }
+});
 
 // PWA: registra o service worker (servido pelo PHP com o BASE_PATH correto)
 if ('serviceWorker' in navigator && window.APP && window.APP.rotas && window.APP.rotas['pwa.sw']) {

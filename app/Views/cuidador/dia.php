@@ -88,6 +88,17 @@ $podeRegistrarRefeicao = true;
 require RAIZ_PROJETO . '/app/Views/compras/_cardapio_dia.php';
 ?>
 
+<?php if (\App\Core\Autenticacao::papel() === 'cuidador'): ?>
+    <a class="cartao-pendencia cartao-portal" href="<?= e(url('portal')) ?>">
+        <span class="selo-categoria" style="width:42px;height:42px;background:var(--lavanda-suave)"><?= icone_ui('documento', 21, '#5A539E') ?></span>
+        <div>
+            <div class="titulo">Meus pagamentos</div>
+            <div class="detalhe">Contracheques, vale-transporte e documentos — área separada do diário</div>
+        </div>
+        <span class="texto-apoio" style="margin-left:auto;flex-shrink:0">Abrir →</span>
+    </a>
+<?php endif; ?>
+
 <?php if ($dia['modo'] === 'roteiro'): ?>
     <?php if ($dia['linhas'] === []): ?>
         <div class="cartao"><p class="texto-apoio" style="margin:0">Nenhum bloco de roteiro para este dia.

@@ -164,6 +164,40 @@ return static function (Roteador $r): void {
         ->middleware('autenticado');
     $r->post('/api/compras/marcar', 'ComprasController@marcar')->nome('api.compras.marcar')
         ->middleware('autenticado');
+    // ── Portal da Colaboradora (Rodada 7) ─────────────────────
+    // Área da babá: só leitura dos PRÓPRIOS documentos publicados (eventos automáticos)
+    $r->get('/portal', 'FolhaController@index')->nome('portal')
+        ->middleware('autenticado', 'papel:cuidador');
+    $r->get('/portal/documentos', 'FolhaController@documentos')->nome('portal.documentos')
+        ->middleware('autenticado', 'papel:cuidador');
+    $r->get('/portal/vale-transporte', 'FolhaController@valeTransporte')->nome('portal.vt')
+        ->middleware('autenticado', 'papel:cuidador');
+    $r->get('/portal/documentos/{codigo}', 'FolhaController@documento')->nome('portal.documento')
+        ->middleware('autenticado', 'papel:cuidador');
+    $r->get('/portal/documentos/{codigo}/ver', 'FolhaController@ver')->nome('portal.documento.ver')
+        ->middleware('autenticado', 'papel:cuidador');
+    $r->get('/portal/documentos/{codigo}/arquivo', 'FolhaController@arquivo')->nome('portal.documento.arquivo')
+        ->middleware('autenticado', 'papel:cuidador');
+    $r->get('/portal/documentos/{codigo}/baixar', 'FolhaController@baixar')->nome('portal.documento.baixar')
+        ->middleware('autenticado', 'papel:cuidador');
+    // Gestão: admin da família ou responsável autorizado (checado no controlador)
+    $r->get('/portal/gestao', 'FolhaAdminController@index')->nome('portal.gestao')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->post('/portal/gestao/colaboradoras', 'FolhaAdminController@acaoColaboradoras')->nome('portal.gestao.colaboradoras')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->get('/portal/gestao/documentos/novo', 'FolhaAdminController@novoForm')->nome('portal.gestao.novo')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->post('/portal/gestao/documentos/novo', 'FolhaAdminController@novoSalvar')->nome('portal.gestao.novo.salvar')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->get('/portal/gestao/documentos/{codigo}', 'FolhaAdminController@documento')->nome('portal.gestao.documento')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->post('/portal/gestao/documentos/{codigo}', 'FolhaAdminController@acaoDocumento')->nome('portal.gestao.documento.acao')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->get('/portal/gestao/documentos/{codigo}/arquivo', 'FolhaAdminController@arquivo')->nome('portal.gestao.documento.arquivo')
+        ->middleware('autenticado', 'papel:responsavel');
+    $r->post('/portal/gestao/vale-transporte', 'FolhaAdminController@valeTransporteSalvar')->nome('portal.gestao.vt')
+        ->middleware('autenticado', 'papel:responsavel');
+
     $r->get('/turnos', 'TurnoController@index')->nome('turnos.index')
         ->middleware('autenticado');
     $r->post('/turnos', 'TurnoController@ajustar')->nome('turnos.acao')

@@ -31,6 +31,10 @@ if ($usuario !== null && $papel !== 'super_admin' && Sessao::obter('_novidades_c
     }
 }
 
+// Portal da Colaboradora (Rodada 7): área separada do diário — cabeçalho e
+// abas próprios, botão "Voltar ao Diário do Bebê", sem o "+" de registro.
+$portal = isset($portal) && in_array($portal, ['colaboradora', 'gestao'], true) ? $portal : null;
+
 // Abas inferiores (mobile) por papel: 4 destinos essenciais de cada rotina
 $abas = [];
 $badgeSolicitacoes = 0;
@@ -85,6 +89,49 @@ if ($usuario !== null) {
 <a class="pular-conteudo" href="#conteudo">Ir para o conteúdo</a>
 <div class="bolha-decor" aria-hidden="true"></div>
 
+<?php if ($portal !== null): ?>
+    <?php
+    $abas = $portal === 'colaboradora'
+        ? [
+            ['rota' => 'portal', 'rotulo' => 'Pagamentos', 'icone' => 'documento'],
+            ['rota' => 'portal.documentos', 'rotulo' => 'Documentos', 'icone' => 'lupa'],
+            ['rota' => 'portal.vt', 'rotulo' => 'Transporte', 'icone' => 'carrinho'],
+            ['rota' => 'cuidador.dia', 'rotulo' => 'Diário', 'icone' => 'casa'],
+        ]
+        : [
+            ['rota' => 'portal.gestao', 'rotulo' => 'Gestão', 'icone' => 'documento'],
+            ['rota' => 'portal.gestao.novo', 'rotulo' => 'Importar', 'icone' => 'mais'],
+            ['rota' => 'pais.acompanhar', 'rotulo' => 'Diário', 'icone' => 'casa'],
+        ];
+    ?>
+<header class="topo topo-portal">
+    <div class="topo-interno">
+        <a class="marca" href="<?= e(url($portal === 'colaboradora' ? 'portal' : 'portal.gestao')) ?>">
+            <?= logo_marca(30) ?>
+            <span class="marca-texto">portal <span class="leve">da</span> colaboradora</span>
+        </a>
+        <?php if ($usuario !== null): ?>
+            <nav class="menu" aria-label="Menu do portal">
+                <?php if ($portal === 'colaboradora'): ?>
+                    <a href="<?= e(url('portal')) ?>">Meus Pagamentos</a>
+                    <a href="<?= e(url('portal.documentos')) ?>">Documentos</a>
+                    <a href="<?= e(url('portal.vt')) ?>">Vale-transporte</a>
+                <?php else: ?>
+                    <a href="<?= e(url('portal.gestao')) ?>">Gestão</a>
+                    <a href="<?= e(url('portal.gestao.novo')) ?>">Importar documento</a>
+                <?php endif; ?>
+            </nav>
+            <div class="usuario-area">
+                <a class="botao botao-secundario botao-pequeno botao-voltar-diario"
+                   href="<?= e(url($papel === 'cuidador' ? 'cuidador.dia' : 'pais.acompanhar')) ?>">
+                    <?= icone_ui('seta-esq', 15, 'currentColor', 2.4) ?> Voltar ao Diário do Bebê</a>
+                <span class="usuario-nome"><?= e($usuario['nome']) ?></span>
+                <a class="botao botao-contorno botao-pequeno" href="<?= e(url('logout')) ?>">Sair</a>
+            </div>
+        <?php endif; ?>
+    </div>
+</header>
+<?php else: ?>
 <header class="topo">
     <div class="topo-interno">
         <a class="marca" href="<?= e(url('home')) ?>">
@@ -109,6 +156,11 @@ if ($usuario !== null) {
                     <a href="<?= e(url('suprimentos.index')) ?>">Suprimentos</a>
                     <a href="<?= e(url('compras')) ?>">Compras</a>
                     <a href="<?= e(url('turnos.index')) ?>">Turnos</a>
+                <?php endif; ?>
+                <?php if ($papel === 'cuidador'): ?>
+                    <a href="<?= e(url('portal')) ?>" class="menu-portal">Meus pagamentos</a>
+                <?php elseif ($papel === 'admin_familia'): ?>
+                    <a href="<?= e(url('portal.gestao')) ?>" class="menu-portal">Colaboradora</a>
                 <?php endif; ?>
                 <?php if ($papel === 'super_admin'): ?>
                     <a href="<?= e(url('admin.painel')) ?>">Painel</a>
@@ -140,6 +192,7 @@ if ($usuario !== null) {
         <?php endif; ?>
     </div>
 </header>
+<?php endif; ?>
 
 <main id="conteudo" class="conteudo">
     <?php foreach (Sessao::consumirFlashes() as $flash): ?>
@@ -155,7 +208,7 @@ if ($usuario !== null) {
 // formulários de registro já têm o próprio botão/fluxo, então ficam de fora.
 $podeRegistrar = in_array($papel, ['cuidador', 'responsavel', 'admin_familia'], true);
 $telaDeRegistro = str_starts_with($caminhoAtual, '/meu-dia') || str_starts_with($caminhoAtual, '/registrar');
-if ($usuario !== null && $podeRegistrar && !$telaDeRegistro): ?>
+if ($usuario !== null && $podeRegistrar && !$telaDeRegistro && $portal === null): ?>
     <a class="fab-registrar fab-global" href="<?= e(url('cuidador.dia')) ?>?registrar=1"
        aria-label="Registrar agora" title="Registrar agora">
         <?= icone_ui('mais', 26, '#FFFFFF', 2.8) ?>

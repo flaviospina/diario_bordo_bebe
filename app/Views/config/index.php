@@ -22,6 +22,12 @@
             <h3><?= icone_ui('estrela', 20, '#3E6A64') ?> Categorias</h3>
             <p class="texto-apoio">Escolha o que aparece para o cuidador e as ações rápidas.</p>
         </a>
+        <?php if (\App\Core\Autenticacao::papel() === 'admin_familia' || (new \App\Services\ServicoFolha())->podeGerenciar()): ?>
+            <a class="cartao cartao-link" href="<?= e(url('portal.gestao')) ?>">
+                <h3><?= icone_ui('documento', 20, '#5A539E') ?> Gestão da Colaboradora</h3>
+                <p class="texto-apoio">Contracheques, pagamentos, vale-transporte, férias/13º e histórico de acessos — Portal da Colaboradora.</p>
+            </a>
+        <?php endif; ?>
         <a class="cartao cartao-link" href="<?= e(url('auditoria.index')) ?>">
             <h3><?= icone_ui('lupa', 20, '#3E6A64') ?> Auditoria</h3>
             <p class="texto-apoio">Histórico de edições, acessos e aprovações.</p>

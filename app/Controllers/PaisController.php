@@ -61,8 +61,15 @@ final class PaisController
             }
         }
 
+        $categoriasAtivas = (new \App\Repositories\RepositorioCategorias())->ativasParaFamilia((array)$config->obter('categorias_inativas'));
+        $rapidas = array_values(array_filter(
+            $categoriasAtivas,
+            static fn(array $c): bool => in_array($c['slug'], (array)$config->obter('acoes_rapidas'), true)
+        ));
+
         Visao::exibir('pais/acompanhar', [
             'titulo' => 'Acompanhar',
+            'rapidas' => \App\Core\Autenticacao::temPapel('responsavel', 'admin_familia') ? $rapidas : [],
             'crianca' => $crianca,
             'criancas' => (new RepositorioCriancas())->listar(),
             'dia' => $dia,

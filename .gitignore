@@ -17,3 +17,8 @@ Thumbs.db
 # Python
 __pycache__/
 *.pyc
+
+# Documentos trabalhistas (Portal da Colaboradora) — nunca versionar
+storage/folha/*
+!storage/folha/.htaccess
+!storage/folha/.gitkeep
