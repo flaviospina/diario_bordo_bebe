@@ -347,6 +347,11 @@
                     <li>A lista de compras mostra o progresso (quantos itens já estão no carrinho), filtros
                         <em>Pendentes / No carrinho</em>, impressão e <strong>Desmarcar tudo</strong> para reaproveitar a lista.
                         Adicione ou remova itens à vontade.</li>
+                    <li><strong>Importar planejamento 09/11–30/11</strong> carrega o cardápio planejado do mês (fruta da manhã,
+                        almoço, fruta da tarde e jantar de cada dia) com prévia antes de aplicar: o que vocês já escreveram é
+                        preservado e pode ser importado de novo sem duplicar. Dias com <strong>ovo</strong> ou <strong>peixe</strong>
+                        mostram ⚠️ para confirmar a introdução com a pediatra. É só planejamento — o que o bebê comeu continua
+                        sendo registrado pela cuidadora.</li>
                     <li><strong>Nova semana a partir de</strong> uma data cria a próxima semana com os itens do modelo,
                         todos desmarcados; se já tinha marcado itens no HTML antigo da lista, use <strong>Importar marcações</strong>
                         (o app lê só o estado salvo no arquivo, sem executar nada).</li>

@@ -70,6 +70,14 @@ $urlBase = url('compras') . '?crianca=' . rawurlencode((string)$crianca['slug'])
                 <button type="submit" class="botao botao-primario">Carregar a semana-modelo</button>
             </form>
         <?php endif; ?>
+        <?php $plano = \App\Services\ServicoCardapio::planejamento(); ?>
+        <form method="post" action="<?= e(url('compras.acao')) ?>" class="form-inline" style="margin-bottom:.9rem; align-items:center; gap:.6rem">
+            <?= Csrf::campo() ?>
+            <input type="hidden" name="crianca" value="<?= e($crianca['slug']) ?>">
+            <input type="hidden" name="acao" value="planejamento_preparar">
+            <button type="submit" class="botao botao-secundario">Importar planejamento <?= e(data_br($plano['inicio'] . ' 00:00:00', 'd/m')) ?>–<?= e(data_br($plano['fim'] . ' 00:00:00', 'd/m')) ?></button>
+            <span class="texto-apoio"><?= (int)$plano['totais']['dias'] ?> dias · <?= (int)$plano['totais']['refeicoes'] ?> refeições planejadas (2 frutas, almoço e jantar). Você vê a prévia antes de aplicar; o que vocês já escreveram é preservado.</span>
+        </form>
         <form method="post" action="<?= e(url('compras.acao')) ?>" class="formulario">
             <?= Csrf::campo() ?>
             <input type="hidden" name="crianca" value="<?= e($crianca['slug']) ?>">
@@ -118,13 +126,16 @@ $urlBase = url('compras') . '?crianca=' . rawurlencode((string)$crianca['slug'])
                 <div class="tabela-rolavel"><table class="tabela tabela-compacta tabela-cardapio">
                     <thead><tr><th>Dia</th><th>Fruta da manhã</th><th>Fruta da tarde</th><th>Almoço</th><th>Jantar</th></tr></thead>
                     <tbody>
-                    <?php foreach ($dias as $dia): $d = (string)$dia['data']; $ehHoje = $d === hoje(); ?>
+                    <?php foreach ($dias as $dia): $d = (string)$dia['data']; $ehHoje = $d === hoje(); $alertasDia = \App\Services\ServicoCardapio::alertasDoDia($dia); ?>
                         <tr class="<?= $ehHoje ? 'linha-hoje' : '' ?>">
-                            <td><strong><?= e($seg[(int)date('w', strtotime($d))]) ?></strong><br><small><?= e(data_br($d . ' 00:00:00', 'd/m')) ?></small></td>
+                            <td><strong><?= e($seg[(int)date('w', strtotime($d))]) ?></strong><br><small><?= e(data_br($d . ' 00:00:00', 'd/m')) ?></small>
+                                <?php if (!empty($dia['planejado_json'])): ?><br><small class="chip-planejado">Planejado</small><?php endif; ?></td>
                             <td><input type="text" name="dias[<?= e($d) ?>][fruta_manha]" value="<?= e((string)$dia['fruta_manha']) ?>" maxlength="160"></td>
                             <td><input type="text" name="dias[<?= e($d) ?>][fruta_tarde]" value="<?= e((string)$dia['fruta_tarde']) ?>" maxlength="160"></td>
-                            <td><input type="text" name="dias[<?= e($d) ?>][almoco]" value="<?= e((string)$dia['almoco']) ?>" maxlength="255"></td>
-                            <td><input type="text" name="dias[<?= e($d) ?>][jantar]" value="<?= e((string)$dia['jantar']) ?>" maxlength="255" placeholder="—"></td>
+                            <td><input type="text" name="dias[<?= e($d) ?>][almoco]" value="<?= e((string)$dia['almoco']) ?>" maxlength="255">
+                                <?php foreach ($alertasDia['almoco'] ?? [] as $a): ?><small class="alerta-alergenico" title="<?= e($a['orientacao']) ?>">⚠️ <?= e($a['alimento']) ?> — confirmar com a pediatra</small><?php endforeach; ?></td>
+                            <td><input type="text" name="dias[<?= e($d) ?>][jantar]" value="<?= e((string)$dia['jantar']) ?>" maxlength="255" placeholder="—">
+                                <?php foreach ($alertasDia['jantar'] ?? [] as $a): ?><small class="alerta-alergenico" title="<?= e($a['orientacao']) ?>">⚠️ <?= e($a['alimento']) ?> — confirmar com a pediatra</small><?php endforeach; ?></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
@@ -136,12 +147,16 @@ $urlBase = url('compras') . '?crianca=' . rawurlencode((string)$crianca['slug'])
                 <thead><tr><th>Dia</th><th>Manhã</th><th>Tarde</th><th>Almoço</th><th>Jantar</th></tr></thead>
                 <tbody>
                 <?php foreach ($dias as $dia): $d = (string)$dia['data']; ?>
+                    <?php $alertasDia = \App\Services\ServicoCardapio::alertasDoDia($dia); ?>
                     <tr class="<?= $d === hoje() ? 'linha-hoje' : '' ?>">
-                        <td><strong><?= e($seg[(int)date('w', strtotime($d))]) ?></strong> <?= e(data_br($d . ' 00:00:00', 'd/m')) ?></td>
+                        <td><strong><?= e($seg[(int)date('w', strtotime($d))]) ?></strong> <?= e(data_br($d . ' 00:00:00', 'd/m')) ?>
+                            <?php if (!empty($dia['planejado_json'])): ?><br><small class="chip-planejado">Planejado</small><?php endif; ?></td>
                         <td><?= e((string)($dia['fruta_manha'] ?? '—')) ?></td>
                         <td><?= e((string)($dia['fruta_tarde'] ?? '—')) ?></td>
-                        <td><?= e((string)($dia['almoco'] ?? '—')) ?></td>
-                        <td><?= $dia['jantar'] !== null && $dia['jantar'] !== '' ? e((string)$dia['jantar']) : '<span class="texto-apoio">—</span>' ?></td>
+                        <td><?= e((string)($dia['almoco'] ?? '—')) ?>
+                            <?php foreach ($alertasDia['almoco'] ?? [] as $a): ?><small class="alerta-alergenico" title="<?= e($a['orientacao']) ?>">⚠️ <?= e($a['alimento']) ?> — confirmar com a pediatra</small><?php endforeach; ?></td>
+                        <td><?= $dia['jantar'] !== null && $dia['jantar'] !== '' ? e((string)$dia['jantar']) : '<span class="texto-apoio">—</span>' ?>
+                            <?php foreach ($alertasDia['jantar'] ?? [] as $a): ?><small class="alerta-alergenico" title="<?= e($a['orientacao']) ?>">⚠️ <?= e($a['alimento']) ?> — confirmar com a pediatra</small><?php endforeach; ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>

@@ -91,6 +91,39 @@ final class ComprasController
             }
             $voltar($resultado['semana_id']);
         }
+        // ── Planejamento alimentar importado (Rodada 8) ──────
+        if (($acao === 'planejamento_preparar' || $acao === 'planejamento_aplicar') && $podeEditar) {
+            $plano = ServicoCardapio::planejamento();
+            $aplicar = $acao === 'planejamento_aplicar';
+            $sobrescrever = $aplicar && $requisicao->post('sobrescrever_manuais') === '1';
+            try {
+                $resultado = $servico->importarPlanejamento((int)$crianca['id'], $plano, $aplicar, $sobrescrever);
+            } catch (\Throwable $e) {
+                error_log('Importação do planejamento falhou: ' . $e->getMessage());
+                Sessao::flash('erro', 'A importação falhou e nada foi gravado (transação desfeita). Tente de novo.');
+                $voltar();
+            }
+            if (!empty($resultado['erros'])) {
+                Sessao::flash('erro', 'Arquivo de planejamento inválido: ' . implode(' ', array_slice($resultado['erros'], 0, 3)));
+                $voltar();
+            }
+            if (!$aplicar) {
+                Visao::exibir('compras/planejamento', [
+                    'titulo' => 'Importar planejamento',
+                    'crianca' => $crianca,
+                    'plano' => $plano,
+                    'resumo' => $resultado,
+                ]);
+            }
+            $alterados = $resultado['criar'] + $resultado['atualizar'] + $resultado['sobrescritos'];
+            Sessao::flash('sucesso', 'Planejamento de ' . data_br($plano['inicio'] . ' 00:00:00', 'd/m') . ' a ' . data_br($plano['fim'] . ' 00:00:00', 'd/m')
+                . ' aplicado: ' . $resultado['criar'] . ' refeições novas, ' . $resultado['atualizar'] . ' atualizadas, '
+                . $resultado['identicos'] . ' já idênticas, ' . $resultado['conflitos'] . ' preservadas (editadas por vocês)'
+                . ($resultado['sobrescritos'] > 0 ? ', ' . $resultado['sobrescritos'] . ' sobrescritas a seu pedido' : '') . '.'
+                . ($alterados > 0 ? ' A cuidadora foi avisada.' : ' Nada mudou.'));
+            $semanaInicio = $repositorio->semanaPorInicio((int)$crianca['id'], (string)$plano['inicio']);
+            $voltar($semanaInicio !== null ? (int)$semanaInicio['id'] : null);
+        }
         if ($acao === 'nova_semana' && $podeEditar) {
             $inicio = (string)$requisicao->post('inicio', '');
             if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $inicio) !== 1) {

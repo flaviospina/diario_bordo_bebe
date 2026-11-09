@@ -93,6 +93,28 @@ final class RepositorioCardapio extends RepositorioBase
     }
 
     /** @return array<int,array<string,mixed>> os dias da semana em ordem */
+    /** Guarda o planejamento importado e os alertas do dia (não mexe no texto do cardápio). */
+    public function salvarPlanejamentoDia(int $semanaId, string $data, array $planejado, array $alertas): void
+    {
+        $this->executar(
+            'UPDATE cardapio_dias SET planejado_json = :p, alertas_json = :a
+              WHERE familia_id = :familia_id AND semana_id = :semana AND data = :data',
+            ['semana' => $semanaId, 'data' => $data, 'p' => json_encode($planejado, JSON_UNESCAPED_UNICODE),
+             'a' => $alertas === [] ? null : json_encode($alertas, JSON_UNESCAPED_UNICODE)]
+        );
+    }
+
+    /** Dias de um intervalo (qualquer semana) da criança. */
+    public function diasNoIntervalo(int $criancaId, string $inicio, string $fim): array
+    {
+        return $this->buscarTodos(
+            'SELECT d.*, s.titulo AS semana_titulo FROM cardapio_dias d JOIN cardapios_semanas s ON s.id = d.semana_id
+              WHERE d.familia_id = :familia_id AND s.crianca_id = :crianca AND d.data BETWEEN :inicio AND :fim
+              ORDER BY d.data',
+            ['crianca' => $criancaId, 'inicio' => $inicio, 'fim' => $fim]
+        );
+    }
+
     public function diasDaSemana(int $semanaId): array
     {
         return $this->buscarTodos(

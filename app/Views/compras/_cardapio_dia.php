@@ -19,6 +19,8 @@ $temAlgo = $cardapioDia !== null && array_filter(array_map(
     array_keys($refeicoesCardapio)
 )) !== [];
 $urlCompras = url('compras') . '?crianca=' . rawurlencode((string)$crianca['slug']);
+$alertasDoDia = \App\Services\ServicoCardapio::alertasDoDia($cardapioDia);
+$ehPlanejado = $cardapioDia !== null && !empty($cardapioDia['planejado_json']);
 $urlRegistrar = static fn(string $refeicao): string => url('registro.criar', ['categoria' => 'introducao-alimentar'])
     . '?' . http_build_query(['crianca' => $crianca['slug'], 'refeicao' => $refeicao, 'cardapio' => 1, 'data' => $dataCardapio]);
 ?>
@@ -27,7 +29,7 @@ $urlRegistrar = static fn(string $refeicao): string => url('registro.criar', ['c
         <span class="selo-categoria" style="width:38px;height:38px;background:var(--pessego-suave)"><?= icone_ui('carrinho-compras', 19, 'var(--pessego-escuro)') ?></span>
         <div style="min-width:0">
             <h3 style="margin:0">Cardápio de <?= $dataCardapio === hoje() ? 'hoje' : e(data_br($dataCardapio . ' 00:00:00', 'd/m')) ?></h3>
-            <span class="texto-apoio"><?= $cardapioDia !== null ? e((string)$cardapioDia['semana_titulo']) : 'Nenhuma semana montada para esta data' ?></span>
+            <span class="texto-apoio"><?= $cardapioDia !== null ? e((string)$cardapioDia['semana_titulo']) : 'Nenhuma semana montada para esta data' ?><?= $ehPlanejado ? ' · <span class="chip-planejado">Planejado</span>' : '' ?></span>
         </div>
         <a class="botao botao-secundario botao-pequeno" style="margin-left:auto;flex-shrink:0" href="<?= e($urlCompras) ?>">Lista de compras</a>
     </div>
@@ -39,6 +41,9 @@ $urlRegistrar = static fn(string $refeicao): string => url('registro.criar', ['c
                     <div style="min-width:0">
                         <strong><?= e($rotulo) ?></strong>
                         <span class="cardapio-texto"><?= e($texto) ?></span>
+                        <?php foreach ($alertasDoDia[$chave] ?? [] as $alerta): ?>
+                            <span class="alerta-alergenico">⚠️ <?= e($alerta['alimento']) ?>: <?= e($alerta['orientacao']) ?></span>
+                        <?php endforeach; ?>
                     </div>
                     <?php if (!empty($podeRegistrarRefeicao) && in_array($refeicao, ['almoco', 'jantar'], true)): ?>
                         <a class="botao botao-primario botao-pequeno" style="flex-shrink:0"

@@ -97,6 +97,200 @@ final class ServicoCardapio
         return ['semana_id' => $semanaId, 'criada' => true];
     }
 
+    // ── Planejamento alimentar importado (Rodada 8) ───────────
+
+    /** Planejamento 09–30/11/2026 enviado pela família (dados em app/Dados). */
+    public static function planejamento(): array
+    {
+        return require RAIZ_PROJETO . '/app/Dados/planejamento_zuno_nov2026.php';
+    }
+
+    /** Valida a fonte: datas consecutivas, 4 refeições/dia, totais e composição dos pratos. @return string[] erros */
+    public static function validarPlanejamento(array $plano): array
+    {
+        $erros = [];
+        $dias = $plano['dias'] ?? [];
+        $esperado = $plano['totais'] ?? [];
+        if (count($dias) !== (int)($esperado['dias'] ?? count($dias))) {
+            $erros[] = 'Quantidade de dias diferente do esperado.';
+        }
+        $anterior = null;
+        $frutas = $almocos = $jantares = $ovo = $peixe = 0;
+        foreach ($dias as $dia) {
+            $data = (string)($dia['data'] ?? '');
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $data) !== 1) {
+                $erros[] = "Data inválida: {$data}";
+                continue;
+            }
+            if ($anterior !== null && date('Y-m-d', strtotime($anterior . ' +1 day')) !== $data) {
+                $erros[] = "Datas não consecutivas entre {$anterior} e {$data}.";
+            }
+            $anterior = $data;
+            $refeicoes = $dia['refeicoes'] ?? [];
+            if (array_keys($refeicoes) !== ['fruta_manha', 'almoco', 'fruta_tarde', 'jantar']) {
+                $erros[] = "{$data}: as 4 refeições (fruta da manhã, almoço, fruta da tarde, jantar) não estão completas.";
+                continue;
+            }
+            foreach ($refeicoes as $slot => $r) {
+                if (trim((string)($r['descricao'] ?? '')) === '' || ($r['alimentos'] ?? []) === []) {
+                    $erros[] = "{$data}/{$slot}: refeição sem descrição ou alimentos.";
+                }
+                $grupos = array_column($r['alimentos'] ?? [], 'grupo');
+                $nomes = mb_strtolower(implode(' ', array_column($r['alimentos'] ?? [], 'nome')));
+                if (in_array($slot, ['almoco', 'jantar'], true)) {
+                    $slot === 'almoco' ? $almocos++ : $jantares++;
+                    foreach (['cereal_ou_tuberculo' => 'cereal/tubérculo', 'leguminosa' => 'leguminosa', 'proteina' => 'proteína'] as $g => $rotulo) {
+                        if (!in_array($g, $grupos, true)) {
+                            $erros[] = "{$data}/{$slot}: falta {$rotulo}.";
+                        }
+                    }
+                    if (!in_array('legume', $grupos, true) && !in_array('verdura', $grupos, true)) {
+                        $erros[] = "{$data}/{$slot}: falta hortaliça.";
+                    }
+                    if (str_contains($nomes, 'ovo')) { $ovo++; }
+                    if (str_contains($nomes, 'peixe')) { $peixe++; }
+                } else {
+                    $frutas++;
+                }
+            }
+        }
+        foreach (['frutas' => $frutas, 'almocos' => $almocos, 'jantares' => $jantares, 'com_ovo' => $ovo, 'com_peixe' => $peixe] as $chave => $valor) {
+            if (isset($esperado[$chave]) && (int)$esperado[$chave] !== $valor) {
+                $erros[] = "Total de {$chave} = {$valor}, esperado {$esperado[$chave]}.";
+            }
+        }
+        return $erros;
+    }
+
+    /**
+     * Importa o planejamento para a criança — idempotente e sem sobrescrever
+     * edição manual: cada refeição é classificada como criar (vazia), idêntica,
+     * atualizar (valor da importação anterior ou copiado do modelo) ou conflito
+     * (texto escrito pelos pais — preservado, salvo se $sobrescreverManuais).
+     * Com $aplicar = false é só a prévia (dry-run). Nunca toca compras, itens
+     * marcados, registros do diário ou datas fora do intervalo.
+     */
+    public function importarPlanejamento(int $criancaId, array $plano, bool $aplicar, bool $sobrescreverManuais = false): array
+    {
+        $erros = self::validarPlanejamento($plano);
+        if ($erros !== []) {
+            return ['erros' => $erros];
+        }
+        $repositorio = new RepositorioCardapio($this->familiaId);
+        $modelo = self::modelo();
+        $slots = ['fruta_manha', 'almoco', 'fruta_tarde', 'jantar'];
+        $resumo = ['criar' => 0, 'identicos' => 0, 'atualizar' => 0, 'conflitos' => 0, 'sobrescritos' => 0,
+                   'semanas_novas' => [], 'linhas' => [], 'erros' => []];
+        $porSemana = [];
+        foreach ($plano['dias'] as $dia) {
+            $data = (string)$dia['data'];
+            $segunda = date('Y-m-d', strtotime($data . ' -' . ((int)date('N', strtotime($data)) - 1) . ' days'));
+            $porSemana[$segunda][$data] = $dia;
+        }
+        $bd = \App\Core\BancoDados::conexao();
+        if ($aplicar) {
+            $bd->beginTransaction();
+        }
+        try {
+            foreach ($porSemana as $segunda => $diasPlanejados) {
+                $semana = $repositorio->semanaPorInicio($criancaId, $segunda);
+                $fim = date('Y-m-d', strtotime($segunda . ' +6 days'));
+                $semanaId = $semana !== null ? (int)$semana['id'] : 0;
+                if ($semana === null) {
+                    $resumo['semanas_novas'][] = data_br($segunda . ' 00:00:00', 'd/m') . '–' . data_br($fim . ' 00:00:00', 'd/m/Y');
+                    if ($aplicar) {
+                        $semanaId = $repositorio->criarSemana($criancaId, 'Planejamento ' . data_br($segunda . ' 00:00:00', 'd/m') . ' a ' . data_br($fim . ' 00:00:00', 'd/m/Y'),
+                            $segunda, $fim, 'modelo', 'Cardápio planejado (' . (string)$plano['dataset_id'] . ') — o consumo real é registrado no diário.',
+                            Autenticacao::estaLogado() ? Autenticacao::id() : null);
+                        for ($i = 0; $i < 7; $i++) {
+                            $d = date('Y-m-d', strtotime($segunda . " +{$i} days"));
+                            $repositorio->salvarDia($semanaId, $d, null, null, null, null, [], []);
+                        }
+                    }
+                }
+                $existentes = [];
+                if ($semanaId > 0) {
+                    foreach ($repositorio->diasDaSemana($semanaId) as $linha) {
+                        $existentes[(string)$linha['data']] = $linha;
+                    }
+                }
+                foreach ($diasPlanejados as $data => $dia) {
+                    $atual = $existentes[$data] ?? null;
+                    $anteriorImportado = $atual !== null && !empty($atual['planejado_json']) ? (json_decode((string)$atual['planejado_json'], true) ?: []) : [];
+                    $indiceModelo = (int)date('N', strtotime($data)) - 1;
+                    $linhaModelo = $modelo['dias'][$indiceModelo] ?? [];
+                    $novo = [];
+                    $planejado = [];
+                    $alertas = [];
+                    $estados = [];
+                    foreach ($slots as $slot) {
+                        $p = trim((string)$dia['refeicoes'][$slot]['descricao']);
+                        $planejado[$slot] = $p;
+                        if (($dia['refeicoes'][$slot]['alertas'] ?? []) !== []) {
+                            $alertas[$slot] = array_map(static fn(array $a): array => ['alimento' => (string)$a['alimento'], 'orientacao' => (string)$a['orientacao']], $dia['refeicoes'][$slot]['alertas']);
+                        }
+                        $c = trim((string)($atual[$slot] ?? ''));
+                        if ($c === $p) {
+                            $estado = 'identico';
+                        } elseif ($c === '') {
+                            $estado = 'criar';
+                        } elseif ($c === trim((string)($anteriorImportado[$slot] ?? "\0")) || $c === trim((string)($linhaModelo[$slot] ?? "\0"))) {
+                            $estado = 'atualizar';
+                        } else {
+                            $estado = $sobrescreverManuais ? 'sobrescrever' : 'conflito';
+                        }
+                        $estados[$slot] = ['estado' => $estado, 'atual' => $c, 'planejado' => $p];
+                        $novo[$slot] = in_array($estado, ['criar', 'atualizar', 'sobrescrever', 'identico'], true) ? $p : $c;
+                        $resumo[match ($estado) { 'criar' => 'criar', 'identico' => 'identicos', 'atualizar' => 'atualizar', 'sobrescrever' => 'sobrescritos', default => 'conflitos' }]++;
+                    }
+                    $resumo['linhas'][] = ['data' => $data, 'dia_semana' => (string)$dia['dia_semana'], 'slots' => $estados, 'alertas' => $alertas];
+                    if ($aplicar && $semanaId > 0) {
+                        $repositorio->salvarDia($semanaId, $data, $novo['fruta_manha'] ?: null, $novo['fruta_tarde'] ?: null, $novo['almoco'] ?: null, $novo['jantar'] ?: null,
+                            self::slugsDoTexto($novo['almoco']), self::slugsDoTexto($novo['jantar']));
+                        $repositorio->salvarPlanejamentoDia($semanaId, $data, $planejado, $alertas);
+                        $repositorio->tocarSemana($semanaId);
+                    }
+                }
+            }
+            if ($aplicar) {
+                $bd->commit();
+            }
+        } catch (\Throwable $e) {
+            if ($aplicar && $bd->inTransaction()) {
+                $bd->rollBack();
+            }
+            throw $e;
+        }
+        if ($aplicar && ($resumo['criar'] + $resumo['atualizar'] + $resumo['sobrescritos']) > 0) {
+            $this->avisarCuidadoras(
+                'Cardápio planejado até ' . data_br((string)$plano['fim'] . ' 00:00:00', 'd/m'),
+                'Os pais carregaram o planejamento das refeições de ' . data_br((string)$plano['inicio'] . ' 00:00:00', 'd/m') . ' a '
+                . data_br((string)$plano['fim'] . ' 00:00:00', 'd/m') . ': fruta da manhã, almoço, fruta da tarde e jantar. Veja o cardápio de cada dia no Meu Dia.',
+                url('compras') . '?crianca=' . $criancaId
+            );
+        }
+        return $resumo;
+    }
+
+    /** Alertas do dia que ainda fazem sentido para o texto atual (ex.: pais trocaram o ovo → alerta some). */
+    public static function alertasDoDia(?array $dia): array
+    {
+        if ($dia === null || empty($dia['alertas_json'])) {
+            return [];
+        }
+        $alertas = json_decode((string)$dia['alertas_json'], true) ?: [];
+        $saida = [];
+        foreach ($alertas as $slot => $lista) {
+            $texto = mb_strtolower((string)($dia[$slot] ?? ''));
+            foreach ((array)$lista as $a) {
+                if ($texto !== '' && str_contains($texto, mb_strtolower((string)$a['alimento']))) {
+                    $saida[$slot][] = $a;
+                }
+            }
+        }
+        return $saida;
+    }
+
     // ── Cardápio ──────────────────────────────────────────────
 
     /**
