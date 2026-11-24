@@ -7,7 +7,7 @@
 O que esta rodada instala:
 1. **Importação do planejamento alimentar de 09 a 30/11/2026** (pacote
    "Refeições Zuno"): 22 dias, 88 refeições (44 frutas, 22 almoços e 22
-   jantares), com ovo em 18, 20, 25 e 30/11 e peixe em 28 e 30/11 sinalizados
+   jantares), com ovo em 18, 20, 26, 27, 28, 29 e 30/11 e peixe em 30/11 sinalizados
    para confirmação com a pediatra. Status sempre **Planejado**.
 2. **Prévia antes de aplicar** (nada é gravado na prévia) e **importação
    idempotente**: repetir não duplica; o que vocês escreveram à mão é
@@ -50,7 +50,7 @@ duas colunas (`planejado_json`, `alertas_json`) em `cardapio_dias`.
 
 ## PARTE D — Conferir
 - Babá → Meu Dia → navegue até 18/11: cartão "Cardápio de 18/11 · Planejado"
-  com ⚠️ Ovo e a orientação; 28/11 mostra ⚠️ Peixe.
+  com ⚠️ Ovo e a orientação; 30/11 mostra ⚠️ Peixe e ⚠️ Ovo.
 - O almoço/jantar registrados pela cuidadora continuam exigindo foto e
   vêm pré-preenchidos com o planejado do dia (ajustáveis).
 
